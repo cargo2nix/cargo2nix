@@ -1,0 +1,11 @@
+[package]
+name = "cargo2nix"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+futures = "0.1.27"
+failure = "0.1.5"
+derive_more = "0.14.0"
+tokio = "0.1.19"
+tokio-process = "0.2.3"
