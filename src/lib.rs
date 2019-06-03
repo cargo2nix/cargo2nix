@@ -8,12 +8,6 @@ extern crate failure;
 extern crate futures;
 
 pub mod http_crate;
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4)
-    }
-}
+#[macro_use]
+pub mod ast;
+pub mod codegen;
