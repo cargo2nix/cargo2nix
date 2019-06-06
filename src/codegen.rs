@@ -21,8 +21,12 @@ pub struct Package {
     dependencies: Option<Vec<String>>,
 }
 
+fn package_id(source: &str, name: &str, version: &str) -> String {
+    format!("{} {} ({})", name, version, source)
+}
+
 fn checksum_key(source: &str, name: &str, version: &str) -> String {
-    format!("checksum {} {} ({})", name, version, source)
+    format!("checksum {}", package_id(source, name, version))
 }
 
 pub fn generate(lockfile: &LockFile) -> Rc<Expr> {
@@ -64,6 +68,8 @@ pub fn generate(lockfile: &LockFile) -> Rc<Expr> {
                 app!(
                     mk_rust_crate,
                     attrs!({
+                        attrs_path!(key!("package-id")) =>
+                            nix_string!(package_id(source, &package.name, &package.version));
                         attrs_path!(key!("src")) => Rc::new(src);
                         attrs_path!(key!("dependencies")) => {
                             Rc::new(
@@ -96,10 +102,13 @@ pub fn generate(lockfile: &LockFile) -> Rc<Expr> {
                 config,
                 ...
             }) =>
-                Rc::new(AttrSet {
-                    recursive: false,
-                    attrs: package_attrs,
-                }.into())
+                Rc::new(lambda!(
+                    symbolic ident!("self") =>
+                        Rc::new(AttrSet {
+                            recursive: false,
+                            attrs: package_attrs,
+                        }.into())
+                ).into())
         )
         .into(),
     )

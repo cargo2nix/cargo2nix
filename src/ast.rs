@@ -110,8 +110,10 @@ pub struct Lam {
 #[doc(hidden)]
 macro_rules! symbolic_arg {
     ($arg:expr) => {
-        let arg: $crate::ast::Ident = $arg.as_ref().clone();
-        $crate::ast::LamArg::Symbolic(arg)
+        {
+            let arg: $crate::ast::Ident = $arg.as_ref().clone();
+            $crate::ast::LamArg::Symbolic(arg)
+        }
     };
 }
 
@@ -737,7 +739,7 @@ mod tests {
         let s = s.into_inner();
         assert_eq!(
             r##"(a@{
-  args
+    args
   , args2 ? 0
   , abc ? ""
   , ...
