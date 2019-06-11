@@ -1,5 +1,5 @@
 //! A subset of Nix context-free grammar for expression generation
-use std::{collections::BTreeMap, rc::Rc};
+use std::{collections::BTreeMap, sync::Arc};
 
 pub trait Write {
     type Error;
@@ -53,7 +53,7 @@ pub trait Generate {
 }
 
 #[derive(Clone)]
-pub struct App(pub Rc<Expr>, pub Rc<Expr>);
+pub struct App(pub Arc<Expr>, pub Arc<Expr>);
 
 impl Generate for App {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
@@ -80,7 +80,7 @@ macro_rules! app {
     ($f:expr, $a: expr) => {{
         let f: $crate::ast::Expr = $f.as_ref().clone().into();
         let a: $crate::ast::Expr = $a.as_ref().clone().into();
-        $crate::ast::App(::std::rc::Rc::new(f), ::std::rc::Rc::new(a))
+        $crate::ast::App(::std::sync::Arc::new(f), ::std::sync::Arc::new(a))
     }};
 }
 
@@ -103,7 +103,7 @@ impl Generate for LamArg {
 #[derive(Clone)]
 pub struct Lam {
     pub arg: LamArg,
-    pub body: Rc<Expr>,
+    pub body: Arc<Expr>,
 }
 
 #[macro_export]
@@ -161,7 +161,7 @@ impl Ident {
 #[macro_use]
 macro_rules! ident {
     ($name:expr) => {
-        ::std::rc::Rc::new($crate::ast::Ident::new($name))
+        ::std::sync::Arc::new($crate::ast::Ident::new($name))
     };
 }
 
@@ -408,7 +408,7 @@ macro_rules! attrs_path {
 #[derive(Clone)]
 pub struct AttrSet {
     pub recursive: bool,
-    pub attrs: BTreeMap<AttrsPath, Rc<Expr>>,
+    pub attrs: BTreeMap<AttrsPath, Arc<Expr>>,
 }
 
 impl Generate for AttrSet {
@@ -434,7 +434,7 @@ impl Generate for AttrSet {
 #[macro_export]
 macro_rules! attrs {
     (@rec $attrs:ident, ) => {
-        ::std::rc::Rc::new(
+        ::std::sync::Arc::new(
             $crate::ast::AttrSet {
                 recursive: true,
                 attrs: $attrs,
@@ -442,7 +442,7 @@ macro_rules! attrs {
         )
     };
     (@nonrec $attrs:ident, ) => {
-        ::std::rc::Rc::new(
+        ::std::sync::Arc::new(
             $crate::ast::AttrSet {
                 recursive: false,
                 attrs: $attrs,
@@ -452,14 +452,14 @@ macro_rules! attrs {
     (@rec $attrs:ident, $key:expr => $val:expr; $($item:tt)*) => {
         {
             let val: $crate::ast::Expr = $val.as_ref().clone().into();
-            $attrs.insert($key, ::std::rc::Rc::new(val));
+            $attrs.insert($key, ::std::sync::Arc::new(val));
             $crate::attrs!(@rec $attrs, $($item)*)
         }
     };
     (@nonrec $attrs:ident, $key:expr => $val:expr; $($item:tt)*) => {
         {
             let val: $crate::ast::Expr = $val.as_ref().clone().into();
-            $attrs.insert($key, ::std::rc::Rc::new(val));
+            $attrs.insert($key, ::std::sync::Arc::new(val));
             $crate::attrs!(@nonrec $attrs, $($item)*)
         }
     };
@@ -479,7 +479,7 @@ macro_rules! attrs {
 
 #[derive(Clone)]
 pub struct Projection {
-    pub record: Rc<Expr>,
+    pub record: Arc<Expr>,
     pub key: Key,
 }
 
@@ -506,9 +506,9 @@ impl Generate for Projection {
 #[macro_export]
 macro_rules! proj {
     ($record:expr, $key:expr) => {
-        ::std::rc::Rc::new(
+        ::std::sync::Arc::new(
             $crate::ast::Expr::from($crate::ast::Projection {
-                record: ::std::rc::Rc::new(
+                record: ::std::sync::Arc::new(
                     $record.as_ref().clone().into()),
                 key: $key,
             }))
@@ -533,7 +533,7 @@ macro_rules! list {
             $(
                 items.push($item.as_ref().clone());
             )+;
-            ::std::rc::Rc::new($crate::ast::List(items))
+            ::std::sync::Arc::new($crate::ast::List(items))
         }
     };
 }
@@ -583,7 +583,7 @@ impl Generate for NixString {
 #[macro_use]
 macro_rules! nix_string {
     ($val:expr) => {
-        ::std::rc::Rc::new($crate::ast::Expr::NixString($crate::ast::NixString::new(
+        ::std::sync::Arc::new($crate::ast::Expr::NixString($crate::ast::NixString::new(
             $val,
         )))
     };
@@ -601,7 +601,7 @@ impl Generate for ConstNum {
 #[macro_export]
 macro_rules! const_num {
     ($val:expr) => {
-        ::std::rc::Rc::new($crate::ast::Expr::ConstNum($crate::ast::ConstNum($val)))
+        ::std::sync::Arc::new($crate::ast::Expr::ConstNum($crate::ast::ConstNum($val)))
     };
 }
 
@@ -687,9 +687,9 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let f = Rc::new(Expr::Ident(Ident::new("f")));
-        let a = Rc::new(Expr::Ident(Ident::new("a")));
-        let f = Rc::new(Expr::App(App(f, a.clone())));
+        let f = Arc::new(Expr::Ident(Ident::new("f")));
+        let a = Arc::new(Expr::Ident(Ident::new("a")));
+        let f = Arc::new(Expr::App(App(f, a.clone())));
         let expr = Expr::App(App(f, a));
         let mut s = FmtWriter::new(String::new());
         expr.generate_word(&mut s).unwrap();
