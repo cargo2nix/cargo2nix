@@ -109,12 +109,10 @@ pub struct Lam {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! symbolic_arg {
-    ($arg:expr) => {
-        {
-            let arg: $crate::ast::Ident = $arg.as_ref().clone();
-            $crate::ast::LamArg::Symbolic(arg)
-        }
-    };
+    ($arg:expr) => {{
+        let arg: $crate::ast::Ident = $arg.as_ref().clone();
+        $crate::ast::LamArg::Symbolic(arg)
+    }};
 }
 
 #[macro_export]
@@ -155,6 +153,9 @@ impl Ident {
             panic!("identifier contains illegal characters, and this is a logical error if you are generating Nix expression mechanically")
         }
         Self(name.as_ref().to_string())
+    }
+    pub fn into_inner(self) -> String {
+        self.0
     }
 }
 
@@ -315,7 +316,7 @@ macro_rules! cons_formal_arg {
     }
 }
 
-const NEED_QUOTE: &[char] = &[' ', '.', '\n', '\r', '\t', '\"', '\\'];
+const NEED_QUOTE: &[char] = &[' ', '.', '\n', '\r', '\t', '\"', '\\', '(', ')', '='];
 
 const QUOTE_MAP: &[(char, &str)] = &[
     ('\\', "\\\\"),
@@ -465,12 +466,14 @@ macro_rules! attrs {
     };
     ({ $($item:tt)* }) => {
         {
+            #[allow(unused_mut)]
             let mut attrs = ::std::collections::BTreeMap::new();
             $crate::attrs!(@nonrec attrs, $($item)*)
         }
     };
     (rec { $($item:tt)* }) => {
         {
+            #[allow(unused_mut)]
             let mut attrs = ::std::collections::BTreeMap::new();
             $crate::attrs!(@rec attrs, $($item)*)
         }
@@ -590,19 +593,35 @@ macro_rules! nix_string {
 }
 
 #[derive(Clone)]
-pub struct ConstNum(pub u64);
+pub enum ConstNum {
+    Signed(i64),
+    Unsigned(u64),
+    Float(f64),
+}
 
 impl Generate for ConstNum {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
-        writer.write_str(format!("{}", self.0).as_str())
+        writer.write_str(
+            match self {
+                ConstNum::Signed(val) => format!("{}", val),
+                ConstNum::Unsigned(val) => format!("{}", val),
+                ConstNum::Float(val) => format!("{}", val),
+            }
+            .as_str(),
+        )
     }
 }
 
-#[macro_export]
-macro_rules! const_num {
-    ($val:expr) => {
-        ::std::sync::Arc::new($crate::ast::Expr::ConstNum($crate::ast::ConstNum($val)))
-    };
+#[derive(Clone)]
+pub struct Optional(pub Option<Arc<Expr>>);
+
+impl Generate for Optional {
+    fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
+        match &self.0 {
+            Some(expr) => expr.generate_word(writer),
+            None => writer.write_str("null"),
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -615,6 +634,7 @@ pub enum Expr {
     NixString(NixString),
     Projection(Projection),
     ConstNum(ConstNum),
+    Optional(Optional),
 }
 
 impl From<App> for Expr {
@@ -677,7 +697,17 @@ impl Generate for Expr {
             NixString(ref s) => s.generate_word(writer),
             Projection(ref p) => p.generate_word(writer),
             ConstNum(ref n) => n.generate_word(writer),
+            Optional(ref n) => n.generate_word(writer),
         }
+    }
+}
+
+impl std::fmt::Display for Expr {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut s = FmtWriter::new(String::new());
+        self.generate_word(&mut s)?;
+        let s = s.into_inner();
+        fmt.write_str(&s)
     }
 }
 
@@ -726,7 +756,7 @@ mod tests {
         let abc = ident!("abc");
         let formal_arg = formal_arg!(a @ {
             args,
-            args2 ? const_num!(0),
+            args2 ? Arc::new(Expr::ConstNum(ConstNum::Signed(0))),
             abc ? nix_string!(""),
             ...
         });
