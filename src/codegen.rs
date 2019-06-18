@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::Arc,
-};
+use std::collections::HashMap;
 
 use failure::{format_err, Error};
 use futures::{stream::iter_ok, Future, Stream};
@@ -11,7 +8,7 @@ use serde::Deserialize;
 use serde_json;
 use tokio_process::CommandExt;
 
-use crate::ast::{App, AttrSet, Expr, List, NixString};
+use crate::ast::{AttrSet, Eq, Expr, Key, List, NixString};
 
 lazy_static! {
     static ref PACKAGE_ID_WITH_SRC: Regex = Regex::new("^(.+) (.+) \\((.+)\\)$").unwrap();
@@ -43,6 +40,12 @@ pub struct Package {
     pub manifest: Expr,
 }
 
+pub struct PackageId {
+    pub name: String,
+    pub version: String,
+    pub source: Option<String>,
+}
+
 #[derive(Clone)]
 pub enum GitReference {
     Branch(String),
@@ -69,7 +72,7 @@ struct GitRepoPin {
     sha256: String,
 }
 
-pub fn generate(packages: Vec<Package>) -> impl Future<Item = Arc<Expr>, Error = Error> {
+pub fn generate(packages: Vec<Package>) -> impl Future<Item = Box<Expr>, Error = Error> {
     let config = ident!("config");
     let mk_rust_crate = ident!("mkRustCrate");
     let sources_to_fetch: Vec<_> = packages
@@ -112,8 +115,8 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Arc<Expr>, Error =
             map.insert(id, pin);
             Ok(map)
         })
-        .and_then(move |git_repo_sha| -> Result<Arc<Expr>, Error> {
-            let mut package_attrs = BTreeMap::new();
+        .and_then(move |git_repo_sha| -> Result<Box<Expr>, Error> {
+            let mut package_attrs = vec![];
             for package in packages {
                 let source = package
                     .source
@@ -143,8 +146,8 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Arc<Expr>, Error =
                     }
                     SourceInfo::None => (attrs!({}), None),
                 };
-                let src: App = app!(
-                    proj!(config, key!("resolver")),
+                let src: Expr = app!(
+                    proj!(config.clone().into(), key!("resolver")),
                     attrs!({
                         attrs_path!(key!("source")) => nix_string!(&source);
                         attrs_path!(key!("name")) => nix_string!(&package.name);
@@ -162,41 +165,37 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Arc<Expr>, Error =
                              ref extern_name,
                              ref package_id,
                          }| {
-                            let dep: Arc<_> = attrs!({
+                            attrs!({
                                 attrs_path!(key!("toml-names")) =>
-                                    Arc::new(
                                         List(
                                             toml_names
                                                 .iter()
                                                 .map(|n| NixString(n.clone()).into())
-                                                .collect()));
+                                                .collect()).into();
                                 attrs_path!(key!("extern-name")) => nix_string!(extern_name);
                                 attrs_path!(key!("package-id")) => nix_string!(package_id);
-                            });
-                            dep.as_ref().clone().into()
+                            })
                         },
                     )
                     .collect();
-                package_attrs.insert(
+                package_attrs.push((
                     attrs_path!(key!(source), key!(package.name), key!(package.version)),
-                    Arc::new(
-                        app!(
-                            mk_rust_crate,
-                            attrs!({
-                                attrs_path!(key!("package-id")) =>
-                                    nix_string!(&package.id);
-                                attrs_path!(key!("src")) => Arc::new(src);
-                                attrs_path!(key!("dependencies")) => Arc::new(List(dependencies));
-                                attrs_path!(key!("cargo-manifest")) => Arc::new(package.manifest);
-                            })
-                        )
-                        .into(),
-                    ),
-                );
+                    app!(
+                        mk_rust_crate.clone().into(),
+                        attrs!({
+                            attrs_path!(key!("package-id")) =>
+                                nix_string!(&package.id);
+                            attrs_path!(key!("src")) => src.into();
+                            attrs_path!(key!("dependencies")) => List(dependencies).into();
+                            attrs_path!(key!("cargo-manifest")) => package.manifest;
+                        })
+                    )
+                    .into(),
+                ));
             }
             let pkgs = ident!("pkgs");
             let call_package = ident!("callPackage");
-            Ok(Arc::new(
+            Ok(Box::new(
                 lambda! (
                     formal formal_arg!({
                         pkgs,
@@ -205,9 +204,9 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Arc<Expr>, Error =
                         config,
                         ...
                     }) =>
-                        Arc::new(lambda!(
+                        Box::new(lambda!(
                             symbolic ident!("self") =>
-                                Arc::new(AttrSet {
+                                Box::new(AttrSet {
                                     recursive: false,
                                     attrs: package_attrs,
                                 }.into())
@@ -216,4 +215,210 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Arc<Expr>, Error =
                 .into(),
             ))
         })
+}
+
+pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
+    let crates_io_index = nix_string!("registry+https://github.com/rust-lang/crates.io-index");
+
+    let pkgs = ident!("pkgs");
+    #[allow(non_snake_case)]
+    let buildPackages = ident!("buildPackages");
+    let lib = ident!("lib");
+    let config = ident!("config");
+    let resolver = ident!("resolver");
+    #[allow(non_snake_case)]
+    let packageFun = ident!("packageFun");
+
+    let bootstrap = ident!("bootstrap");
+
+    #[allow(non_snake_case)]
+    let rustBuilder = "rustBuilder";
+    #[allow(non_snake_case)]
+    let rustLib = "rustLib";
+    #[allow(non_snake_case)]
+    let makePackageSet = "makePackageSet";
+
+    let package_features = List(
+        packages
+            .iter()
+            .map(|p| {
+                app!(
+                    proj!(
+                        pkgs.clone().into(),
+                        key!(rustBuilder),
+                        key!(rustLib),
+                        key!("resolveFeatures")
+                    ),
+                    proj!(
+                        bootstrap.clone().into(),
+                        key!(&p
+                            .source
+                            .as_ref()
+                            .map(String::as_str)
+                            .unwrap_or_else(|| UNKNOWN_SOURCE.as_str())),
+                        key!(&p.name),
+                        key!(&p.version)
+                    )
+                )
+            })
+            .collect(),
+    )
+    .into();
+
+    let features = ident!("features");
+    lambda!(
+        formal formal_arg!({
+            pkgs.clone(),
+            buildPackages.clone(),
+            lib.clone(),
+            resolver.clone(),
+            packageFun.clone(),
+            config.clone(),
+        }) => Box::new(letin!(
+            let
+
+            inherit (lib.clone().into()) ident!("recursiveUpdate");
+            ident!("config'") =>
+                app!(
+                    app!(
+                        proj!(
+                            lib.clone().into(),
+                            key!("recursiveUpdate")),
+                        config.clone().into()),
+                    attrs!({
+                        attrs_path!(key!("resolver")) => {
+                            let source = ident!("source");
+                            let name = ident!("name");
+                            let version = ident!("version");
+                            let sha256 = ident!("sha256");
+                            let args = ident!("args");
+                            lambda!(
+                                formal formal_arg!({
+                                    source.clone(),
+                                    name.clone(),
+                                    version.clone(),
+                                    sha256.clone(),
+                                } @ args.clone()) => Box::new(
+                                    ifelse!(
+                                        Eq {
+                                            one: Box::new(source.clone().into()),
+                                            another: Box::new(crates_io_index),
+                                        }.into(),
+                                        proj!(
+                                            pkgs.clone().into(),
+                                            key!(rustBuilder),
+                                            key!(rustLib),
+                                            key!("fetchCratesIo")
+                                        ).into(),
+                                        app!(resolver.into(), args.into()).into()
+                                    ).into()
+                                )
+                            ).into()
+                        };
+                    }));
+            bootstrap.clone() =>
+                app!(
+                    proj!(
+                        pkgs.clone().into(),
+                        key!(rustBuilder),
+                        key!(makePackageSet)),
+                    attrs!({
+                        attrs_path!(packageFun.clone().to_key()) =>
+                            packageFun.clone().into();
+                        attrs_path!(key!("rustPackageConfig")) =>
+                            ident!("config'").into();
+                        attrs_path!(key!("buildRustPackages")) =>
+                            app!(
+                                proj!(
+                                    buildPackages.clone().into(),
+                                    key!(rustBuilder),
+                                    key!(makePackageSet),
+                                ),
+                                attrs!({
+                                    attrs_path!(packageFun.clone().to_key()) =>
+                                        packageFun.clone().into();
+                                    attrs_path!(key!("rustPackageConfig")) =>
+                                        ident!("config'").into();
+                                }).into()
+                            );
+                    }).into());
+            features.clone() => {
+                app!(
+                    app!(
+                        app!(
+                            proj!(lib.clone().into(), key!("fold")),
+                            proj!(lib.clone().into(), key!("recursiveUpdate"))),
+                        attrs!({})
+                    ),
+                    package_features
+                )
+            };
+
+            ident!("pkgs") =>
+                app!(
+                    proj!(
+                        pkgs.clone().into(),
+                        key!(rustBuilder),
+                        key!(makePackageSet)),
+                    attrs!({
+                        attrs_path!(packageFun.clone().to_key()) =>
+                            packageFun.clone().into();
+                        attrs_path!(key!("rustPackageConfig")) =>
+                            app!(
+                                app!(
+                                    proj!(lib.clone().into(), key!("recursiveUpdate")),
+                                    ident!("config'").into()
+                                ),
+                                attrs!({
+                                    attrs_path!(key!("features")) =>
+                                        proj!(
+                                            features.clone().into(),
+                                            Key::Expr(
+                                                proj!(
+                                                    pkgs.clone().into(),
+                                                    key!("stdenv"),
+                                                    key!("hostPlatform"),
+                                                    key!("config")
+                                                ).into()
+                                            ).into());
+                                })
+                            );
+                        attrs_path!(key!("buildRustPackages")) =>
+                            app!(
+                                proj!(
+                                    buildPackages.clone().into(),
+                                    key!(rustBuilder),
+                                    key!(makePackageSet),
+                                ),
+                                attrs!({
+                                    attrs_path!(packageFun.clone().to_key()) =>
+                                        packageFun.clone().into();
+                                    attrs_path!(key!("rustPackageConfig")) =>
+                                        app!(
+                                            app!(
+                                                proj!(lib.clone().into(), key!("recursiveUpdate")),
+                                                ident!("config'").into()
+                                            ),
+                                            attrs!({
+                                                attrs_path!(key!("features")) =>
+                                                    proj!(
+                                                        features.clone().into(),
+                                                        Key::Expr(
+                                                            proj!(
+                                                                buildPackages.clone().into(),
+                                                                key!("stdenv"),
+                                                                key!("hostPlatform"),
+                                                                key!("config")
+                                                            ).into()
+                                                        ).into());
+                                            })
+                                        );
+                                }).into()
+                            );
+                    }).into());
+            in
+                ident!("pkgs").into()
+        ).into())
+    )
+    .into()
 }

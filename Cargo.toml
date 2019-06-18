@@ -5,6 +5,7 @@ edition = "2018"
 
 [dependencies]
 cargo = "0.36.0"
+clap = "2.33.0"
 failure = "0.1.5"
 futures = "0.1"
 lazy_static = "1.3.0"

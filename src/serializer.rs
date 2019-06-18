@@ -1,5 +1,3 @@
-use std::{collections::BTreeMap, sync::Arc};
-
 use serde::{ser, Serialize};
 
 use crate::ast::{AttrSet, AttrsPath, ConstNum, Expr, Ident, List, NixString, Optional};
@@ -193,7 +191,7 @@ impl ListSerializer {
 }
 
 pub struct AttrSetSerializer {
-    attrs: BTreeMap<AttrsPath, Arc<Expr>>,
+    attrs: Vec<(AttrsPath, Expr)>,
     key: Option<String>,
 }
 
@@ -294,7 +292,7 @@ impl ser::SerializeMap for AttrSetSerializer {
             .take()
             .expect("key must be set before setting value");
         let value = value.serialize(Serializer)?;
-        self.attrs.insert(attrs_path!(key!(&key)), Arc::new(value));
+        self.attrs.push((attrs_path!(key!(&key)), value));
         Ok(())
     }
     fn end(self) -> Result<Self::Ok, Self::Error> {
@@ -319,7 +317,7 @@ impl AttrSetSerializer {
         if let Expr::Optional(Optional(None)) = value {
             Ok(())
         } else {
-            self.attrs.insert(attrs_path!(key!(&key)), Arc::new(value));
+            self.attrs.push((attrs_path!(key!(&key)), value));
             Ok(())
         }
     }

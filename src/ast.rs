@@ -1,6 +1,4 @@
 //! A subset of Nix context-free grammar for expression generation
-use std::{collections::BTreeMap, sync::Arc};
-
 pub trait Write {
     type Error;
     fn indent(&mut self, offset: isize);
@@ -35,10 +33,8 @@ impl<W: std::fmt::Write> Write for FmtWriter<W> {
     }
     fn new_line(&mut self) -> Result<(), Self::Error> {
         self.inner.write_char('\n')?;
-        for _ in 0..self.indent_level {
-            self.inner.write_char(' ')?;
-        }
-        Ok(())
+        let indent: String = std::iter::repeat(' ').take(self.indent_level).collect();
+        self.inner.write_str(&indent)
     }
     fn write_char(&mut self, c: char) -> Result<(), Self::Error> {
         self.inner.write_char(c)
@@ -48,27 +44,75 @@ impl<W: std::fmt::Write> Write for FmtWriter<W> {
     }
 }
 
+pub struct IoWriter<W> {
+    inner: W,
+    indent_level: usize,
+}
+
+impl<W> IoWriter<W> {
+    pub fn new(writer: W) -> Self {
+        Self {
+            inner: writer,
+            indent_level: 0,
+        }
+    }
+}
+
+impl<W: std::io::Write> Write for IoWriter<W> {
+    type Error = std::io::Error;
+    fn indent(&mut self, offset: isize) {
+        let new_indent_level = self.indent_level as isize + offset;
+        assert!(new_indent_level >= 0);
+        self.indent_level = new_indent_level as usize;
+    }
+    fn new_line(&mut self) -> Result<(), Self::Error> {
+        let indent: String = std::iter::once('\n')
+            .chain(std::iter::repeat(' ').take(self.indent_level))
+            .collect();
+        self.inner.write(indent.as_bytes())?;
+        Ok(())
+    }
+    fn write_char(&mut self, c: char) -> Result<(), Self::Error> {
+        self.inner.write(c.to_string().as_bytes())?;
+        Ok(())
+    }
+    fn write_str(&mut self, s: &str) -> Result<(), Self::Error> {
+        self.inner.write(s.as_bytes())?;
+        Ok(())
+    }
+}
+
 pub trait Generate {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error>;
 }
 
 #[derive(Clone)]
-pub struct App(pub Arc<Expr>, pub Arc<Expr>);
+pub struct App(pub Box<Expr>, pub Box<Expr>);
 
 impl Generate for App {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         use Expr::*;
-        let need_bracket = match *self.0 {
+        let needs_quote = match *self.0 {
             App(_) | Lam(_) | Ident(_) | Projection(_) => false,
             _ => true,
         };
-        if need_bracket {
+        if needs_quote {
             writer.write_char('(')?;
         }
         self.0.generate_word(writer)?;
+        if needs_quote {
+            writer.write_char(')')?;
+        }
         writer.write_char(' ')?;
+        let needs_quote = match *self.0 {
+            App(_) | Lam(_) | Ident(_) | Projection(_) => false,
+            _ => true,
+        };
+        if needs_quote {
+            writer.write_char('(')?;
+        }
         self.1.generate_word(writer)?;
-        if need_bracket {
+        if needs_quote {
             writer.write_char(')')?;
         }
         Ok(())
@@ -78,9 +122,10 @@ impl Generate for App {
 #[macro_export]
 macro_rules! app {
     ($f:expr, $a: expr) => {{
-        let f: $crate::ast::Expr = $f.as_ref().clone().into();
-        let a: $crate::ast::Expr = $a.as_ref().clone().into();
-        $crate::ast::App(::std::sync::Arc::new(f), ::std::sync::Arc::new(a))
+        $crate::ast::Expr::App($crate::ast::App(
+            ::std::boxed::Box::new($f),
+            ::std::boxed::Box::new($a),
+        ))
     }};
 }
 
@@ -103,15 +148,14 @@ impl Generate for LamArg {
 #[derive(Clone)]
 pub struct Lam {
     pub arg: LamArg,
-    pub body: Arc<Expr>,
+    pub body: Box<Expr>,
 }
 
 #[macro_export]
 #[doc(hidden)]
 macro_rules! symbolic_arg {
     ($arg:expr) => {{
-        let arg: $crate::ast::Ident = $arg.as_ref().clone();
-        $crate::ast::LamArg::Symbolic(arg)
+        $crate::ast::LamArg::Symbolic($arg.clone())
     }};
 }
 
@@ -162,13 +206,15 @@ impl Ident {
 #[macro_use]
 macro_rules! ident {
     ($name:expr) => {
-        ::std::sync::Arc::new($crate::ast::Ident::new($name))
+        $crate::ast::Ident::new($name)
     };
 }
 
 impl Ident {
     pub fn to_key(&self) -> Key {
-        Key(self.0.clone())
+        Key::Key {
+            key: self.0.clone(),
+        }
     }
 }
 
@@ -226,7 +272,7 @@ macro_rules! formal_arg {
     ( $ident:tt @ { $($arg:tt)+ }) => {
         $crate::formal_arg!({ $($arg)+ } @ $ident)
     };
-    ( { $($arg:tt)+ } @ $ident:tt) => {
+    ( { $($arg:tt)+ } @ $ident:expr) => {
         {
             #[allow(unused_mut, unused_assignments)]
             let mut args = vec![];
@@ -236,14 +282,14 @@ macro_rules! formal_arg {
             $crate::ast::FormalArg {
                 args,
                 ignore_extra,
-                reference: Some($ident.as_ref().clone()),
+                reference: Some($ident),
             }
         }
     };
     ( { $($arg:tt)+ } ) => {
         {
             let mut args = vec![];
-            #[allow(unused_assignments)]
+            #[allow(unused_assignments, unused_mut)]
             let mut ignore_extra = false;
             $crate::cons_formal_arg!(args, ignore_extra, $($arg)+);
             $crate::ast::FormalArg {
@@ -263,38 +309,34 @@ macro_rules! cons_formal_arg {
             $ignore_extra = true;
         }
     };
-    ($args:ident, $ignore_extra:ident, $formal_arg_name:ident) => {
+    ($args:ident, $ignore_extra:ident, $formal_arg_name:expr) => {
         cons_formal_arg!($args, $ignore_extra, $formal_arg_name,)
     };
-    ($args:ident, $ignore_extra:ident, $formal_arg_name:ident, ) => {
+    ($args:ident, $ignore_extra:ident, $formal_arg_name:expr, ) => {
         {
-            let arg: $crate::ast::Ident = $formal_arg_name.as_ref().clone();
-            $args.push((arg, None));
+            $args.push(($formal_arg_name, None));
         }
     };
     (
         $args:ident,
         $ignore_extra:ident,
-        $formal_arg_name:ident ? $formal_arg_default:expr
+        $formal_arg_name:expr ;? $formal_arg_default:expr
     ) => {
-        cons_formal_arg!($args, $ignore_extra, $formal_arg_name ? $formal_arg_default, );
+        cons_formal_arg!($args, $ignore_extra, $formal_arg_name ;? $formal_arg_default, );
     };
     (
         $args:ident,
         $ignore_extra:ident,
-        $formal_arg_name:ident ? $formal_arg_default:expr,
+        $formal_arg_name:expr ;? $formal_arg_default:expr,
     ) => {
         {
-            let arg: $crate::ast::Ident = $formal_arg_name.as_ref().clone();
-            let default: $crate::ast::Expr = $formal_arg_default.as_ref().clone();
-            $args.push((arg, Some(default)));
+            $args.push(($formal_arg_name, Some($formal_arg_default)));
         }
     };
-    ($args:ident, $ignore_extra:ident, $formal_arg_name:ident, $($rest_arg:tt)+) => {
+    ($args:ident, $ignore_extra:ident, $formal_arg_name:expr, $($rest_arg:tt)+) => {
         {
             {
-                let arg: $crate::ast::Ident = $formal_arg_name.as_ref().clone();
-                $args.push((arg, None));
+                $args.push(($formal_arg_name, None));
             }
             cons_formal_arg!($args, $ignore_extra, $($rest_arg)+)
         }
@@ -302,14 +344,12 @@ macro_rules! cons_formal_arg {
     (
         $args:ident,
         $ignore_extra:ident,
-        $formal_arg_name:ident ? $formal_arg_default:expr,
+        $formal_arg_name:expr ;? $formal_arg_default:expr,
         $($rest_arg:tt)+
     ) => {
         {
             {
-                let arg: $crate::ast::Ident = $formal_arg_name.as_ref().clone();
-                let default: $crate::ast::Expr = $formal_arg_default.as_ref().clone();
-                $args.push((arg, Some(default)));
+                $args.push(($formal_arg_name, Some($formal_arg_default)));
             }
             cons_formal_arg!($args, $ignore_extra, $($rest_arg)+)
         }
@@ -326,8 +366,11 @@ const QUOTE_MAP: &[(char, &str)] = &[
     ('\t', "\\t"),
 ];
 
-#[derive(Clone, Ord, PartialOrd, PartialEq, Eq)]
-pub struct Key(pub String);
+#[derive(Clone)]
+pub enum Key {
+    Key { key: String },
+    Expr(Box<Expr>),
+}
 
 fn write_quoted_str<W: Write>(s: &str, writer: &mut W) -> Result<(), <W as Write>::Error> {
     writer.write_char('"')?;
@@ -342,10 +385,19 @@ fn write_quoted_str<W: Write>(s: &str, writer: &mut W) -> Result<(), <W as Write
 
 impl Generate for Key {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
-        if self.0.contains(NEED_QUOTE) {
-            write_quoted_str(&self.0, writer)
-        } else {
-            writer.write_str(self.0.as_str())
+        match self {
+            Key::Key { ref key } => {
+                if key.contains(NEED_QUOTE) {
+                    write_quoted_str(key, writer)
+                } else {
+                    writer.write_str(key)
+                }
+            }
+            Key::Expr(ref expr) => {
+                writer.write_str("${")?;
+                expr.generate_word(writer)?;
+                writer.write_char('}')
+            }
         }
     }
 }
@@ -353,7 +405,9 @@ impl Generate for Key {
 #[macro_export]
 macro_rules! key {
     ($key:expr) => {
-        $crate::ast::Key($key.to_string())
+        $crate::ast::Key::Key {
+            key: $key.to_string(),
+        }
     };
 }
 
@@ -362,7 +416,7 @@ macro_rules! key {
 /// interpolation.
 /// This should covers enough uses cases in mechanical
 /// Nix expression generation
-#[derive(Clone, Ord, PartialOrd, PartialEq, Eq)]
+#[derive(Clone)]
 pub struct AttrsPath(pub Vec<Key>);
 
 impl Generate for AttrsPath {
@@ -409,7 +463,7 @@ macro_rules! attrs_path {
 #[derive(Clone)]
 pub struct AttrSet {
     pub recursive: bool,
-    pub attrs: BTreeMap<AttrsPath, Arc<Expr>>,
+    pub attrs: Vec<(AttrsPath, Expr)>,
 }
 
 impl Generate for AttrSet {
@@ -435,7 +489,7 @@ impl Generate for AttrSet {
 #[macro_export]
 macro_rules! attrs {
     (@rec $attrs:ident, ) => {
-        ::std::sync::Arc::new(
+        $crate::ast::Expr::AttrSet(
             $crate::ast::AttrSet {
                 recursive: true,
                 attrs: $attrs,
@@ -443,7 +497,7 @@ macro_rules! attrs {
         )
     };
     (@nonrec $attrs:ident, ) => {
-        ::std::sync::Arc::new(
+        $crate::ast::Expr::AttrSet(
             $crate::ast::AttrSet {
                 recursive: false,
                 attrs: $attrs,
@@ -452,29 +506,27 @@ macro_rules! attrs {
     };
     (@rec $attrs:ident, $key:expr => $val:expr; $($item:tt)*) => {
         {
-            let val: $crate::ast::Expr = $val.as_ref().clone().into();
-            $attrs.insert($key, ::std::sync::Arc::new(val));
+            $attrs.push(($key, $val));
             $crate::attrs!(@rec $attrs, $($item)*)
         }
     };
     (@nonrec $attrs:ident, $key:expr => $val:expr; $($item:tt)*) => {
         {
-            let val: $crate::ast::Expr = $val.as_ref().clone().into();
-            $attrs.insert($key, ::std::sync::Arc::new(val));
+            $attrs.push(($key, $val));
             $crate::attrs!(@nonrec $attrs, $($item)*)
         }
     };
     ({ $($item:tt)* }) => {
         {
             #[allow(unused_mut)]
-            let mut attrs = ::std::collections::BTreeMap::new();
+            let mut attrs = vec![];
             $crate::attrs!(@nonrec attrs, $($item)*)
         }
     };
     (rec { $($item:tt)* }) => {
         {
             #[allow(unused_mut)]
-            let mut attrs = ::std::collections::BTreeMap::new();
+            let mut attrs = vec![];
             $crate::attrs!(@rec attrs, $($item)*)
         }
     }
@@ -482,26 +534,26 @@ macro_rules! attrs {
 
 #[derive(Clone)]
 pub struct Projection {
-    pub record: Arc<Expr>,
+    pub record: Box<Expr>,
     pub key: Key,
 }
 
 impl Generate for Projection {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         use Expr::*;
-        let need_bracket = match *self.record {
+        let needs_quote = match *self.record {
             Ident(_) | AttrSet(_) | Projection(_) => false,
             _ => true,
         };
-        if need_bracket {
+        if needs_quote {
             writer.write_char('(')?;
         }
         self.record.generate_word(writer)?;
-        writer.write_char('.')?;
-        self.key.generate_word(writer)?;
-        if need_bracket {
+        if needs_quote {
             writer.write_char(')')?;
         }
+        writer.write_char('.')?;
+        self.key.generate_word(writer)?;
         Ok(())
     }
 }
@@ -509,17 +561,19 @@ impl Generate for Projection {
 #[macro_export]
 macro_rules! proj {
     ($record:expr, $key:expr) => {
-        ::std::sync::Arc::new(
-            $crate::ast::Expr::from($crate::ast::Projection {
-                record: ::std::sync::Arc::new(
-                    $record.as_ref().clone().into()),
-                key: $key,
-            }))
+        $crate::proj!($record, $key, )
     };
-    ($record:expr, $key:expr $(,$rest:tt)*) => {
+    ($record:expr, $key:expr, ) => {
+        $crate::ast::Expr::Projection(
+            $crate::ast::Projection {
+                record: ::std::boxed::Box::new($record),
+                key: $key,
+            })
+    };
+    ($record:expr, $key:expr, $($rest:tt)*) => {
         $crate::proj!(
-            $crate::proj!($record, $key)
-            $(,$rest)*
+            $crate::proj!($record, $key),
+            $($rest)*
         )
     };
 }
@@ -534,9 +588,9 @@ macro_rules! list {
             #[allow(unused_mut)]
             let mut items = vec![];
             $(
-                items.push($item.as_ref().clone());
+                items.push($item.clone());
             )+;
-            ::std::sync::Arc::new($crate::ast::List(items))
+            ::std::boxed::Box::new($crate::ast::List(items))
         }
     };
 }
@@ -548,17 +602,17 @@ impl Generate for List {
         for expr in self.0.iter() {
             writer.new_line()?;
             use Expr::*;
-            let need_parens = match *expr {
+            let needs_quote = match *expr {
                 AttrSet(_) | Ident(_) | List(_) | NixString(_) | Projection(_) | ConstNum(_) => {
                     false
                 }
                 _ => true,
             };
-            if need_parens {
+            if needs_quote {
                 writer.write_char('(')?;
             }
             expr.generate_word(writer)?;
-            if need_parens {
+            if needs_quote {
                 writer.write_char(')')?;
             }
         }
@@ -583,12 +637,10 @@ impl Generate for NixString {
     }
 }
 
-#[macro_use]
+#[macro_export]
 macro_rules! nix_string {
     ($val:expr) => {
-        ::std::sync::Arc::new($crate::ast::Expr::NixString($crate::ast::NixString::new(
-            $val,
-        )))
+        $crate::ast::Expr::NixString($crate::ast::NixString::new($val))
     };
 }
 
@@ -613,7 +665,7 @@ impl Generate for ConstNum {
 }
 
 #[derive(Clone)]
-pub struct Optional(pub Option<Arc<Expr>>);
+pub struct Optional(pub Option<Box<Expr>>);
 
 impl Generate for Optional {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
@@ -621,6 +673,145 @@ impl Generate for Optional {
             Some(expr) => expr.generate_word(writer),
             None => writer.write_str("null"),
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct Let {
+    pub bindings: Vec<(Ident, Expr)>,
+    pub body: Box<Expr>,
+}
+
+#[macro_export]
+macro_rules! letin {
+    (let $($t:tt)+) => {
+        {
+            #[allow(unused_mut)]
+            let mut bindings = vec![];
+            $crate::letin!(@let(bindings) $($t)+)
+        }
+    };
+    (@let($bindings:ident) inherit ($rec:expr) $var:expr; $($t:tt)+) => {
+        {
+            {
+                $bindings.push(($var.clone(), $crate::ast::Projection {
+                    record: Box::new($rec),
+                    key: $var.clone().to_key(),
+                }.into()));
+            }
+            $crate::letin!(@let($bindings) $($t)+)
+        }
+    };
+    (@let($bindings:ident) inherit $var:expr; $($t:tt)+) => {
+        {
+            {
+                $bindings.push(($var.clone(), $var.clone().into()));
+            }
+            $crate::letin!(@let($bindings) $($t)+)
+        }
+    };
+    (@let($bindings:ident) $var:expr => $val:expr; $($t:tt)+) => {
+        {
+            {
+                $bindings.push(($var.clone(), $val.clone()));
+            }
+            $crate::letin!(@let($bindings) $($t)+)
+        }
+    };
+    (@let($bindings:ident) in $body:expr) => {
+        {
+            $crate::ast::Let {
+                bindings: $bindings,
+                body: ::std::boxed::Box::new($body),
+            }
+        }
+    }
+}
+
+impl Generate for Let {
+    fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
+        writer.write_str("let")?;
+        writer.indent(2);
+        for (var, val) in self.bindings.iter() {
+            writer.new_line()?;
+            match val {
+                Expr::Ident(Ident(ref ident)) if &var.0 == ident => {
+                    writer.write_str("inherit ")?;
+                    writer.write_str(ident)?;
+                }
+                Expr::Projection(Projection {
+                    ref record,
+                    key: Key::Key { ref key },
+                }) if &var.0 == key => {
+                    writer.write_str("inherit (")?;
+                    record.generate_word(writer)?;
+                    writer.write_str(") ")?;
+                    writer.write_str(key)?;
+                }
+                _ => {
+                    var.generate_word(writer)?;
+                    writer.write_str(" = ")?;
+                    val.generate_word(writer)?;
+                }
+            }
+            writer.write_char(';')?;
+        }
+        writer.indent(-2);
+        writer.new_line()?;
+        writer.write_str("in")?;
+        writer.new_line()?;
+        self.body.generate_word(writer)
+    }
+}
+
+#[derive(Clone)]
+pub struct IfElse {
+    pub condition: Box<Expr>,
+    pub consequent: Box<Expr>,
+    pub alternative: Box<Expr>,
+}
+
+impl Generate for IfElse {
+    fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
+        writer.write_str("if ")?;
+        self.condition.generate_word(writer)?;
+        writer.write_str(" then")?;
+        writer.indent(2);
+        writer.new_line()?;
+        self.consequent.generate_word(writer)?;
+        writer.indent(-2);
+        writer.new_line()?;
+        writer.write_str("else")?;
+        writer.indent(2);
+        writer.new_line()?;
+        self.alternative.generate_word(writer)?;
+        writer.indent(-2);
+        Ok(())
+    }
+}
+
+#[macro_export]
+macro_rules! ifelse {
+    ($cond:expr, $cons:expr, $alt:expr) => {
+        $crate::ast::IfElse {
+            condition: Box::new($cond),
+            consequent: Box::new($cons),
+            alternative: Box::new($alt),
+        }
+    };
+}
+
+#[derive(Clone)]
+pub struct Eq {
+    pub one: Box<Expr>,
+    pub another: Box<Expr>,
+}
+
+impl Generate for Eq {
+    fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
+        self.one.generate_word(writer)?;
+        writer.write_str(" == ")?;
+        self.another.generate_word(writer)
     }
 }
 
@@ -635,6 +826,9 @@ pub enum Expr {
     Projection(Projection),
     ConstNum(ConstNum),
     Optional(Optional),
+    Let(Let),
+    IfElse(IfElse),
+    Eq(Eq),
 }
 
 impl From<App> for Expr {
@@ -685,6 +879,24 @@ impl From<ConstNum> for Expr {
     }
 }
 
+impl From<Let> for Expr {
+    fn from(r#let: Let) -> Self {
+        Expr::Let(r#let)
+    }
+}
+
+impl From<IfElse> for Expr {
+    fn from(ifelse: IfElse) -> Self {
+        Expr::IfElse(ifelse)
+    }
+}
+
+impl From<Eq> for Expr {
+    fn from(eq: Eq) -> Self {
+        Expr::Eq(eq)
+    }
+}
+
 impl Generate for Expr {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         use Expr::*;
@@ -697,7 +909,10 @@ impl Generate for Expr {
             NixString(ref s) => s.generate_word(writer),
             Projection(ref p) => p.generate_word(writer),
             ConstNum(ref n) => n.generate_word(writer),
-            Optional(ref n) => n.generate_word(writer),
+            Optional(ref o) => o.generate_word(writer),
+            Let(ref r#let) => r#let.generate_word(writer),
+            IfElse(ref ifelse) => ifelse.generate_word(writer),
+            Eq(ref eq) => eq.generate_word(writer),
         }
     }
 }
@@ -717,9 +932,9 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let f = Arc::new(Expr::Ident(Ident::new("f")));
-        let a = Arc::new(Expr::Ident(Ident::new("a")));
-        let f = Arc::new(Expr::App(App(f, a.clone())));
+        let f = Box::new(Expr::Ident(Ident::new("f")));
+        let a = Box::new(Expr::Ident(Ident::new("a")));
+        let f = Box::new(Expr::App(App(f, a.clone())));
         let expr = Expr::App(App(f, a));
         let mut s = FmtWriter::new(String::new());
         expr.generate_word(&mut s).unwrap();
@@ -756,13 +971,13 @@ mod tests {
         let abc = ident!("abc");
         let formal_arg = formal_arg!(a @ {
             args,
-            args2 ? Arc::new(Expr::ConstNum(ConstNum::Signed(0))),
-            abc ? nix_string!(""),
+            args2 ;? Expr::ConstNum(ConstNum::Signed(0)),
+            abc ;? nix_string!(""),
             ...
         });
         let lam = lambda!(
             formal formal_arg =>
-            nix_string!("")
+            Box::new(nix_string!(""))
         );
         let mut s = FmtWriter::new(String::new());
         lam.generate_word(&mut s).unwrap();

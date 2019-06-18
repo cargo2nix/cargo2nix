@@ -13,7 +13,7 @@ use serde::Serialize;
 
 use crate::codegen::{
     Dependency as LockedDependency, GitReference as LockedGitReference, Package as LockedPackage,
-    SourceInfo,
+    PackageId as LockedPackageId, SourceInfo,
 };
 use crate::serializer::Serializer;
 
@@ -37,7 +37,7 @@ fn dep_to_pkg_id(id: PackageId) -> String {
 pub fn generate_lockfile<'a>(
     config: &'a Config,
     ws: &Workspace<'a>,
-) -> Result<Vec<LockedPackage>, Error> {
+) -> Result<(Vec<LockedPackage>, Vec<LockedPackageId>), Error> {
     let mut registry = PackageRegistry::new(config)?;
     let resolve = resolve_with_previous(
         &mut registry,
@@ -122,5 +122,13 @@ pub fn generate_lockfile<'a>(
             }
         })
         .collect();
-    Ok(packages)
+    let root_packages = ws
+        .members()
+        .map(|pkg| LockedPackageId {
+            name: pkg.name().as_str().to_string(),
+            version: pkg.version().to_string(),
+            source: source_id_to_string(pkg.package_id().source_id()),
+        })
+        .collect();
+    Ok((packages, root_packages))
 }
