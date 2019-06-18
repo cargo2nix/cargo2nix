@@ -228,6 +228,8 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
     let resolver = ident!("resolver");
     #[allow(non_snake_case)]
     let packageFun = ident!("packageFun");
+    let cargo = ident!("cargo");
+    let rustc = ident!("rustc");
 
     let bootstrap = ident!("bootstrap");
 
@@ -274,6 +276,8 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
             resolver.clone(),
             packageFun.clone(),
             config.clone(),
+            cargo.clone(),
+            rustc.clone(),
         }) => Box::new(letin!(
             let
 
@@ -298,18 +302,26 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                     name.clone(),
                                     version.clone(),
                                     sha256.clone(),
+                                    ident!("source-info")
                                 } @ args.clone()) => Box::new(
                                     ifelse!(
                                         Eq {
                                             one: Box::new(source.clone().into()),
                                             another: Box::new(crates_io_index),
                                         }.into(),
-                                        proj!(
-                                            pkgs.clone().into(),
-                                            key!(rustBuilder),
-                                            key!(rustLib),
-                                            key!("fetchCratesIo")
-                                        ).into(),
+                                        app!(
+                                            proj!(
+                                                pkgs.clone().into(),
+                                                key!(rustBuilder),
+                                                key!(rustLib),
+                                                key!("fetchCratesIo")
+                                            ).into(),
+                                            attrs!({
+                                                attrs_path!(name.clone().to_key()) => name.clone().into();
+                                                attrs_path!(version.clone().to_key()) => version.clone().into();
+                                                attrs_path!(sha256.clone().to_key()) => sha256.clone().into();
+                                            }).into()
+                                        ),
                                         app!(resolver.into(), args.into()).into()
                                     ).into()
                                 )
@@ -323,6 +335,8 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                         key!(rustBuilder),
                         key!(makePackageSet)),
                     attrs!({
+                        attrs_path!(cargo.clone().to_key()) => cargo.clone().into();
+                        attrs_path!(rustc.clone().to_key()) => rustc.clone().into();
                         attrs_path!(packageFun.clone().to_key()) =>
                             packageFun.clone().into();
                         attrs_path!(key!("rustPackageConfig")) =>
@@ -335,6 +349,8 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                     key!(makePackageSet),
                                 ),
                                 attrs!({
+                                    attrs_path!(cargo.clone().to_key()) => cargo.clone().into();
+                                    attrs_path!(rustc.clone().to_key()) => rustc.clone().into();
                                     attrs_path!(packageFun.clone().to_key()) =>
                                         packageFun.clone().into();
                                     attrs_path!(key!("rustPackageConfig")) =>
@@ -353,14 +369,15 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                     package_features
                 )
             };
-
-            ident!("pkgs") =>
+            in
                 app!(
                     proj!(
                         pkgs.clone().into(),
                         key!(rustBuilder),
                         key!(makePackageSet)),
                     attrs!({
+                        attrs_path!(cargo.clone().to_key()) => cargo.clone().into();
+                        attrs_path!(rustc.clone().to_key()) => rustc.clone().into();
                         attrs_path!(packageFun.clone().to_key()) =>
                             packageFun.clone().into();
                         attrs_path!(key!("rustPackageConfig")) =>
@@ -391,6 +408,8 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                     key!(makePackageSet),
                                 ),
                                 attrs!({
+                                    attrs_path!(cargo.clone().to_key()) => cargo.clone().into();
+                                    attrs_path!(rustc.clone().to_key()) => rustc.clone().into();
                                     attrs_path!(packageFun.clone().to_key()) =>
                                         packageFun.clone().into();
                                     attrs_path!(key!("rustPackageConfig")) =>
@@ -415,9 +434,7 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                         );
                                 }).into()
                             );
-                    }).into());
-            in
-                ident!("pkgs").into()
+                    }).into())
         ).into())
     )
     .into()

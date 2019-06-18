@@ -475,9 +475,42 @@ impl Generate for AttrSet {
         writer.indent(2);
         for (key, value) in self.attrs.iter() {
             writer.new_line()?;
-            key.generate_word(writer)?;
-            writer.write_str(" = ")?;
-            value.generate_word(writer)?;
+            match (key, value) {
+                (AttrsPath(ref path), Expr::Ident(Ident(ref ivalue)))
+                    if path.len() == 1
+                        && if let Key::Key { ref key } = path[0] {
+                            key == ivalue
+                        } else {
+                            false
+                        } =>
+                {
+                    writer.write_str("inherit ")?;
+                    value.generate_word(writer)?;
+                }
+                (
+                    AttrsPath(ref path),
+                    Expr::Projection(Projection {
+                        ref record,
+                        key: Key::Key { ref key },
+                    }),
+                ) if path.len() == 1
+                    && if let Key::Key { key: ref key_ } = path[0] {
+                        key == key_ && !key.contains(NEED_QUOTE)
+                    } else {
+                        false
+                    } =>
+                {
+                    writer.write_str("inherit (")?;
+                    record.generate_word(writer)?;
+                    writer.write_str(") ")?;
+                    writer.write_str(key)?;
+                }
+                _ => {
+                    key.generate_word(writer)?;
+                    writer.write_str(" = ")?;
+                    value.generate_word(writer)?;
+                }
+            }
             writer.write_char(';')?;
         }
         writer.indent(-2);
