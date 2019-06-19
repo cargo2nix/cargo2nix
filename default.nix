@@ -6,6 +6,7 @@
 }:
 let
 
+  # mozilla nixpkgs rust overlay
   nixpkgs-mozilla = builtins.fetchGit {
     url = https://github.com/mozilla/nixpkgs-mozilla;
     ref = "master";
@@ -13,6 +14,7 @@ let
   };
   rustOverlay = import "${nixpkgs-mozilla}/rust-overlay.nix";
 
+  # bootstrap Nixpkgs with the overlays
   pkgs = import nixpkgsPath {
     inherit system crossSystem;
     overlays = overlays ++ [ rustOverlay (import ./overlay) ];
@@ -20,18 +22,13 @@ let
 
   inherit (pkgs) lib;
 
-  srcFilter = {src, name, type}:
-    (type == "directory" && name == "${toString src}/overlay" -> false) &&
-    (name == "${toString src}/.git" -> false) &&
-    (name == "${toString src}/.gitignore" -> false) &&
-    (type == "file" && lib.hasSuffix ".nix" (baseNameOf name) -> false)
-  ;
-
+  # openssl supply
   openssl = pkgs.symlinkJoin {
     name = "openssl";
     paths = with pkgs.openssl; [out dev];
   };
 
+  # choice of rustc
   rustChannel = pkgs.rustChannelOf {
     channel = "1.35.0";
   };
@@ -39,9 +36,23 @@ let
   inherit (rustChannel) cargo;
   rustc = rustChannel.rust;
 
+  # source filter
+  srcFilter = {src, name, type}:
+    (type == "directory" && name == "${toString src}/overlay" -> false) &&
+    (type == "file" && lib.hasSuffix ".nix" (baseNameOf name) -> false) &&
+    (type == "symlink" && lib.hasPrefix "${toString src}/result" name -> false)
+  ;
+
+  # define source location
+  resolver = { source, name, version, ... }: {
+    unknown.cargo2nix."0.1.0" = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
+  }.${source}.${name}.${version};
+
+  # build your crate
+  packageFun = import ./deps.nix;
+
   rustPackages = pkgs.callPackage ./crate.nix {
-    inherit rustc cargo;
-    packageFun = import ./deps.nix;
+    inherit packageFun rustc cargo resolver;
     config = {
       rustcflags = {
         "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.5" = [
@@ -57,9 +68,25 @@ let
         "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ];
       };
     };
-    resolver = { source, name, version, ... }: {
-      unknown.cargo2nix."0.1.0" = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
-    }.${source}.${name}.${version};
   };
+
+  # done
+
 in
-rustPackages.unknown.cargo2nix."0.1.0"
+{
+  # your rust build is available here
+  package = rustPackages;#.unknown.cargo2nix."0.1.0";
+
+  # and you can make a development shell
+  shell = pkgs.rustBuilder.makeShell {
+    inherit packageFun cargo rustc;
+    packageResolver = { source, name, version, sha256, ... }:
+      {
+        src = resolver { inherit source name version; };
+      };
+    excludeCrates.unknown = "*";
+    environment.OPENSSL_DIR = openssl;
+
+    inherit (rustPackages.config) features;
+  };
+}

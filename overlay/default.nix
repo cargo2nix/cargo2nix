@@ -22,6 +22,8 @@ let
     mkRustCrate = import ./mkcrate.nix;
 
     buildRustPackages = callPackage ./build-rust-packages.nix { };
+
+    makeShell = callPackage ./make-shell.nix;
   };
 in
 {
