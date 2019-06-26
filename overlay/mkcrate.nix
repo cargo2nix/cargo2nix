@@ -16,7 +16,6 @@
   cargo-manifest,
   panicAbortOk ? true,
   features ? [],
-  enabledFeatures ? [],
   dependencies ? {},
   buildDependencies ? {},
   devDependencies ? {},
@@ -69,10 +68,7 @@ let
       "\n"
       (mapAttrsToList mapToEnv environment);
 
-  features' =
-    genAttrs
-      (features ++ attrNames (accessConfig "features" {} package-id))
-      (_: {});
+  features' = features ++ attrNames (accessConfig "features" {} package-id);
 in
 let
   features = features';
@@ -119,18 +115,13 @@ let
       (self: super:
         let
           new-features =
-            filter
-              (f: ! super ? ${f})
-              (concatMap (f: manifest.features.${f} or []) (attrNames super));
-          super' =
-            super //
-            genAttrs new-features (_: {});
+            concatMap (f: manifest.features.${f} or []) super;
         in
         if length new-features > 0 then
-          self super'
+          super ++ self new-features
         else
           super)
-      (mapAttrs (_: _: {}) features);
+      features;
 
   pkgFeatures = features:
     let
@@ -151,7 +142,7 @@ let
     in
     foldl' recursiveUpdate selfFeatures depFeaturesMap;
 
-  final-features = pkgFeatures (enabledFeatures features cargo-manifest);
+  final-features = pkgFeatures (genAttrs (enabledFeatures features cargo-manifest) (_: {}));
 
   activatedPackages = features: specs: pkg-ids:
     let

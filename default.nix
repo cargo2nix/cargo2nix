@@ -23,10 +23,13 @@ let
   inherit (pkgs) lib;
 
   # openssl supply
-  openssl = pkgs.symlinkJoin {
-    name = "openssl";
-    paths = with pkgs.openssl; [out dev];
-  };
+  openssl =
+    pkgs:
+      pkgs.symlinkJoin {
+        name = "openssl";
+        paths = with pkgs.openssl; [out dev];
+      };
+
 
   # choice of rustc
   rustChannel = pkgs.rustChannelOf {
@@ -51,23 +54,25 @@ let
   # build your crate
   packageFun = import ./deps.nix;
 
+  config = pkgs: {
+    rustcflags = {
+      "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.5" = [
+        "--cap-lints"
+        "warn"
+      ];
+    };
+    environment = {
+      "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*".OPENSSL_DIR = openssl pkgs;
+    };
+
+    buildInputs = {
+      "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ];
+    };
+  };
   rustPackages = pkgs.callPackage ./crate.nix {
     inherit packageFun rustc cargo resolver;
-    config = {
-      rustcflags = {
-        "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.5" = [
-          "--cap-lints"
-          "warn"
-        ];
-      };
-      environment = {
-        "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*".OPENSSL_DIR = openssl;
-      };
-
-      buildInputs = {
-        "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ];
-      };
-    };
+    config = config pkgs;
+    buildConfig = config pkgs.buildPackages;
   };
 
   # done
@@ -75,7 +80,7 @@ let
 in
 {
   # your rust build is available here
-  package = rustPackages;#.unknown.cargo2nix."0.1.0";
+  package = rustPackages.unknown.cargo2nix."0.1.0";
 
   # and you can make a development shell
   shell = pkgs.rustBuilder.makeShell {
@@ -85,7 +90,7 @@ in
         src = resolver { inherit source name version; };
       };
     excludeCrates.unknown = "*";
-    environment.OPENSSL_DIR = openssl;
+    environment.OPENSSL_DIR = openssl pkgs;
 
     inherit (rustPackages.config) features;
   };

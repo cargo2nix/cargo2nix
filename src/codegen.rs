@@ -225,6 +225,7 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
     let buildPackages = ident!("buildPackages");
     let lib = ident!("lib");
     let config = ident!("config");
+    let build_config = ident!("buildConfig");
     let resolver = ident!("resolver");
     #[allow(non_snake_case)]
     let packageFun = ident!("packageFun");
@@ -276,12 +277,53 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
             resolver.clone(),
             packageFun.clone(),
             config.clone(),
+            build_config.clone(),
             cargo.clone(),
             rustc.clone(),
         }) => Box::new(letin!(
             let
 
             inherit (lib.clone().into()) ident!("recursiveUpdate");
+            ident!("resolver-overlay") =>
+                attrs!({
+                    attrs_path!(key!("resolver")) => {
+                        let source = ident!("source");
+                        let name = ident!("name");
+                        let version = ident!("version");
+                        let sha256 = ident!("sha256");
+                        let args = ident!("args");
+                        lambda!(
+                            formal formal_arg!({
+                                source.clone(),
+                                name.clone(),
+                                version.clone(),
+                                sha256.clone(),
+                                ident!("source-info")
+                            } @ args.clone()) => Box::new(
+                                ifelse!(
+                                    Eq {
+                                        one: Box::new(source.clone().into()),
+                                        another: Box::new(crates_io_index),
+                                    }.into(),
+                                    app!(
+                                        proj!(
+                                            pkgs.clone().into(),
+                                            key!(rustBuilder),
+                                            key!(rustLib),
+                                            key!("fetchCratesIo")
+                                        ).into(),
+                                        attrs!({
+                                            attrs_path!(name.clone().to_key()) => name.clone().into();
+                                            attrs_path!(version.clone().to_key()) => version.clone().into();
+                                            attrs_path!(sha256.clone().to_key()) => sha256.clone().into();
+                                        }).into()
+                                    ),
+                                    app!(resolver.into(), args.into()).into()
+                                ).into()
+                            )
+                        ).into()
+                    };
+                });
             ident!("config'") =>
                 app!(
                     app!(
@@ -289,45 +331,17 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                             lib.clone().into(),
                             key!("recursiveUpdate")),
                         config.clone().into()),
-                    attrs!({
-                        attrs_path!(key!("resolver")) => {
-                            let source = ident!("source");
-                            let name = ident!("name");
-                            let version = ident!("version");
-                            let sha256 = ident!("sha256");
-                            let args = ident!("args");
-                            lambda!(
-                                formal formal_arg!({
-                                    source.clone(),
-                                    name.clone(),
-                                    version.clone(),
-                                    sha256.clone(),
-                                    ident!("source-info")
-                                } @ args.clone()) => Box::new(
-                                    ifelse!(
-                                        Eq {
-                                            one: Box::new(source.clone().into()),
-                                            another: Box::new(crates_io_index),
-                                        }.into(),
-                                        app!(
-                                            proj!(
-                                                pkgs.clone().into(),
-                                                key!(rustBuilder),
-                                                key!(rustLib),
-                                                key!("fetchCratesIo")
-                                            ).into(),
-                                            attrs!({
-                                                attrs_path!(name.clone().to_key()) => name.clone().into();
-                                                attrs_path!(version.clone().to_key()) => version.clone().into();
-                                                attrs_path!(sha256.clone().to_key()) => sha256.clone().into();
-                                            }).into()
-                                        ),
-                                        app!(resolver.into(), args.into()).into()
-                                    ).into()
-                                )
-                            ).into()
-                        };
-                    }));
+                    ident!("resolver-overlay").into()
+                );
+            ident!("buildConfig'") =>
+                app!(
+                    app!(
+                        proj!(
+                            lib.clone().into(),
+                            key!("recursiveUpdate")),
+                        build_config.clone().into()),
+                    ident!("resolver-overlay").into()
+                );
             bootstrap.clone() =>
                 app!(
                     proj!(
@@ -416,7 +430,7 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                         app!(
                                             app!(
                                                 proj!(lib.clone().into(), key!("recursiveUpdate")),
-                                                ident!("config'").into()
+                                                ident!("buildConfig'").into()
                                             ),
                                             attrs!({
                                                 attrs_path!(key!("features")) =>

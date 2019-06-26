@@ -5,12 +5,13 @@
   , resolver
   , packageFun
   , config
+  , buildConfig
   , cargo
   , rustc
 }:
   let
     inherit (lib) recursiveUpdate;
-    config' = lib.recursiveUpdate config {
+    resolver-overlay = {
       resolver = (args@{
           source
         , name
@@ -27,6 +28,8 @@
         else
           resolver args);
     };
+    config' = lib.recursiveUpdate config resolver-overlay;
+    buildConfig' = lib.recursiveUpdate buildConfig resolver-overlay;
     bootstrap = pkgs.rustBuilder.makePackageSet {
       inherit cargo;
       inherit rustc;
@@ -55,7 +58,7 @@
       inherit cargo;
       inherit rustc;
       inherit packageFun;
-      rustPackageConfig = lib.recursiveUpdate config' {
+      rustPackageConfig = lib.recursiveUpdate buildConfig' {
         features = features.${buildPackages.stdenv.hostPlatform.config};
       };
     };
