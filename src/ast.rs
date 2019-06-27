@@ -616,14 +616,14 @@ pub struct List(pub Vec<Expr>);
 
 #[macro_export]
 macro_rules! list {
-    ($($item:expr),+) => {
+    ($($item:expr),*) => {
         {
             #[allow(unused_mut)]
             let mut items = vec![];
             $(
                 items.push($item.clone());
-            )+;
-            ::std::boxed::Box::new($crate::ast::List(items))
+            )*;
+            $crate::ast::List(items)
         }
     };
 }

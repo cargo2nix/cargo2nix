@@ -241,4 +241,6 @@ in
     pkgs.fetchgit { inherit url rev sha256; };
 
   cleanLocalSource = import ./clean-local-src.nix { inherit lib; };
+
+  computeFinalFeatures = import ./features.nix { inherit lib; };
 }

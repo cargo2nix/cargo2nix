@@ -27,7 +27,7 @@ with builtins; with lib;
 let
   origFeatures = features;
 
-  inherit (rustLib) pkgName pkgVersion pkgRegistry;
+  inherit (rustLib) pkgName pkgVersion pkgRegistry computeFinalFeatures;
 
   accessPackage = pkg-id:
     rustPackages
@@ -110,39 +110,7 @@ let
       inherit features profile;
     };
 
-  enabledFeatures = features: manifest:
-    fix
-      (self: super:
-        let
-          new-features =
-            concatMap (f: manifest.features.${f} or []) super;
-        in
-        if length new-features > 0 then
-          super ++ self new-features
-        else
-          super)
-      features;
-
-  pkgFeatures = features:
-    let
-      matcher = match "([^/]+)/([^/]+)";
-      selfFeatures = filterAttrs (n: _: matcher n == null) features;
-      depFeatures = filter (n: matcher n != null) (attrNames features);
-      depFeaturesMap =
-        map
-          (n:
-            let
-              m = matcher n;
-              dep = elemAt m 0;
-              feature = elemAt m 1;
-            in
-            { ${dep}.${feature} = true; }
-          )
-          depFeatures;
-    in
-    foldl' recursiveUpdate selfFeatures depFeaturesMap;
-
-  final-features = pkgFeatures (genAttrs (enabledFeatures features cargo-manifest) (_: {}));
+  final-features = computeFinalFeatures cargo-manifest features;
 
   activatedPackages = features: specs: pkg-ids:
     let
@@ -156,9 +124,8 @@ let
         filter
           (pkg: any isActivated pkg.toml-names)
           pkg-ids;
-      overridePackage = pkg:
+      pkgFeatures = pkg:
         let
-          drv = accessPackage pkg.package-id;
           featuresToApply =
             concatMap
               (pkg-name:
@@ -181,20 +148,19 @@ let
                   specs)
               pkg.toml-names;
         in
-        drv.override (origArgs:
-          let
-            features =
-              remove "default" origArgs.features or [] ++
-              optional use-default-features "default" ++
-              featuresToApply;
-          in
-          origArgs // {
-            inherit features;
-          });
+        optional use-default-features "default" ++
+        featuresToApply;
     in
     listToAttrs
       (map
-        (pkg: { name = pkg.extern-name; value = overridePackage pkg; })
+        (pkg: {
+          name = pkg.extern-name;
+          value = {
+            inherit (pkg) package-id;
+            drv = accessPackage pkg.package-id;
+            features = pkgFeatures pkg;
+          };
+        })
         activating-packages);
 
   getDepSpecs = type: platform: manifest:
@@ -208,6 +174,7 @@ let
         manifest.target or {});
 
   depPkgs =
+    final-features:
     activatedPackages
       final-features
       (getDepSpecs
@@ -216,6 +183,7 @@ let
         cargo-manifest)
       dependencies;
   buildDepPkgs =
+    final-features:
     activatedPackages
       final-features
       (getDepSpecs
@@ -224,6 +192,7 @@ let
         cargo-manifest)
       dependencies;
   devDepPkgs =
+    final-features:
     activatedPackages
       final-features
       (getDepSpecs
@@ -265,19 +234,49 @@ let
   cxxForHost="${stdenv.cc}/bin/${stdenv.cc.targetPrefix}c++";
 in
 let
-  selectPlatform = drv: if drv.isProcMacro or false then nativeDrv drv else crossDrv drv;
-  dependencies =
-    mapAttrs
-      (_: drv:
-        (selectPlatform drv).override
-          (_: { inherit panicAbortOk; }))
-      depPkgs;
-  buildDependencies =
-    mapAttrs
-      (_: drv:
-        (nativeDrv drv).override (_: { panicAbortOk = false; }))
-      buildDepPkgs;
-  devDependencies = mapAttrs (_: drv: selectPlatform drv) (optionalAttrs doCheck devDepPkgs);
+  selectPlatform = pkg: if pkg.isProcMacro or false then nativeDrv pkg.drv else crossDrv pkg.drv;
+
+  computeDependencies =
+    final-features:
+    let
+      dependencies =
+        mapAttrs
+          (_: pkg:
+            pkg // {
+              drv =
+              (selectPlatform pkg).override
+                (_: { inherit panicAbortOk; });
+            })
+          (depPkgs final-features);
+      buildDependencies =
+        mapAttrs
+          (_: pkg:
+            pkg // {
+              drv = (nativeDrv pkg.drv).override (_: { panicAbortOk = false; });
+            })
+          (buildDepPkgs final-features);
+      devDependencies =
+        mapAttrs
+          (_: pkg: pkg // { drv = selectPlatform pkg; })
+          (optionalAttrs doCheck (devDepPkgs final-features));
+    in
+    { inherit dependencies buildDependencies devDependencies; };
+
+  computePackageFeatures =
+    features:
+    let
+      final-features = computeFinalFeatures cargo-manifest features;
+      inherit (computeDependencies final-features) dependencies buildDependencies devDependencies;
+      all-deps = attrValues dependencies ++ attrValues buildDependencies ++ attrValues devDependencies;
+    in
+    foldl recursiveUpdate {
+      ${stdenv.hostPlatform.config}
+      .${pkgRegistry package-id}
+      .${pkgName package-id}
+      .${pkgVersion package-id} = final-features;
+    } (map (dep: dep.drv.passthru.computePackageFeatures dep.features) all-deps);
+
+  inherit (computeDependencies final-features) dependencies buildDependencies devDependencies;
 
   panic-strategy =
     if
@@ -287,14 +286,14 @@ let
       panicAbortOk
     then
       cargo-manifest.profile.release.panic
-    else if any (dep: dep.passthru.panic-strategy == "abort") (attrValues dependencies) then
+    else if any (dep: dep.drv.passthru.panic-strategy == "abort") (attrValues dependencies) then
       "abort"
     else
       "unwind";
 
   patched-manifest = patchManifest final-features panic-strategy cargo-manifest;
 
-  depMapToList = deps: flatten (mapAttrsToList (name: value: [ name value ]) deps);
+  depMapToList = deps: flatten (mapAttrsToList (name: value: [ name value.drv ]) deps);
 in
 stdenv.mkDerivation {
   inherit src name version;
@@ -317,6 +316,7 @@ stdenv.mkDerivation {
       package-id
       panic-strategy
       patched-manifest
+      computePackageFeatures
       ;
     features = final-features;
     debug.features = features;

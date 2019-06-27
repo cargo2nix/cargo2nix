@@ -44,7 +44,8 @@
     };
     features = lib.fold lib.recursiveUpdate {
     } [
-      (pkgs.rustBuilder.rustLib.resolveFeatures bootstrap.unknown.cargo2nix."0.1.0")
+      (bootstrap.unknown.cargo2nix."0.1.0".computePackageFeatures [
+      ])
     ];
   in
   pkgs.rustBuilder.makePackageSet {

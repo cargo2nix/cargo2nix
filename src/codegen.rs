@@ -247,12 +247,6 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
             .map(|p| {
                 app!(
                     proj!(
-                        pkgs.clone().into(),
-                        key!(rustBuilder),
-                        key!(rustLib),
-                        key!("resolveFeatures")
-                    ),
-                    proj!(
                         bootstrap.clone().into(),
                         key!(&p
                             .source
@@ -260,8 +254,10 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                             .map(String::as_str)
                             .unwrap_or_else(|| UNKNOWN_SOURCE.as_str())),
                         key!(&p.name),
-                        key!(&p.version)
-                    )
+                        key!(&p.version),
+                        key!("computePackageFeatures")
+                    ),
+                    list!().into()
                 )
             })
             .collect(),
