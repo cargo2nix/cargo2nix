@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use failure::{format_err, Error};
 use futures::{stream::iter_ok, Future, Stream};
 use lazy_static::lazy_static;
+use log::info;
 use regex::Regex;
 use serde::Deserialize;
 use serde_json;
@@ -24,12 +25,14 @@ pub struct LockFile {
     pub metadata: HashMap<String, String>,
 }
 
+#[derive(Debug)]
 pub struct Dependency {
     pub toml_names: Vec<String>,
     pub extern_name: String,
     pub package_id: String,
 }
 
+#[derive(Debug)]
 pub struct Package {
     pub name: String,
     pub version: String,
@@ -46,13 +49,14 @@ pub struct PackageId {
     pub source: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum GitReference {
     Branch(String),
     Tag(String),
     Rev(String),
 }
 
+#[derive(Debug)]
 pub enum SourceInfo {
     Registry {
         index: String,
@@ -73,6 +77,7 @@ struct GitRepoPin {
 }
 
 pub fn generate(packages: Vec<Package>) -> impl Future<Item = Box<Expr>, Error = Error> {
+    info!("generate: {:?}", packages);
     let config = ident!("config");
     let mk_rust_crate = ident!("mkRustCrate");
     let sources_to_fetch: Vec<_> = packages

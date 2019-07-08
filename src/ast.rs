@@ -86,7 +86,7 @@ pub trait Generate {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error>;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct App(pub Box<Expr>, pub Box<Expr>);
 
 impl Generate for App {
@@ -129,7 +129,7 @@ macro_rules! app {
     }};
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum LamArg {
     Symbolic(Ident),
     Formal(FormalArg),
@@ -145,7 +145,7 @@ impl Generate for LamArg {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Lam {
     pub arg: LamArg,
     pub body: Box<Expr>,
@@ -188,7 +188,7 @@ impl Generate for Lam {
     }
 }
 
-#[derive(Clone, Ord, PartialOrd, PartialEq, Eq)]
+#[derive(Clone, Debug, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Ident(String);
 
 impl Ident {
@@ -224,7 +224,7 @@ impl Generate for Ident {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FormalArg {
     pub args: Vec<(Ident, Option<Expr>)>,
     pub ignore_extra: bool,
@@ -366,7 +366,7 @@ const QUOTE_MAP: &[(char, &str)] = &[
     ('\t', "\\t"),
 ];
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Key {
     Key { key: String },
     Expr(Box<Expr>),
@@ -416,7 +416,7 @@ macro_rules! key {
 /// interpolation.
 /// This should covers enough uses cases in mechanical
 /// Nix expression generation
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AttrsPath(pub Vec<Key>);
 
 impl Generate for AttrsPath {
@@ -460,7 +460,7 @@ macro_rules! attrs_path {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AttrSet {
     pub recursive: bool,
     pub attrs: Vec<(AttrsPath, Expr)>,
@@ -565,7 +565,7 @@ macro_rules! attrs {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Projection {
     pub record: Box<Expr>,
     pub key: Key,
@@ -611,7 +611,7 @@ macro_rules! proj {
     };
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct List(pub Vec<Expr>);
 
 #[macro_export]
@@ -655,7 +655,7 @@ impl Generate for List {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct NixString(pub String);
 
 impl NixString {
@@ -677,7 +677,7 @@ macro_rules! nix_string {
     };
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ConstNum {
     Signed(i64),
     Unsigned(u64),
@@ -697,7 +697,7 @@ impl Generate for ConstNum {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Optional(pub Option<Box<Expr>>);
 
 impl Generate for Optional {
@@ -709,7 +709,7 @@ impl Generate for Optional {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Let {
     pub bindings: Vec<(Ident, Expr)>,
     pub body: Box<Expr>,
@@ -797,7 +797,7 @@ impl Generate for Let {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct IfElse {
     pub condition: Box<Expr>,
     pub consequent: Box<Expr>,
@@ -834,7 +834,7 @@ macro_rules! ifelse {
     };
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Eq {
     pub one: Box<Expr>,
     pub another: Box<Expr>,
@@ -848,7 +848,7 @@ impl Generate for Eq {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Expr {
     App(App),
     AttrSet(AttrSet),

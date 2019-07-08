@@ -12,6 +12,7 @@ use failure::Error;
 use tokio::runtime::Runtime;
 
 fn main() -> Result<(), Error> {
+    env_logger::init();
     let matches = App::new("cargo2nix")
         .version("0.2.0")
         .author("Ding Xiang Fei <dingxiangfei2009@gmail.com>")

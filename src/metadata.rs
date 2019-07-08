@@ -5,10 +5,11 @@ use cargo::{
         registry::PackageRegistry, resolver::Method, source::SourceId, GitReference, PackageId,
         Workspace,
     },
-    ops::{get_resolved_packages, resolve_with_previous},
+    ops::{get_resolved_packages, load_pkg_lockfile, resolve_with_previous},
     util::config::Config,
 };
 use failure::Error;
+use log::info;
 use serde::Serialize;
 
 use crate::codegen::{
@@ -38,18 +39,26 @@ pub fn generate_lockfile<'a>(
     config: &'a Config,
     ws: &Workspace<'a>,
 ) -> Result<(Vec<LockedPackage>, Vec<LockedPackageId>), Error> {
+    info!("generating lockfile");
     let mut registry = PackageRegistry::new(config)?;
+    let previous = load_pkg_lockfile(ws)
+        .ok()
+        .into_iter()
+        .filter_map(std::convert::identity)
+        .nth(0);
     let resolve = resolve_with_previous(
         &mut registry,
         ws,
         Method::Everything,
-        None,
+        previous.as_ref(),
         None,
         &[],
         true,
         true,
     )?;
+    info!("dependencies locked");
     let packages = get_resolved_packages(&resolve, registry)?;
+    info!("versions locked");
     let packages = {
         let mut pkgs = HashMap::new();
         for pkg in packages.get_many(packages.package_ids())? {
@@ -130,5 +139,6 @@ pub fn generate_lockfile<'a>(
             source: source_id_to_string(pkg.package_id().source_id()),
         })
         .collect();
+    info!("all dependencies resolved");
     Ok((packages, root_packages))
 }
