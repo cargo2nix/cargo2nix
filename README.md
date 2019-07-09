@@ -18,7 +18,7 @@ This repository hosts two components:
 1. Install [nix](https://nixos.org/nix) on your *NIX machine
 1. `nix-build -A package`
 
-## How to use for your Rust projects
+## How to use this for your Rust projects
 
 Use `default.nix` in this repository as an example, select the package you
 want to build and set up required build-time/run-time dependencies.
@@ -32,6 +32,20 @@ in the generated package set `rustPackages`.
    For instance, `cargo2nix` caps all warnings in the `failure` crate to just
    `warn`.
    
+## Design
+
+This Nixpkgs overlay builds your Rust crates and binaries by first pulling the
+dependencies apart, building them individually as separate Nix derivations and
+linking them together.
+This is achieved by basically passing linker flags to the `cargo` invocations
+and the underlying `rustc`/`rustdoc` invocations.
+
+The overlay is built on top of the work by James Kay.
+In addition, this overlay also takes cross-compilation into account and build
+the crates onto the correct host platform configurations with the correct
+platform-dependent feature flags specified in the Cargo manifests
+and build-time dependencies.
+
 ## Credits
 
 This Nix overlay is inspired by the excellent work done by James Kay, which
