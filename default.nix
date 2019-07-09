@@ -42,8 +42,10 @@ let
   # source filter
   srcFilter = {src, name, type}:
     (type == "directory" && name == "${toString src}/overlay" -> false) &&
-    (type == "file" && lib.hasSuffix ".nix" (baseNameOf name) -> false) &&
-    (type == "symlink" && lib.hasPrefix "${toString src}/result" name -> false)
+    (type == "regular" && lib.hasSuffix ".nix" (baseNameOf name) -> false) &&
+    (type == "regular" && lib.hasPrefix "." (baseNameOf name) -> false) &&
+    (type == "symlink" && lib.hasPrefix "${toString src}/result" name -> false) &&
+    (type == "unknown" -> false)
   ;
 
   # define source location
