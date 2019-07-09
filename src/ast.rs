@@ -212,9 +212,7 @@ macro_rules! ident {
 
 impl Ident {
     pub fn to_key(&self) -> Key {
-        Key::Key {
-            key: self.0.clone(),
-        }
+        Key::Key(self.0.clone())
     }
 }
 
@@ -240,7 +238,7 @@ impl Generate for FormalArg {
         writer.write_char('{')?;
         writer.indent(2);
         let mut first = true;
-        for &(ref name, ref default) in self.args.iter() {
+        for &(ref name, ref default) in &self.args {
             writer.new_line()?;
             if first {
                 first = false;
@@ -368,7 +366,7 @@ const QUOTE_MAP: &[(char, &str)] = &[
 
 #[derive(Clone, Debug)]
 pub enum Key {
-    Key { key: String },
+    Key(String),
     Expr(Box<Expr>),
 }
 
@@ -386,7 +384,7 @@ fn write_quoted_str<W: Write>(s: &str, writer: &mut W) -> Result<(), <W as Write
 impl Generate for Key {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         match self {
-            Key::Key { ref key } => {
+            Key::Key(ref key) => {
                 if key.contains(NEED_QUOTE) {
                     write_quoted_str(key, writer)
                 } else {
@@ -405,9 +403,7 @@ impl Generate for Key {
 #[macro_export]
 macro_rules! key {
     ($key:expr) => {
-        $crate::ast::Key::Key {
-            key: $key.to_string(),
-        }
+        $crate::ast::Key::Key($key.to_string())
     };
 }
 
@@ -422,7 +418,7 @@ pub struct AttrsPath(pub Vec<Key>);
 impl Generate for AttrsPath {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         let mut first = true;
-        for key in self.0.iter() {
+        for key in &self.0 {
             if first {
                 key.generate_word(writer)?;
                 first = false;
@@ -473,12 +469,12 @@ impl Generate for AttrSet {
         }
         writer.write_char('{')?;
         writer.indent(2);
-        for (key, value) in self.attrs.iter() {
+        for (key, value) in &self.attrs {
             writer.new_line()?;
             match (key, value) {
                 (AttrsPath(ref path), Expr::Ident(Ident(ref ivalue)))
                     if path.len() == 1
-                        && if let Key::Key { ref key } = path[0] {
+                        && if let Key::Key(ref key) = path[0] {
                             key == ivalue
                         } else {
                             false
@@ -491,10 +487,10 @@ impl Generate for AttrSet {
                     AttrsPath(ref path),
                     Expr::Projection(Projection {
                         ref record,
-                        key: Key::Key { ref key },
+                        key: Key::Key(ref key),
                     }),
                 ) if path.len() == 1
-                    && if let Key::Key { key: ref key_ } = path[0] {
+                    && if let Key::Key(ref key_) = path[0] {
                         key == key_ && !key.contains(NEED_QUOTE)
                     } else {
                         false
@@ -632,7 +628,7 @@ impl Generate for List {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         writer.write_char('[')?;
         writer.indent(2);
-        for expr in self.0.iter() {
+        for expr in &self.0 {
             writer.new_line()?;
             use Expr::*;
             let needs_quote = match *expr {
@@ -765,7 +761,7 @@ impl Generate for Let {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         writer.write_str("let")?;
         writer.indent(2);
-        for (var, val) in self.bindings.iter() {
+        for (var, val) in &self.bindings {
             writer.new_line()?;
             match val {
                 Expr::Ident(Ident(ref ident)) if &var.0 == ident => {
@@ -774,7 +770,7 @@ impl Generate for Let {
                 }
                 Expr::Projection(Projection {
                     ref record,
-                    key: Key::Key { ref key },
+                    key: Key::Key(ref key),
                 }) if &var.0 == key => {
                     writer.write_str("inherit (")?;
                     record.generate_word(writer)?;
@@ -964,7 +960,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
+    fn function_application() {
         let f = Box::new(Expr::Ident(Ident::new("f")));
         let a = Box::new(Expr::Ident(Ident::new("a")));
         let f = Box::new(Expr::App(App(f, a.clone())));
@@ -997,7 +993,7 @@ mod tests {
     }
 
     #[test]
-    fn it_works2() {
+    fn function_arguments() {
         let a = ident!("a");
         let args = ident!("args");
         let args2 = ident!("args2");
@@ -1025,6 +1021,10 @@ mod tests {
   "")"##,
             s
         );
+    }
+
+    #[test]
+    fn list() {
         let list = list!(nix_string!(""));
         let mut s = FmtWriter::new(String::new());
         list.generate_word(&mut s).unwrap();

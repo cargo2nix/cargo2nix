@@ -13,8 +13,8 @@ use tokio::runtime::Runtime;
 
 fn main() -> Result<(), Error> {
     env_logger::init();
-    let matches = App::new("cargo2nix")
-        .version("0.2.0")
+    let matches = App::new(env!("CARGO_PKG_NAME"))
+        .version(env!("CARGO_PKG_VERSION"))
         .author("Ding Xiang Fei <dingxiangfei2009@gmail.com>")
         .about("Nixify your Cargo workspace by generating Nix version pins and Nix expression stub")
         .arg(

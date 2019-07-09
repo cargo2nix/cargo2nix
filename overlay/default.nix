@@ -13,8 +13,6 @@ let
 
     cratesIoRegistry = callPackage ./crates-io-registry.nix {};
 
-    instantiateCrate = callPackage ./crate-instance.nix {};
-
     rustLib = callPackage ./lib.nix { };
 
     makePackageSet = callPackage ./make-package-set.nix;
