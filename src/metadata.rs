@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use cargo::{
     core::{
@@ -54,13 +54,12 @@ pub fn generate_lockfile<'a>(
         None,
         &[],
         true,
-        true,
     )?;
     info!("dependencies locked");
     let packages = get_resolved_packages(&resolve, registry)?;
     info!("versions locked");
     let packages = {
-        let mut pkgs = HashMap::new();
+        let mut pkgs = BTreeMap::new();
         for pkg in packages.get_many(packages.package_ids())? {
             pkgs.insert(pkg.package_id(), pkg.clone());
         }
