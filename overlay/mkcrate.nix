@@ -299,226 +299,230 @@ let
 
   depMapToList = deps: flatten (mapAttrsToList (name: value: [ name value.drv ]) deps);
 in
-stdenv.mkDerivation {
-  inherit src name version;
-  crateName = cargo-manifest.lib.name or (replaceChars ["-"] ["_"] name);
-  buildInputs =
-    map accessPackage buildInputs ++
-    accessConfig "buildInputs" [] package-id;
-  nativeBuildInputs =
-    [ buildPackages.jq cargo buildPackages.pkg-config ] ++
-    map accessPackage nativeBuildInputs ++
-    accessConfig "nativeBuildInputs" [] package-id;
+let
+  drvAttrs = {
+    inherit src name version;
+    crateName = cargo-manifest.lib.name or (replaceChars ["-"] ["_"] name);
+    buildInputs =
+      map accessPackage buildInputs ++
+      accessConfig "buildInputs" [] package-id;
+    nativeBuildInputs =
+      [ buildPackages.jq cargo buildPackages.pkg-config ] ++
+      map accessPackage nativeBuildInputs ++
+      accessConfig "nativeBuildInputs" [] package-id;
 
-  passthru = {
-    inherit
-      buildDependencies
-      cargo-manifest
-      dependencies
-      devDependencies
-      isProcMacro
-      package-id
-      panic-strategy
-      patched-manifest
-      computePackageFeatures
-      ;
-    features = final-features;
-    debug.features = features;
-    debug.dependencies = dependencies;
-    debug.devDependencies = devDependencies;
-    debug.origFeatures = origFeatures;
-  };
+    passthru = {
+      inherit
+        buildDependencies
+        cargo-manifest
+        dependencies
+        devDependencies
+        isProcMacro
+        package-id
+        panic-strategy
+        patched-manifest
+        computePackageFeatures
+        ;
+      features = final-features;
+      debug.features = features;
+      debug.dependencies = dependencies;
+      debug.devDependencies = devDependencies;
+      debug.origFeatures = origFeatures;
+      shell = pkgs.mkShell (removeAttrs drvAttrs ["src"]);
+    };
 
-  dependencies = depMapToList dependencies;
-  buildDependencies = depMapToList buildDependencies;
-  devDependencies = depMapToList devDependencies;
+    dependencies = depMapToList dependencies;
+    buildDependencies = depMapToList buildDependencies;
+    devDependencies = depMapToList devDependencies;
 
-  features = sort (a: b: a < b) (attrNames final-features);
-  isProcMacro = optionalString isProcMacro "1";
+    features = sort (a: b: a < b) (attrNames final-features);
+    isProcMacro = optionalString isProcMacro "1";
 
-  extraRustcFlags = accessConfig "rustcflags" [] package-id;
+    extraRustcFlags = accessConfig "rustcflags" [] package-id;
 
-  shellHook = env-setup;
+    shellHook = env-setup;
 
-  outputs = [ "out" ] ++ optional doCheck "tests";
+    outputs = [ "out" ] ++ optional doCheck "tests";
 
-  configureCargo = ''
-    mkdir -p .cargo
-    cat > .cargo/config <<'EOF'
-    [target."${stdenv.buildPlatform.config}"]
-    linker = "${ccForBuild}"
-  '' + optionalString (stdenv.buildPlatform.config != stdenv.hostPlatform.config) ''
-    [target."${stdenv.hostPlatform.config}"]
-    linker = "${ccForHost}"
-  '' + ''
-    EOF
-  '';
-
-  overrideCargoManifest = ''
-    echo [[package]] > Cargo.lock
-    echo name = \"${name}\" >> Cargo.lock
-    echo version = \"${version}\" >> Cargo.lock
-    echo source = \"registry+${registry}\" >> Cargo.lock
-    cp ${rustLib.json2toml patched-manifest} Cargo.toml
-  '';
-
-  configurePhase =
-    ''
-      runHook preConfigure
-      runHook configureCargo
-      runHook postConfigure
+    configureCargo = ''
+      mkdir -p .cargo
+      cat > .cargo/config <<'EOF'
+      [target."${stdenv.buildPlatform.config}"]
+      linker = "${ccForBuild}"
+    '' + optionalString (stdenv.buildPlatform.config != stdenv.hostPlatform.config) ''
+      [target."${stdenv.hostPlatform.config}"]
+      linker = "${ccForHost}"
+    '' + ''
+      EOF
     '';
 
-  runCargo = ''
-    (
-      ${env-setup}
-      env \
-        "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-        "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-        "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
-        "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
-        "''${depKeys[@]}" \
-        cargo build -vvv --release --target ${stdenv.hostPlatform.config} --features "$features"
-  '' + optionalString doCheck ''
-      env \
-        "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-        "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-        "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
-        "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
-        "''${depKeys[@]}" \
-        cargo build -vvv --tests --target ${stdenv.hostPlatform.config} --features "$features"
-  '' + ''
-    )
-  '';
+    overrideCargoManifest = ''
+      echo [[package]] > Cargo.lock
+      echo name = \"${name}\" >> Cargo.lock
+      echo version = \"${version}\" >> Cargo.lock
+      echo source = \"registry+${registry}\" >> Cargo.lock
+      cp ${rustLib.json2toml patched-manifest} Cargo.toml
+    '';
 
-  setBuildEnv = ''
-    . ${./utils.sh}
-    export NIX_RUST_METADATA=`extractHash $out`
-    export CARGO_HOME=`pwd`/.cargo
-    mkdir -p deps build_deps
-    linkFlags=(`makeExternCrateFlags $dependencies $devDependencies`)
-    buildLinkFlags=(`makeExternCrateFlags $buildDependencies`)
-    linkExternCrateToDeps `realpath deps` $dependencies $devDependencies
-    linkExternCrateToDeps `realpath build_deps` $buildDependencies
+    configurePhase =
+      ''
+        runHook preConfigure
+        runHook configureCargo
+        runHook postConfigure
+      '';
 
-    export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcFlags"
-    export NIX_RUST_BUILD_LINK_FLAGS="''${buildLinkFlags[@]} -L dependency=$(realpath build_deps)"
-    export RUSTC=${wrapper "rustc"}/bin/rustc
-    export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
+    runCargo = ''
+      (
+        ${env-setup}
+        env \
+          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+          "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
+          "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
+          "''${depKeys[@]}" \
+          cargo build -vvv --release --target ${stdenv.hostPlatform.config} --features "$features"
+    '' + optionalString doCheck ''
+        env \
+          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+          "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
+          "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
+          "''${depKeys[@]}" \
+          cargo build -vvv --tests --target ${stdenv.hostPlatform.config} --features "$features"
+    '' + ''
+      )
+    '';
 
-    echo $NIX_RUST_LINK_FLAGS
-    echo $NIX_RUST_BUILD_LINK_FLAGS
-    depKeys=(`loadDepKeys $dependencies`)
-    for key in ''${depKeys[@]}; do
-      echo $key
-    done
+    setBuildEnv = ''
+      . ${./utils.sh}
+      export NIX_RUST_METADATA=`extractHash $out`
+      export CARGO_HOME=`pwd`/.cargo
+      mkdir -p deps build_deps
+      linkFlags=(`makeExternCrateFlags $dependencies $devDependencies`)
+      buildLinkFlags=(`makeExternCrateFlags $buildDependencies`)
+      linkExternCrateToDeps `realpath deps` $dependencies $devDependencies
+      linkExternCrateToDeps `realpath build_deps` $buildDependencies
 
-    echo enabling the following features on crate $name-$version
-    for feature in $features; do
-      echo $feature
-    done
-  '';
+      export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcFlags"
+      export NIX_RUST_BUILD_LINK_FLAGS="''${buildLinkFlags[@]} -L dependency=$(realpath build_deps)"
+      export RUSTC=${wrapper "rustc"}/bin/rustc
+      export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
-  buildPhase = ''
-    runHook overrideCargoManifest
-    runHook setBuildEnv
-  '' + accessConfig "preBuild" "" package-id + ''
-    runHook runCargo
-  '';
-
-  installPhase = ''
-    mkdir -p $out/lib
-    pushd target/${stdenv.hostPlatform.config}/release
-    cargo_links=${cargo-manifest.package.links or ""}
-    needs_deps=
-    has_output=
-    for output in *; do
-      if [ -d "$output" ]; then
-        continue
-      elif [ -x "$output" ]; then
-        mkdir -p $out/bin
-        cp $output $out/bin/
-        has_output=1
-      else
-        case `extractFileExt "$output"` in
-        rlib)
-          mkdir -p $out/lib/.dep-files
-          cp $output $out/lib/
-          link_flags=$out/lib/.link-flags
-          dep_keys=$out/lib/.dep-keys
-          touch $link_flags $dep_keys
-          for depinfo in build/*/output; do
-            dumpDepInfo $link_flags $dep_keys "$cargo_links" $out/lib/.dep-files $depinfo
-          done
-          needs_deps=1
-          has_output=1
-          ;;
-        a) ;&
-        so) ;&
-        dylib)
-          mkdir -p $out/lib
-          cp $output $out/lib/
-          has_output=1
-          ;;
-        *)
-          continue
-        esac
-      fi
-    done
-    popd
-
-    touch $out/lib/.link-flags
-    loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
-
-    if [ "$isProcMacro" ]; then
-      pushd target/release
-      for output in *; do
-        if [ -d "$output" ]; then
-          continue
-        fi
-        case `extractFileExt "$output"` in
-        so) ;&
-        dylib)
-          isProcMacro=`basename $output`
-          mkdir -p $out/lib
-          cp $output $out/lib
-          needs_deps=1
-          has_output=1
-          ;;
-        *)
-          continue
-        esac
+      echo $NIX_RUST_LINK_FLAGS
+      echo $NIX_RUST_BUILD_LINK_FLAGS
+      depKeys=(`loadDepKeys $dependencies`)
+      for key in ''${depKeys[@]}; do
+        echo $key
       done
-      popd
-    fi
 
-    if [ ! "$has_output" ]; then
-      echo NO OUTPUT IS FOUND
-      exit 1
-    fi
+      echo enabling the following features on crate $name-$version
+      for feature in $features; do
+        echo $feature
+      done
+    '';
 
-    if [ "$needs_deps" ]; then
-      mkdir -p $out/lib/deps
-      linkExternCrateToDeps $out/lib/deps $dependencies
-    fi
+    buildPhase = ''
+      runHook overrideCargoManifest
+      runHook setBuildEnv
+    '' + accessConfig "preBuild" "" package-id + ''
+      runHook runCargo
+    '';
 
-    echo {} | jq \
-      '{name:$name, metadata:$metadata, version:$version, proc_macro:$procmacro}' \
-      --arg name $crateName \
-      --arg metadata $NIX_RUST_METADATA \
-      --arg procmacro "$isProcMacro" \
-      --arg version $version >$out/.cargo-info
-  '' + optionalString doCheck ''
-    mkdir -p $tests
-    pushd target/${stdenv.hostPlatform.config}/debug
+    installPhase = ''
+      mkdir -p $out/lib
+      pushd target/${stdenv.hostPlatform.config}/release
+      cargo_links=${cargo-manifest.package.links or ""}
+      needs_deps=
+      has_output=
       for output in *; do
         if [ -d "$output" ]; then
           continue
         elif [ -x "$output" ]; then
-          mkdir -p $tests/bin
-          cp $output $tests/bin/
+          mkdir -p $out/bin
+          cp $output $out/bin/
+          has_output=1
+        else
+          case `extractFileExt "$output"` in
+          rlib)
+            mkdir -p $out/lib/.dep-files
+            cp $output $out/lib/
+            link_flags=$out/lib/.link-flags
+            dep_keys=$out/lib/.dep-keys
+            touch $link_flags $dep_keys
+            for depinfo in build/*/output; do
+              dumpDepInfo $link_flags $dep_keys "$cargo_links" $out/lib/.dep-files $depinfo
+            done
+            needs_deps=1
+            has_output=1
+            ;;
+          a) ;&
+          so) ;&
+          dylib)
+            mkdir -p $out/lib
+            cp $output $out/lib/
+            has_output=1
+            ;;
+          *)
+            continue
+          esac
         fi
       done
-    popd
-  '';
-}
+      popd
+
+      touch $out/lib/.link-flags
+      loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
+
+      if [ "$isProcMacro" ]; then
+        pushd target/release
+        for output in *; do
+          if [ -d "$output" ]; then
+            continue
+          fi
+          case `extractFileExt "$output"` in
+          so) ;&
+          dylib)
+            isProcMacro=`basename $output`
+            mkdir -p $out/lib
+            cp $output $out/lib
+            needs_deps=1
+            has_output=1
+            ;;
+          *)
+            continue
+          esac
+        done
+        popd
+      fi
+
+      if [ ! "$has_output" ]; then
+        echo NO OUTPUT IS FOUND
+        exit 1
+      fi
+
+      if [ "$needs_deps" ]; then
+        mkdir -p $out/lib/deps
+        linkExternCrateToDeps $out/lib/deps $dependencies
+      fi
+
+      echo {} | jq \
+        '{name:$name, metadata:$metadata, version:$version, proc_macro:$procmacro}' \
+        --arg name $crateName \
+        --arg metadata $NIX_RUST_METADATA \
+        --arg procmacro "$isProcMacro" \
+        --arg version $version >$out/.cargo-info
+    '' + optionalString doCheck ''
+      mkdir -p $tests
+      pushd target/${stdenv.hostPlatform.config}/debug
+        for output in *; do
+          if [ -d "$output" ]; then
+            continue
+          elif [ -x "$output" ]; then
+            mkdir -p $tests/bin
+            cp $output $tests/bin/
+          fi
+        done
+      popd
+    '';
+  };
+in
+stdenv.mkDerivation drvAttrs
