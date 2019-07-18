@@ -225,8 +225,8 @@ in
   inherit resolveFeatures splicePackages breakPackageId pkgName pkgVersion pkgRegistry;
 
   parseCfg = import ./parse-cfg.nix { inherit lib; };
-  json2toml = import ./json2toml.nix { inherit (pkgs.buildPackages) remarshal runCommand; };
-  toml2json = import ./toml2json.nix { inherit lib; inherit (pkgs.buildPackages) remarshal runCommand; };
+  json2toml = import ./json2toml.nix { inherit (pkgs.buildPackages.buildPackages) remarshal runCommand; };
+  toml2json = import ./toml2json.nix { inherit lib; inherit (pkgs.buildPackages.buildPackages) remarshal runCommand; };
 
   isCratesIo = source: source == "registry+https://github.com/rust-lang/crates.io-index";
   fetchCratesIo = { name, version, sha256 }: pkgs.fetchurl {
