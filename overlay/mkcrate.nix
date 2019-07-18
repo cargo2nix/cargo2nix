@@ -342,7 +342,7 @@ stdenv.mkDerivation {
 
   outputs = [ "out" ] ++ optional doCheck "tests";
 
-  configureCargoConf = ''
+  configureCargo = ''
     mkdir -p .cargo
     cat > .cargo/config <<'EOF'
     [target."${stdenv.buildPlatform.config}"]
@@ -365,7 +365,7 @@ stdenv.mkDerivation {
   configurePhase =
     ''
       runHook preConfigure
-      runHook configureCargoConf
+      runHook configureCargo
       runHook postConfigure
     '';
 
