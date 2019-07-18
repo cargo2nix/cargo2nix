@@ -306,7 +306,7 @@ stdenv.mkDerivation {
     map accessPackage buildInputs ++
     accessConfig "buildInputs" [] package-id;
   nativeBuildInputs =
-    [ buildPackages.jq cargo ] ++
+    [ buildPackages.jq cargo buildPackages.pkg-config ] ++
     map accessPackage nativeBuildInputs ++
     accessConfig "nativeBuildInputs" [] package-id;
 
