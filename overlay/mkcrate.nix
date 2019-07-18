@@ -352,7 +352,30 @@ stdenv.mkDerivation {
     ''
     + ''
       EOF
+      runHook postConfigure
     '';
+
+  runCargo = ''
+    (
+      ${env-setup}
+      env \
+        "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+        "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+        "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
+        "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
+        "''${depKeys[@]}" \
+        cargo build -vvv --release --target ${stdenv.hostPlatform.config} --features "$features"
+  '' + optionalString doCheck ''
+      env \
+        "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+        "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+        "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
+        "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
+        "''${depKeys[@]}" \
+        cargo build -vvv --tests --target ${stdenv.hostPlatform.config} --features "$features"
+  '' + ''
+    )
+  '';
 
   buildPhase = ''
     . ${./utils.sh}
@@ -387,27 +410,8 @@ stdenv.mkDerivation {
       echo $feature
     done
 
-  '' + accessConfig "preBuild" "" package-id +
-  ''
-    (
-      ${env-setup}
-      env \
-        "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-        "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-        "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
-        "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
-        "''${depKeys[@]}" \
-        cargo build -vvv --release --target ${stdenv.hostPlatform.config} --features "$features"
-  '' + optionalString doCheck ''
-      env \
-        "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-        "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-        "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
-        "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
-        "''${depKeys[@]}" \
-        cargo build -vvv --tests --target ${stdenv.hostPlatform.config} --features "$features"
-  '' + ''
-    )
+  '' + accessConfig "preBuild" "" package-id + ''
+    runHook runCargo
   '';
   installPhase = ''
     mkdir -p $out/lib
