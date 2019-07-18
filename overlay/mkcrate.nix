@@ -234,7 +234,11 @@ let
   cxxForHost="${stdenv.cc}/bin/${stdenv.cc.targetPrefix}c++";
 in
 let
-  selectPlatform = pkg: if pkg.isProcMacro or false then nativeDrv pkg.drv else crossDrv pkg.drv;
+  selectPlatform = pkg:
+    if pkg.drv.isProcMacro or false then
+      nativeDrv pkg.drv
+    else
+      crossDrv pkg.drv;
 
   computeDependencies =
     final-features:
@@ -338,20 +342,30 @@ stdenv.mkDerivation {
 
   outputs = [ "out" ] ++ optional doCheck "tests";
 
+  configureCargoConf = ''
+    mkdir -p .cargo
+    cat > .cargo/config <<'EOF'
+    [target."${stdenv.buildPlatform.config}"]
+    linker = "${ccForBuild}"
+  '' + optionalString (stdenv.buildPlatform.config != stdenv.hostPlatform.config) ''
+    [target."${stdenv.hostPlatform.config}"]
+    linker = "${ccForHost}"
+  '' + ''
+    EOF
+  '';
+
+  overrideCargoManifest = ''
+    echo [[package]] > Cargo.lock
+    echo name = \"${name}\" >> Cargo.lock
+    echo version = \"${version}\" >> Cargo.lock
+    echo source = \"registry+${registry}\" >> Cargo.lock
+    cp ${rustLib.json2toml patched-manifest} Cargo.toml
+  '';
+
   configurePhase =
     ''
       runHook preConfigure
-      mkdir -p .cargo
-      cat > .cargo/config <<'EOF'
-      [target."${stdenv.buildPlatform.config}"]
-      linker = "${ccForBuild}"
-    ''
-    + optionalString (stdenv.buildPlatform.config != stdenv.hostPlatform.config) ''
-      [target."${stdenv.hostPlatform.config}"]
-      linker = "${ccForHost}"
-    ''
-    + ''
-      EOF
+      runHook configureCargoConf
       runHook postConfigure
     '';
 
@@ -377,16 +391,10 @@ stdenv.mkDerivation {
     )
   '';
 
-  buildPhase = ''
+  setBuildEnv = ''
     . ${./utils.sh}
     export NIX_RUST_METADATA=`extractHash $out`
-    echo [[package]] > Cargo.lock
-    echo name = \"${name}\" >> Cargo.lock
-    echo version = \"${version}\" >> Cargo.lock
-    echo source = \"registry+${registry}\" >> Cargo.lock
-    cp ${rustLib.json2toml patched-manifest} Cargo.toml
     export CARGO_HOME=`pwd`/.cargo
-
     mkdir -p deps build_deps
     linkFlags=(`makeExternCrateFlags $dependencies $devDependencies`)
     buildLinkFlags=(`makeExternCrateFlags $buildDependencies`)
@@ -409,10 +417,15 @@ stdenv.mkDerivation {
     for feature in $features; do
       echo $feature
     done
+  '';
 
+  buildPhase = ''
+    runHook overrideCargoManifest
+    runHook setBuildEnv
   '' + accessConfig "preBuild" "" package-id + ''
     runHook runCargo
   '';
+
   installPhase = ''
     mkdir -p $out/lib
     pushd target/${stdenv.hostPlatform.config}/release
