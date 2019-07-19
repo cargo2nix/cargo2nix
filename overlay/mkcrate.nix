@@ -300,6 +300,22 @@ let
   depMapToList = deps: flatten (mapAttrsToList (name: value: [ name value.drv ]) deps);
 in
 let
+  realHostTriple = system: {
+    "i686-linux"      = "i686-unknown-linux-gnu";
+    "x86_64-linux"    = "x86_64-unknown-linux-gnu";
+    "armv5tel-linux"  = "arm-unknown-linux-gnueabi";
+    "armv6l-linux"    = "arm-unknown-linux-gnueabi";
+    "armv7a-android"  = "armv7-linux-androideabi";
+    "armv7l-linux"    = "armv7-unknown-linux-gnueabihf";
+    "aarch64-linux"   = "aarch64-unknown-linux-gnu";
+    "mips64el-linux"  = "mips64el-unknown-linux-gnuabi64";
+    "x86_64-darwin"   = "x86_64-apple-darwin";
+    "i686-cygwin"     = "i686-pc-windows-gnu";
+    "x86_64-cygwin"   = "x86_64-pc-windows-gnu";
+    "x86_64-freebsd"  = "x86_64-unknown-freebsd";
+    "wasm32-wasi"     = "wasm32-wasi";
+  }.${system} or (throw "unrecognized system: ${system}");
+
   drvAttrs = {
     inherit src name version;
     crateName = cargo-manifest.lib.name or (replaceChars ["-"] ["_"] name);
@@ -380,7 +396,7 @@ let
           "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
           "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
           "''${depKeys[@]}" \
-          cargo build -vvv --release --target ${stdenv.hostPlatform.config} --features "$features"
+          cargo build -vvv --release --target ${realHostTriple stdenv.hostPlatform.system} --features "$features"
     '' + optionalString doCheck ''
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
@@ -388,7 +404,7 @@ let
           "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
           "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
           "''${depKeys[@]}" \
-          cargo build -vvv --tests --target ${stdenv.hostPlatform.config} --features "$features"
+          cargo build -vvv --tests --target ${realHostTriple stdenv.hostPlatform.system} --features "$features"
     '' + ''
       )
     '';
@@ -424,13 +440,13 @@ let
     buildPhase = ''
       runHook overrideCargoManifest
       runHook setBuildEnv
-    '' + accessConfig "preBuild" "" package-id + ''
+      ${accessConfig "preBuild" "" package-id}
       runHook runCargo
     '';
 
     installPhase = ''
       mkdir -p $out/lib
-      pushd target/${stdenv.hostPlatform.config}/release
+      pushd target/${realHostTriple stdenv.hostPlatform.system}/release
       cargo_links=${cargo-manifest.package.links or ""}
       needs_deps=
       has_output=
@@ -512,7 +528,7 @@ let
         --arg version $version >$out/.cargo-info
     '' + optionalString doCheck ''
       mkdir -p $tests
-      pushd target/${stdenv.hostPlatform.config}/debug
+      pushd target/${realHostTriple stdenv.hostPlatform.system}/debug
         for output in *; do
           if [ -d "$output" ]; then
             continue
