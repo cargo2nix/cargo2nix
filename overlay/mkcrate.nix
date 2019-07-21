@@ -69,6 +69,22 @@ let
       (mapAttrsToList mapToEnv environment);
 
   features' = features ++ attrNames (accessConfig "features" {} package-id);
+
+  realHostTriple = system: {
+    "i686-linux"      = "i686-unknown-linux-gnu";
+    "x86_64-linux"    = "x86_64-unknown-linux-gnu";
+    "armv5tel-linux"  = "arm-unknown-linux-gnueabi";
+    "armv6l-linux"    = "arm-unknown-linux-gnueabi";
+    "armv7a-android"  = "armv7-linux-androideabi";
+    "armv7l-linux"    = "armv7-unknown-linux-gnueabihf";
+    "aarch64-linux"   = "aarch64-unknown-linux-gnu";
+    "mips64el-linux"  = "mips64el-unknown-linux-gnuabi64";
+    "x86_64-darwin"   = "x86_64-apple-darwin";
+    "i686-cygwin"     = "i686-pc-windows-gnu";
+    "x86_64-cygwin"   = "x86_64-pc-windows-gnu";
+    "x86_64-freebsd"  = "x86_64-unknown-freebsd";
+    "wasm32-wasi"     = "wasm32-wasi";
+  }.${system} or (throw "unrecognized system: ${system}");
 in
 let
   features = features';
@@ -169,7 +185,7 @@ let
       (mapAttrsToList
         (pred: specset:
           optional
-            (pred == platform.config || rustLib.parseCfg pred platform)
+            (pred == realHostTriple platform.system || rustLib.parseCfg pred platform)
             specset.${type} or {})
         manifest.target or {});
 
@@ -300,22 +316,6 @@ let
   depMapToList = deps: flatten (mapAttrsToList (name: value: [ name value.drv ]) deps);
 in
 let
-  realHostTriple = system: {
-    "i686-linux"      = "i686-unknown-linux-gnu";
-    "x86_64-linux"    = "x86_64-unknown-linux-gnu";
-    "armv5tel-linux"  = "arm-unknown-linux-gnueabi";
-    "armv6l-linux"    = "arm-unknown-linux-gnueabi";
-    "armv7a-android"  = "armv7-linux-androideabi";
-    "armv7l-linux"    = "armv7-unknown-linux-gnueabihf";
-    "aarch64-linux"   = "aarch64-unknown-linux-gnu";
-    "mips64el-linux"  = "mips64el-unknown-linux-gnuabi64";
-    "x86_64-darwin"   = "x86_64-apple-darwin";
-    "i686-cygwin"     = "i686-pc-windows-gnu";
-    "x86_64-cygwin"   = "x86_64-pc-windows-gnu";
-    "x86_64-freebsd"  = "x86_64-unknown-freebsd";
-    "wasm32-wasi"     = "wasm32-wasi";
-  }.${system} or (throw "unrecognized system: ${system}");
-
   drvAttrs = {
     inherit src name version;
     crateName = cargo-manifest.lib.name or (replaceChars ["-"] ["_"] name);
@@ -360,13 +360,14 @@ let
 
     outputs = [ "out" ] ++ optional doCheck "tests";
 
+    # wasm32-wasi always uses `wasm-ld`
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
-      [target."${stdenv.buildPlatform.config}"]
+      [target."${realHostTriple stdenv.buildPlatform.system}"]
       linker = "${ccForBuild}"
-    '' + optionalString (stdenv.buildPlatform.config != stdenv.hostPlatform.config) ''
-      [target."${stdenv.hostPlatform.config}"]
+    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !stdenv.hostPlatform.isWasi) ''
+      [target."${realHostTriple stdenv.hostPlatform.system}"]
       linker = "${ccForHost}"
     '' + ''
       EOF
