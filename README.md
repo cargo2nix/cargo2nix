@@ -20,10 +20,55 @@ This repository hosts two components:
 
 ## How to use this for your Rust projects
 
+### As a build system
+
 Use `default.nix` in this repository as an example, select the package you
 want to build and set up required build-time/run-time dependencies.
 For instance, `cargo2nix` can be built from `package.unknown.cargo2nix."0.1.0"`
 in the generated package set `rustPackages`.
+
+### Optional declarative development shell
+
+You can optionally use any of these crate derivation as your `nix-shell` development shell.
+The advantage of this shell is that in this environment users can develop their crates and
+be sure that their crates builds in the same way that `cargo2nix` overlay will build them.
+
+To do this, run `nix-shell -A 'package.<package-id-attrset-path>'`.
+For instance, the following command being invoked in this repository root drops you
+into such a development shell.
+```bash
+nix-shell -A 'package.unknown.cargo2nix."0.1.0"'
+```
+You will need to bootstrap some environment in this declarative development shell first.
+```bash
+runHook configureCargo  # this overrides your .cargo folder for setting cross-compilers, for example
+runHook setBuildEnv     # this sets up linker flags for the `rustc` invocations
+```
+You will need to override your `Cargo.toml` and `Cargo.lock` in this shell,
+so make sure that you have them backed up beforehand.
+```bash
+runHook overrideCargoManifest
+```
+Now you can use your favorite editor in this environment.
+To run build command used by `cargo2nix`, use
+```bash
+runHook runCargo
+```
+
+### Airplane mode
+
+Going flying next morning and planning to code Rust to kill your boredom for the next 12 hours?
+Airplane mode allows you to work offline as long as you have checked in the `crates-io`
+dependencies into Nix store.
+The `shell` derivation in `default.nix` is a sample derivation that enables airplane mode for
+your `cargo`.
+
+To enter airplane mode, run the following command.
+```bash
+nix-shell -A shell --fallback --substitute false
+```
+Then execute `vendor_source` command in the shell to install source replacement for the `crates-io`
+public crates.
 
 ## Common issues
 

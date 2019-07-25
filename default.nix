@@ -25,19 +25,23 @@ let
   # openssl supply
   openssl =
     pkgs:
-      pkgs.symlinkJoin {
+      pkgs.buildPackages.symlinkJoin {
         name = "openssl";
         paths = with pkgs.openssl; [out dev];
       };
 
 
   # choice of rustc
-  rustChannel = pkgs.rustChannelOf {
+  rustChannel = pkgs.buildPackages.rustChannelOf {
     channel = "1.36.0";
   };
 
   inherit (rustChannel) cargo;
-  rustc = rustChannel.rust;
+  rustc = rustChannel.rust.override {
+    targets = [
+      pkgs.stdenv.targetPlatform.config
+    ];
+  };
 
   # source filter
   srcFilter = {src, name, type}:
