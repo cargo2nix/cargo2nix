@@ -243,4 +243,6 @@ in
   cleanLocalSource = import ./clean-local-src.nix { inherit lib; };
 
   computeFinalFeatures = import ./features.nix { inherit lib; };
+
+  realHostTriple = import ./real-host-triple.nix;
 }

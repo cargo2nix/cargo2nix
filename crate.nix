@@ -54,14 +54,14 @@
     inherit rustc;
     inherit packageFun;
     rustPackageConfig = lib.recursiveUpdate config' {
-      features = features.${pkgs.stdenv.hostPlatform.config};
+      features = features.${pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.hostPlatform};
     };
     buildRustPackages = buildPackages.rustBuilder.makePackageSet {
       inherit cargo;
       inherit rustc;
       inherit packageFun;
       rustPackageConfig = lib.recursiveUpdate buildConfig' {
-        features = features.${buildPackages.stdenv.hostPlatform.config};
+        features = features.${pkgs.rustBuilder.rustLib.realHostTriple buildPackages.stdenv.hostPlatform};
       };
     };
   })
