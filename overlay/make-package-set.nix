@@ -8,7 +8,8 @@
   cargo,
   rustc,
   mkRustCrate,
-  buildRustPackages ? null
+  buildRustPackages ? null,
+  target ? null,
 }:
 lib.fix' (self:
   let
@@ -33,7 +34,7 @@ lib.fix' (self:
     mkRustCrate_ =
       lib.makeOverridable
         (callPackage mkRustCrate {
-          inherit rustLib;
+          inherit rustLib target;
           config = rustPackageConfig;
         });
   in

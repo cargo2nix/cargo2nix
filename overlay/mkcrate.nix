@@ -9,6 +9,8 @@
   rustLib,
   rustPackages,
   stdenv,
+
+  target ? null,
 }:
 {
   src,
@@ -27,7 +29,7 @@ with builtins; with lib;
 let
   origFeatures = features;
 
-  inherit (rustLib) pkgName pkgVersion pkgRegistry computeFinalFeatures;
+  inherit (rustLib) pkgName pkgVersion pkgRegistry computeFinalFeatures realHostTriple;
 
   accessPackage = pkg-id:
     rustPackages
@@ -44,18 +46,19 @@ let
       name = pkgName id;
       version = pkgVersion id;
       registry = pkgRegistry id;
+      all = config."*" or default;
       reg = config.${type}.${registry}."*" or default;
       crate = config.${type}.${registry}.${name}."*" or default;
       ver = config.${type}.${registry}.${name}.${version} or default;
     in
-      if isAttrs reg && isAttrs crate && isAttrs ver then
-        recursiveUpdate reg (recursiveUpdate crate ver)
-      else if isList reg && isList crate && isList ver then
-        reg ++ crate ++ ver
-      else if isString reg && isString crate && isString ver then
-        reg + crate + ver
+      if isAttrs all && isAttrs reg && isAttrs crate && isAttrs ver then
+        recursiveUpdate all (recursiveUpdate reg (recursiveUpdate crate ver))
+      else if isList all && isList reg && isList crate && isList ver then
+        all ++ reg ++ crate ++ ver
+      else if isString all && isString reg && isString crate && isString ver then
+        all + reg + crate + ver
       else
-        throw "do not know how to merge registry, crate and version config values";
+        throw "do not know how to merge global, registry, crate and version config values";
 
   environment = accessConfig "environment" {} package-id;
 
@@ -69,22 +72,6 @@ let
       (mapAttrsToList mapToEnv environment);
 
   features' = features ++ attrNames (accessConfig "features" {} package-id);
-
-  realHostTriple = system: {
-    "i686-linux"      = "i686-unknown-linux-gnu";
-    "x86_64-linux"    = "x86_64-unknown-linux-gnu";
-    "armv5tel-linux"  = "arm-unknown-linux-gnueabi";
-    "armv6l-linux"    = "arm-unknown-linux-gnueabi";
-    "armv7a-android"  = "armv7-linux-androideabi";
-    "armv7l-linux"    = "armv7-unknown-linux-gnueabihf";
-    "aarch64-linux"   = "aarch64-unknown-linux-gnu";
-    "mips64el-linux"  = "mips64el-unknown-linux-gnuabi64";
-    "x86_64-darwin"   = "x86_64-apple-darwin";
-    "i686-cygwin"     = "i686-pc-windows-gnu";
-    "x86_64-cygwin"   = "x86_64-pc-windows-gnu";
-    "x86_64-freebsd"  = "x86_64-unknown-freebsd";
-    "wasm32-wasi"     = "wasm32-wasi";
-  }.${system} or (throw "unrecognized system: ${system}");
 in
 let
   features = features';
@@ -185,7 +172,7 @@ let
       (mapAttrsToList
         (pred: specset:
           optional
-            (pred == realHostTriple platform.system || rustLib.parseCfg pred platform)
+            (pred == realHostTriple platform || rustLib.parseCfg pred platform)
             specset.${type} or {})
         manifest.target or {});
 
@@ -195,7 +182,7 @@ let
       final-features
       (getDepSpecs
         "dependencies"
-        stdenv.hostPlatform
+        (if isNull target then stdenv.hostPlatform else target)
         cargo-manifest)
       dependencies;
   buildDepPkgs =
@@ -204,7 +191,7 @@ let
       final-features
       (getDepSpecs
         "build-dependencies"
-        stdenv.hostPlatform
+        stdenv.buildPlatform
         cargo-manifest)
       dependencies;
   devDepPkgs =
@@ -213,7 +200,7 @@ let
       final-features
       (getDepSpecs
         "dev-dependencies"
-        stdenv.hostPlatform
+        (if isNull target then stdenv.hostPlatform else target)
         cargo-manifest)
       dependencies;
 
@@ -246,8 +233,10 @@ let
 
   ccForBuild="${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc";
   cxxForBuild="${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}c++";
-  ccForHost="${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";
-  cxxForHost="${stdenv.cc}/bin/${stdenv.cc.targetPrefix}c++";
+  targetPrefix = target.targetPrefix or stdenv.cc.targetPrefix;
+  cc = target.cc or stdenv.cc;
+  ccForHost="${cc}/bin/${targetPrefix}cc";
+  cxxForHost="${cc}/bin/${targetPrefix}c++";
 in
 let
   selectPlatform = pkg:
@@ -282,6 +271,8 @@ let
     in
     { inherit dependencies buildDependencies devDependencies; };
 
+  host-triple = if isNull target then realHostTriple stdenv.hostPlatform else realHostTriple target;
+
   computePackageFeatures =
     features:
     let
@@ -290,7 +281,7 @@ let
       all-deps = attrValues dependencies ++ attrValues buildDependencies ++ attrValues devDependencies;
     in
     foldl recursiveUpdate {
-      ${stdenv.hostPlatform.config}
+      ${host-triple}
       .${pkgRegistry package-id}
       .${pkgName package-id}
       .${pkgVersion package-id} = final-features;
@@ -321,11 +312,13 @@ let
     crateName = cargo-manifest.lib.name or (replaceChars ["-"] ["_"] name);
     buildInputs =
       map accessPackage buildInputs ++
-      accessConfig "buildInputs" [] package-id;
+      accessConfig "buildInputs" [] package-id ++
+      optional (!isNull target.buildInputs or null) target.buildInputs or [];
     nativeBuildInputs =
       [ buildPackages.jq cargo buildPackages.pkg-config ] ++
       map accessPackage nativeBuildInputs ++
-      accessConfig "nativeBuildInputs" [] package-id;
+      accessConfig "nativeBuildInputs" [] package-id ++
+      optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or [];
 
     passthru = {
       inherit
@@ -364,10 +357,10 @@ let
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
-      [target."${realHostTriple stdenv.buildPlatform.system}"]
+      [target."${realHostTriple stdenv.buildPlatform}"]
       linker = "${ccForBuild}"
-    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !stdenv.hostPlatform.isWasi) ''
-      [target."${realHostTriple stdenv.hostPlatform.system}"]
+    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !stdenv.hostPlatform.isWasi && isNull target) ''
+      [target."${host-triple}"]
       linker = "${ccForHost}"
     '' + ''
       EOF
@@ -394,18 +387,18 @@ let
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
-          "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
+          "CC_${host-triple}"="${ccForHost}" \
+          "CXX_${host-triple}"="${cxxForHost}" \
           "''${depKeys[@]}" \
-          cargo build -vvv --release --target ${realHostTriple stdenv.hostPlatform.system} --features "$features"
+          cargo build -vvv --release --target ${host-triple} --features "$features"
     '' + optionalString doCheck ''
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${stdenv.hostPlatform.config}"="${ccForHost}" \
-          "CXX_${stdenv.hostPlatform.config}"="${cxxForHost}" \
+          "CC_${host-triple}"="${ccForHost}" \
+          "CXX_${host-triple}"="${cxxForHost}" \
           "''${depKeys[@]}" \
-          cargo build -vvv --tests --target ${realHostTriple stdenv.hostPlatform.system} --features "$features"
+          cargo build -vvv --tests --target ${host-triple} --features "$features"
     '' + ''
       )
     '';
@@ -447,7 +440,7 @@ let
 
     installPhase = ''
       mkdir -p $out/lib
-      pushd target/${realHostTriple stdenv.hostPlatform.system}/release
+      pushd target/${host-triple}/release
       cargo_links=${cargo-manifest.package.links or ""}
       needs_deps=
       has_output=
@@ -529,7 +522,7 @@ let
         --arg version $version >$out/.cargo-info
     '' + optionalString doCheck ''
       mkdir -p $tests
-      pushd target/${realHostTriple stdenv.hostPlatform.system}/debug
+      pushd target/${host-triple}/debug
         for output in *; do
           if [ -d "$output" ]; then
             continue

@@ -39,7 +39,7 @@ let
   inherit (rustChannel) cargo;
   rustc = rustChannel.rust.override {
     targets = [
-      pkgs.stdenv.targetPlatform.config
+      (pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.targetPlatform)
     ];
   };
 

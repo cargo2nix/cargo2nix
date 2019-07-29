@@ -406,11 +406,16 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                         proj!(
                                             features.clone().into(),
                                             Key::Expr(
-                                                proj!(
-                                                    pkgs.clone().into(),
-                                                    key!("stdenv"),
-                                                    key!("hostPlatform"),
-                                                    key!("config")
+                                                app!(
+                                                    proj!(
+                                                        pkgs.clone().into(),
+                                                        key!(rustBuilder),
+                                                        key!(rustLib),
+                                                        key!("realHostTriple")),
+                                                    proj!(
+                                                        pkgs.clone().into(),
+                                                        key!("stdenv"),
+                                                        key!("hostPlatform"))
                                                 ).into()
                                             ).into());
                                 })
@@ -438,11 +443,16 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                                     proj!(
                                                         features.clone().into(),
                                                         Key::Expr(
-                                                            proj!(
-                                                                buildPackages.clone().into(),
-                                                                key!("stdenv"),
-                                                                key!("hostPlatform"),
-                                                                key!("config")
+                                                            app!(
+                                                                proj!(
+                                                                    pkgs.clone().into(),
+                                                                    key!(rustBuilder),
+                                                                    key!(rustLib),
+                                                                    key!("realHostTriple")),
+                                                                proj!(
+                                                                    buildPackages.clone().into(),
+                                                                    key!("stdenv"),
+                                                                    key!("hostPlatform"))
                                                             ).into()
                                                         ).into());
                                             })
