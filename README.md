@@ -65,7 +65,7 @@ your `cargo`.
 
 To enter airplane mode, run the following command.
 ```bash
-nix-shell -A shell --fallback --substitute false
+nix-shell -A shell --fallback --option substitute false
 ```
 Then execute `vendor_source` command in the shell to install source replacement for the `crates-io`
 public crates.
