@@ -14,6 +14,8 @@ in
   registryMapping ? default-registry-maps,
   environment ? {},
   features ? {},
+  buildInputs ? [],
+  nativeBuildInputs ? [],
 
   lib,
   stdenv,
@@ -156,7 +158,8 @@ let
         registries);
 in
 pkgs.mkShell (environment // {
-  nativeBuildInputs = [ cargo rustc ];
+  inherit buildInputs;
+  nativeBuildInputs = [ cargo rustc ] ++ nativeBuildInputs;
 
   inherit replacementManifest;
   passAsFile = [ "replacementManifest" ];
