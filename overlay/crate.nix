@@ -12,7 +12,8 @@ in
   version ? null,
   manifest ? null,
   deps ? null,
-  features ? null
+  features ? null,
+  registryMapping ? {},
 }:
 assert src != null || tarball != null;
 assert src == null || tarball == null;
@@ -22,6 +23,7 @@ let
   version' = version;
   deps' = deps;
   features' = features;
+  registry-mapping = { inherit crates-io; } // registryMapping;
 in
 let
   inherit (builtins) fromTOML readFile isString;
@@ -110,7 +112,8 @@ let
         default_features = spec.default_features or true;
         features = spec.features or [];
         optional = spec.optional or false;
-        registry = spec.registry or crates-io;
+        registry = registry-mapping.${spec.registry or "crates-io"};
+        package = spec.package or null;
         req = spec.version;
       }
     else [];
