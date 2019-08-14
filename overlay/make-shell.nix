@@ -29,7 +29,7 @@ in
   cargo,
   rustc,
 }:
-with lib;
+with builtins; with lib;
 let
   config = {
     resolver = { source, name, version, sha256, source-info }@args:
@@ -57,14 +57,17 @@ let
       inherit src;
       manifest = cargo-manifest;
       deps =
-        listToAttrs
-          (flatten
-            (map
-              (dep:
-                map
-                (name: { inherit name; value = true; })
-                dep.toml-names)
-              dependencies));
+        if dependencies == null then
+          null
+        else
+          listToAttrs
+            (flatten
+              (map
+                (dep:
+                  map
+                    (name: { inherit name; value = true; })
+                    dep.toml-names)
+                dependencies));
     };
 
   rpkgs =
@@ -97,6 +100,11 @@ let
   fpkgs = filterPackages excludeCrates rpkgs;
 
   regMaps = default-registry-maps // registryMapping;
+  revRegMaps =
+    listToAttrs
+      (mapAttrsToList
+        (url: name: { inherit name; value = elemAt (match "registry\\+(.+)" url) 0; })
+        regMaps);
 
   registries =
     let
@@ -117,12 +125,14 @@ let
                         inherit (crate.src) name version tarball;
                         inherit (crate) manifest deps;
                         features = if activated-features == null then null else activated-features;
+                        registryMapping = revRegMaps;
                       }
                     else if crate.src.kind or "unknown" == "registry" && crate.src ? src then
                       mkCrate {
                         inherit (crate.src) name version src;
                         inherit (crate) manifest deps;
                         features = if activated-features == null then null else activated-features;
+                        registryMapping = revRegMaps;
                       }
                     else
                       [])
@@ -146,15 +156,18 @@ let
       "\n"
       (map
         ({ name, index, local-registry }:
-        ''
-          [registries.'${name}']
-          index = "${index}"
-          [source.'${name}']
-          registry = "${index}"
-          replace-with = "vendored-${name}"
-          [source.'vendored-${name}']
-          local-registry = "${local-registry}"
-        '')
+          let
+            real-index = elemAt (builtins.match "registry\\+(.+)" index) 0;
+          in
+          ''
+            [registries.'${name}']
+            index = "${real-index}"
+            [source.'${name}']
+            registry = "${real-index}"
+            replace-with = "vendored-${name}"
+            [source.'vendored-${name}']
+            local-registry = "${local-registry}"
+          '')
         registries);
 in
 pkgs.mkShell (environment // {
