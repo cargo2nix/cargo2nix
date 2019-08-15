@@ -19,8 +19,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "adler32";
@@ -196,8 +195,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "arc-swap";
@@ -239,8 +237,7 @@
               harness = false;
             }
           ];
-          dependencies = {
-          };
+          dependencies = {};
           dev-dependencies = {
             crossbeam = {
               version = "~0.5";
@@ -370,23 +367,18 @@
               version = "1.0";
             };
           };
-          build-dependencies = {
-          };
+          build-dependencies = {};
           features = {
-            array-sizes-129-255 = [
-            ];
-            array-sizes-33-128 = [
-            ];
+            array-sizes-129-255 = [];
+            array-sizes-33-128 = [];
             default = [
               "std"
             ];
             serde-1 = [
               "serde"
             ];
-            std = [
-            ];
-            use_union = [
-            ];
+            std = [];
+            use_union = [];
           };
         };
       };
@@ -491,8 +483,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "autocfg";
@@ -513,8 +504,7 @@
             license = "Apache-2.0/MIT";
             repository = "https://github.com/cuviper/autocfg";
           };
-          dependencies = {
-          };
+          dependencies = {};
         };
       };
       "registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.30" = mkRustCrate {
@@ -677,10 +667,8 @@
             };
           };
           features = {
-            coresymbolication = [
-            ];
-            dbghelp = [
-            ];
+            coresymbolication = [];
+            dbghelp = [];
             default = [
               "std"
               "libunwind"
@@ -689,20 +677,17 @@
               "dladdr"
               "dbghelp"
             ];
-            dladdr = [
-            ];
+            dladdr = [];
             gimli-symbolize = [
               "addr2line"
               "findshlibs"
               "memmap"
             ];
-            kernel32 = [
-            ];
+            kernel32 = [];
             libbacktrace = [
               "backtrace-sys"
             ];
-            libunwind = [
-            ];
+            libunwind = [];
             serialize-rustc = [
               "rustc-serialize"
             ];
@@ -710,10 +695,8 @@
               "serde"
               "serde_derive"
             ];
-            std = [
-            ];
-            unix-backtrace = [
-            ];
+            std = [];
+            unix-backtrace = [];
             verify-winapi = [
               "winapi/dbghelp"
               "winapi/handleapi"
@@ -801,8 +784,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "bitflags";
@@ -842,10 +824,8 @@
             };
           };
           features = {
-            default = [
-            ];
-            example_generated = [
-            ];
+            default = [];
+            example_generated = [];
           };
           badges = {
             travis-ci = {
@@ -986,8 +966,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "build_const";
@@ -1011,8 +990,7 @@
             default = [
               "std"
             ];
-            std = [
-            ];
+            std = [];
           };
         };
       };
@@ -1027,8 +1005,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "byteorder";
@@ -1083,10 +1060,8 @@
             default = [
               "std"
             ];
-            i128 = [
-            ];
-            std = [
-            ];
+            i128 = [];
+            std = [];
           };
           badges = {
             travis-ci = {
@@ -1201,8 +1176,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "bytesize";
@@ -1798,8 +1772,7 @@
             };
           };
           features = {
-            deny-warnings = [
-            ];
+            deny-warnings = [];
             pretty-env-logger = [
               "pretty_env_logger"
             ];
@@ -1859,8 +1832,7 @@
           name = "cargo2nix";
           version = "0.1.0";
           sha256 = "0000000000000000000000000000000000000000000000000000";
-          source-info = {
-          };
+          source-info = {};
         };
         dependencies = [
           {
@@ -1960,6 +1932,7 @@
             edition = "2018";
             name = "cargo2nix";
             version = "0.1.0";
+            license = "MIT";
           };
           dependencies = {
             cargo = "0.37.0";
@@ -1994,8 +1967,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "cc";
@@ -2049,8 +2021,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "cfg-if";
@@ -2261,8 +2232,7 @@
               "ansi_term"
               "atty"
             ];
-            debug = [
-            ];
+            debug = [];
             default = [
               "suggestions"
               "color"
@@ -2274,15 +2244,12 @@
             lints = [
               "clippy"
             ];
-            nightly = [
-            ];
-            no_cargo = [
-            ];
+            nightly = [];
+            no_cargo = [];
             suggestions = [
               "strsim"
             ];
-            unstable = [
-            ];
+            unstable = [];
             wrap_help = [
               "term_size"
               "textwrap/term_size"
@@ -2581,8 +2548,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "core-foundation-sys";
@@ -2596,13 +2562,10 @@
             license = "MIT / Apache-2.0";
             repository = "https://github.com/servo/core-foundation-rs";
           };
-          dependencies = {
-          };
+          dependencies = {};
           features = {
-            mac_os_10_7_support = [
-            ];
-            mac_os_10_8_features = [
-            ];
+            mac_os_10_7_support = [];
+            mac_os_10_8_features = [];
           };
         };
       };
@@ -2761,8 +2724,7 @@
             default = [
               "std"
             ];
-            std = [
-            ];
+            std = [];
           };
         };
       };
@@ -2833,10 +2795,8 @@
             default = [
               "std"
             ];
-            nightly = [
-            ];
-            std = [
-            ];
+            nightly = [];
+            std = [];
           };
         };
       };
@@ -3095,8 +3055,7 @@
               "crossbeam-utils/nightly"
               "arrayvec/use_union"
             ];
-            sanitize = [
-            ];
+            sanitize = [];
             std = [
               "crossbeam-utils/std"
               "lazy_static"
@@ -3232,8 +3191,7 @@
             default = [
               "std"
             ];
-            nightly = [
-            ];
+            nightly = [];
             std = [
               "lazy_static"
             ];
@@ -3642,18 +3600,15 @@
             default = [
               "ssl"
             ];
-            force-system-lib-on-osx = [
-            ];
+            force-system-lib-on-osx = [];
             http2 = [
               "libnghttp2-sys"
             ];
-            spnego = [
-            ];
+            spnego = [];
             ssl = [
               "openssl-sys"
             ];
-            static-curl = [
-            ];
+            static-curl = [];
             static-ssl = [
               "openssl-sys/vendored"
             ];
@@ -3955,8 +3910,7 @@
             };
           };
           features = {
-            std = [
-            ];
+            std = [];
           };
         };
       };
@@ -4232,8 +4186,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "fnv";
@@ -4303,8 +4256,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "foreign-types-shared";
@@ -4316,8 +4268,7 @@
             license = "MIT/Apache-2.0";
             repository = "https://github.com/sfackler/foreign-types";
           };
-          dependencies = {
-          };
+          dependencies = {};
         };
       };
       "registry+https://github.com/rust-lang/crates.io-index".fs2."0.4.3" = mkRustCrate {
@@ -4416,8 +4367,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             edition = "2018";
@@ -4499,8 +4449,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "fuchsia-zircon-sys";
@@ -4525,8 +4474,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "futures";
@@ -4549,19 +4497,15 @@
             license = "MIT/Apache-2.0";
             repository = "https://github.com/rust-lang-nursery/futures-rs";
           };
-          dependencies = {
-          };
+          dependencies = {};
           features = {
             default = [
               "use_std"
               "with-deprecated"
             ];
-            nightly = [
-            ];
-            use_std = [
-            ];
-            with-deprecated = [
-            ];
+            nightly = [];
+            use_std = [];
+            with-deprecated = [];
           };
           badges = {
             appveyor = {
@@ -4787,8 +4731,7 @@
             ssh_key_from_memory = [
               "libgit2-sys/ssh_key_from_memory"
             ];
-            unstable = [
-            ];
+            unstable = [];
             vendored-openssl = [
               "openssl-sys/vendored"
             ];
@@ -4919,8 +4862,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "glob";
@@ -5044,8 +4986,7 @@
             };
           };
           features = {
-            simd-accel = [
-            ];
+            simd-accel = [];
           };
         };
       };
@@ -5060,8 +5001,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "hex";
@@ -5075,8 +5015,7 @@
             repository = "https://github.com/KokaKiwi/rust-hex";
           };
           features = {
-            benchmarks = [
-            ];
+            benchmarks = [];
           };
         };
       };
@@ -5756,8 +5695,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "itoa";
@@ -5781,10 +5719,8 @@
             default = [
               "std"
             ];
-            i128 = [
-            ];
-            std = [
-            ];
+            i128 = [];
+            std = [];
           };
           badges = {
             travis-ci = {
@@ -5979,8 +5915,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "lazy_static";
@@ -6049,8 +5984,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "lazycell";
@@ -6086,8 +6020,7 @@
             };
           };
           features = {
-            nightly = [
-            ];
+            nightly = [];
             nightly-testing = [
               "clippy"
               "nightly"
@@ -6106,8 +6039,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "libc";
@@ -6147,19 +6079,16 @@
             };
           };
           features = {
-            align = [
-            ];
+            align = [];
             default = [
               "std"
             ];
-            extra_traits = [
-            ];
+            extra_traits = [];
             rustc-dep-of-std = [
               "align"
               "rustc-std-workspace-core"
             ];
-            std = [
-            ];
+            std = [];
             use_std = [
               "std"
             ];
@@ -6295,8 +6224,7 @@
             ssh = [
               "libssh2-sys"
             ];
-            ssh_key_from_memory = [
-            ];
+            ssh_key_from_memory = [];
           };
           target = {
             "cfg(unix)" = {
@@ -6544,10 +6472,8 @@
             };
           };
           features = {
-            asm = [
-            ];
-            static = [
-            ];
+            asm = [];
+            static = [];
           };
           target = {
             "cfg(target_env = \"msvc\")" = {
@@ -6619,8 +6545,7 @@
             };
           };
           features = {
-            nightly = [
-            ];
+            nightly = [];
           };
         };
       };
@@ -6697,32 +6622,19 @@
             };
           };
           features = {
-            max_level_debug = [
-            ];
-            max_level_error = [
-            ];
-            max_level_info = [
-            ];
-            max_level_off = [
-            ];
-            max_level_trace = [
-            ];
-            max_level_warn = [
-            ];
-            release_max_level_debug = [
-            ];
-            release_max_level_error = [
-            ];
-            release_max_level_info = [
-            ];
-            release_max_level_off = [
-            ];
-            release_max_level_trace = [
-            ];
-            release_max_level_warn = [
-            ];
-            std = [
-            ];
+            max_level_debug = [];
+            max_level_error = [];
+            max_level_info = [];
+            max_level_off = [];
+            max_level_trace = [];
+            max_level_warn = [];
+            release_max_level_debug = [];
+            release_max_level_error = [];
+            release_max_level_info = [];
+            release_max_level_off = [];
+            release_max_level_trace = [];
+            release_max_level_warn = [];
+            std = [];
           };
           badges = {
             appveyor = {
@@ -6745,8 +6657,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "matches";
@@ -6776,8 +6687,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "memchr";
@@ -6832,8 +6742,7 @@
             default = [
               "use_std"
             ];
-            use_std = [
-            ];
+            use_std = [];
           };
           badges = {
             appveyor = {
@@ -6856,8 +6765,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "memoffset";
@@ -6879,8 +6787,7 @@
             license = "MIT";
             repository = "https://github.com/Gilnaa/memoffset";
           };
-          dependencies = {
-          };
+          dependencies = {};
         };
       };
       "registry+https://github.com/rust-lang/crates.io-index".miniz-sys."0.1.12" = mkRustCrate {
@@ -7098,23 +7005,18 @@
               "build_orig_miniz"
               "no_c_export"
             ];
-            build_orig_miniz = [
-            ];
-            build_stub_miniz = [
-            ];
-            default = [
-            ];
+            build_orig_miniz = [];
+            build_stub_miniz = [];
+            default = [];
             fuzzing = [
               "build_orig_miniz"
               "no_c_export"
             ];
-            libc_stub = [
-            ];
+            libc_stub = [];
             miniz_zip = [
               "build_stub_miniz"
             ];
-            no_c_export = [
-            ];
+            no_c_export = [];
           };
           badges = {
             travis-ci = {
@@ -7269,8 +7171,7 @@
             default = [
               "with-deprecated"
             ];
-            with-deprecated = [
-            ];
+            with-deprecated = [];
           };
           target = {
             "cfg(target_os = \"fuchsia\")" = {
@@ -7682,10 +7583,8 @@
             default = [
               "duration"
             ];
-            duration = [
-            ];
-            nightly = [
-            ];
+            duration = [];
+            nightly = [];
           };
           target = {
             "cfg(any(target_os=\"redox\", unix))" = {
@@ -7723,8 +7622,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "nodrop";
@@ -7760,10 +7658,8 @@
             default = [
               "std"
             ];
-            std = [
-            ];
-            use_needs_drop = [
-            ];
+            std = [];
+            use_needs_drop = [];
             use_union = [
               "nodrop-union"
             ];
@@ -7834,8 +7730,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "numtoa";
@@ -7860,8 +7755,7 @@
             repository = "https://gitlab.com/mmstick/numtoa";
           };
           features = {
-            std = [
-            ];
+            std = [];
           };
         };
       };
@@ -7903,8 +7797,7 @@
             license = "MIT OR Apache-2.0";
             repository = "https://github.com/Seeker14491/opener";
           };
-          dependencies = {
-          };
+          dependencies = {};
           target = {
             "cfg(windows)" = {
               dependencies = {
@@ -8036,14 +7929,10 @@
             };
           };
           features = {
-            v101 = [
-            ];
-            v102 = [
-            ];
-            v110 = [
-            ];
-            v111 = [
-            ];
+            v101 = [];
+            v102 = [];
+            v110 = [];
+            v111 = [];
             vendored = [
               "openssl-sys/vendored"
             ];
@@ -8061,8 +7950,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "openssl-probe";
@@ -8411,8 +8299,7 @@
               "thread-id"
               "backtrace"
             ];
-            nightly = [
-            ];
+            nightly = [];
           };
           target = {
             "cfg(unix)" = {
@@ -8452,8 +8339,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "percent-encoding";
@@ -8483,8 +8369,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "pkg-config";
@@ -8578,12 +8463,9 @@
             default = [
               "proc-macro"
             ];
-            nightly = [
-            ];
-            proc-macro = [
-            ];
-            span-locations = [
-            ];
+            nightly = [];
+            proc-macro = [];
+            span-locations = [];
           };
           badges = {
             travis-ci = {
@@ -8603,8 +8485,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "quick-error";
@@ -8883,8 +8764,7 @@
             default = [
               "std"
             ];
-            i128_support = [
-            ];
+            i128_support = [];
             nightly = [
               "simd_support"
             ];
@@ -9098,8 +8978,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "rand_core";
@@ -9134,8 +9013,7 @@
             };
           };
           features = {
-            alloc = [
-            ];
+            alloc = [];
             serde1 = [
               "serde"
               "serde_derive"
@@ -9756,8 +9634,7 @@
             default = [
               "std"
             ];
-            std = [
-            ];
+            std = [];
           };
         };
       };
@@ -9772,8 +9649,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "redox_syscall";
@@ -9994,13 +9870,11 @@
             default = [
               "use_std"
             ];
-            pattern = [
-            ];
+            pattern = [];
             unstable = [
               "pattern"
             ];
-            use_std = [
-            ];
+            use_std = [];
           };
           badges = {
             appveyor = {
@@ -10133,8 +10007,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "rustc-demangle";
@@ -10179,8 +10052,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "rustc-workspace-hack";
@@ -10191,8 +10063,7 @@
             description = "Hack for the compiler's own build system\n";
             license = "MIT/Apache-2.0";
           };
-          dependencies = {
-          };
+          dependencies = {};
         };
       };
       "registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" = mkRustCrate {
@@ -10361,8 +10232,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "ryu";
@@ -10392,8 +10262,7 @@
             };
           };
           features = {
-            small = [
-            ];
+            small = [];
           };
           badges = {
             travis-ci = {
@@ -10543,8 +10412,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "scopeguard";
@@ -10574,8 +10442,7 @@
             default = [
               "use_std"
             ];
-            use_std = [
-            ];
+            use_std = [];
           };
         };
       };
@@ -10648,8 +10515,7 @@
             ci = [
               "serde"
             ];
-            default = [
-            ];
+            default = [];
           };
           badges = {
             travis-ci = {
@@ -10669,8 +10535,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "semver-parser";
@@ -10768,12 +10633,9 @@
             derive = [
               "serde_derive"
             ];
-            rc = [
-            ];
-            std = [
-            ];
-            unstable = [
-            ];
+            rc = [];
+            std = [];
+            unstable = [];
           };
           badges = {
             appveyor = {
@@ -10871,10 +10733,8 @@
             };
           };
           features = {
-            default = [
-            ];
-            deserialize_in_place = [
-            ];
+            default = [];
+            deserialize_in_place = [];
           };
           badges = {
             appveyor = {
@@ -11049,17 +10909,13 @@
             };
           };
           features = {
-            arbitrary_precision = [
-            ];
-            default = [
-            ];
+            arbitrary_precision = [];
+            default = [];
             preserve_order = [
               "indexmap"
             ];
-            raw_value = [
-            ];
-            unbounded_depth = [
-            ];
+            raw_value = [];
+            unbounded_depth = [];
           };
           badges = {
             appveyor = {
@@ -11082,8 +10938,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "shell-escape";
@@ -11095,8 +10950,7 @@
             license = "MIT/Apache-2.0";
             repository = "https://github.com/sfackler/shell-escape";
           };
-          dependencies = {
-          };
+          dependencies = {};
         };
       };
       "registry+https://github.com/rust-lang/crates.io-index".signal-hook."0.1.9" = mkRustCrate {
@@ -11353,8 +11207,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "slab";
@@ -11390,8 +11243,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "smallvec";
@@ -11434,14 +11286,10 @@
             default = [
               "std"
             ];
-            may_dangle = [
-            ];
-            specialization = [
-            ];
-            std = [
-            ];
-            union = [
-            ];
+            may_dangle = [];
+            specialization = [];
+            std = [];
+            union = [];
           };
         };
       };
@@ -11512,12 +11360,9 @@
             };
           };
           features = {
-            pair = [
-            ];
-            reuseport = [
-            ];
-            unix = [
-            ];
+            pair = [];
+            reuseport = [];
+            unix = [];
           };
           target = {
             "cfg(any(unix, target_os = \"redox\"))" = {
@@ -11565,8 +11410,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "stable_deref_trait";
@@ -11585,13 +11429,11 @@
             repository = "https://github.com/storyyeller/stable_deref_trait";
           };
           features = {
-            alloc = [
-            ];
+            alloc = [];
             default = [
               "std"
             ];
-            std = [
-            ];
+            std = [];
           };
         };
       };
@@ -11606,8 +11448,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "strsim";
@@ -11748,8 +11589,7 @@
             };
           };
           features = {
-            clone-impls = [
-            ];
+            clone-impls = [];
             default = [
               "derive"
               "parsing"
@@ -11757,16 +11597,11 @@
               "clone-impls"
               "proc-macro"
             ];
-            derive = [
-            ];
-            extra-traits = [
-            ];
-            fold = [
-            ];
-            full = [
-            ];
-            parsing = [
-            ];
+            derive = [];
+            extra-traits = [];
+            fold = [];
+            full = [];
+            parsing = [];
             printing = [
               "quote"
             ];
@@ -11774,10 +11609,8 @@
               "proc-macro2/proc-macro"
               "quote/proc-macro"
             ];
-            visit = [
-            ];
-            visit-mut = [
-            ];
+            visit = [];
+            visit-mut = [];
           };
           badges = {
             travis-ci = {
@@ -11877,8 +11710,7 @@
             };
           };
           features = {
-            simple-derive = [
-            ];
+            simple-derive = [];
           };
         };
       };
@@ -14289,8 +14121,7 @@
             };
           };
           features = {
-            default = [
-            ];
+            default = [];
             preserve_order = [
               "linked-hash-map"
             ];
@@ -14313,8 +14144,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "typenum";
@@ -14337,12 +14167,9 @@
             name = "typenum";
           };
           features = {
-            i128 = [
-            ];
-            no_std = [
-            ];
-            strict = [
-            ];
+            i128 = [];
+            no_std = [];
+            strict = [];
           };
         };
       };
@@ -14357,8 +14184,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "ucd-util";
@@ -14456,16 +14282,13 @@
             };
           };
           features = {
-            bench_it = [
-            ];
-            default = [
-            ];
+            bench_it = [];
+            default = [];
             flame_it = [
               "flame"
               "flamer"
             ];
-            unstable = [
-            ];
+            unstable = [];
             with_serde = [
               "serde"
             ];
@@ -14539,8 +14362,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "unicode-width";
@@ -14565,12 +14387,9 @@
             repository = "https://github.com/unicode-rs/unicode-width";
           };
           features = {
-            bench = [
-            ];
-            default = [
-            ];
-            no_std = [
-            ];
+            bench = [];
+            default = [];
+            no_std = [];
           };
         };
       };
@@ -14585,8 +14404,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "unicode-xid";
@@ -14612,12 +14430,9 @@
             repository = "https://github.com/unicode-rs/unicode-xid";
           };
           features = {
-            bench = [
-            ];
-            default = [
-            ];
-            no_std = [
-            ];
+            bench = [];
+            default = [];
+            no_std = [];
           };
         };
       };
@@ -14831,8 +14646,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "utf8-ranges";
@@ -14887,8 +14701,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "vcpkg";
@@ -14911,8 +14724,7 @@
             license = "MIT/Apache-2.0";
             repository = "https://github.com/mcgoo/vcpkg-rs";
           };
-          dependencies = {
-          };
+          dependencies = {};
           dev-dependencies = {
             lazy_static = {
               version = "1";
@@ -14945,8 +14757,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "vec_map";
@@ -15134,8 +14945,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "winapi";
@@ -15455,727 +15265,368 @@
             };
           };
           features = {
-            accctrl = [
-            ];
-            aclapi = [
-            ];
-            activation = [
-            ];
-            appmgmt = [
-            ];
-            audioclient = [
-            ];
-            audiosessiontypes = [
-            ];
-            avrt = [
-            ];
-            basetsd = [
-            ];
-            bcrypt = [
-            ];
-            bits = [
-            ];
-            bits10_1 = [
-            ];
-            bits1_5 = [
-            ];
-            bits2_0 = [
-            ];
-            bits2_5 = [
-            ];
-            bits3_0 = [
-            ];
-            bits4_0 = [
-            ];
-            bits5_0 = [
-            ];
-            bitscfg = [
-            ];
-            bitsmsg = [
-            ];
-            bugcodes = [
-            ];
-            cderr = [
-            ];
-            cfg = [
-            ];
-            cfgmgr32 = [
-            ];
-            cguid = [
-            ];
-            combaseapi = [
-            ];
-            coml2api = [
-            ];
-            commapi = [
-            ];
-            commctrl = [
-            ];
-            commdlg = [
-            ];
-            commoncontrols = [
-            ];
-            consoleapi = [
-            ];
-            corsym = [
-            ];
-            d2d1 = [
-            ];
-            d2d1_1 = [
-            ];
-            d2d1_2 = [
-            ];
-            d2d1_3 = [
-            ];
-            d2d1effectauthor = [
-            ];
-            d2d1effects = [
-            ];
-            d2d1effects_1 = [
-            ];
-            d2d1effects_2 = [
-            ];
-            d2d1svg = [
-            ];
-            d2dbasetypes = [
-            ];
-            d3d = [
-            ];
-            d3d10 = [
-            ];
-            d3d10_1 = [
-            ];
-            d3d10_1shader = [
-            ];
-            d3d10effect = [
-            ];
-            d3d10misc = [
-            ];
-            d3d10sdklayers = [
-            ];
-            d3d10shader = [
-            ];
-            d3d11 = [
-            ];
-            d3d11_1 = [
-            ];
-            d3d11_2 = [
-            ];
-            d3d11_3 = [
-            ];
-            d3d11_4 = [
-            ];
-            d3d11on12 = [
-            ];
-            d3d11sdklayers = [
-            ];
-            d3d11shader = [
-            ];
-            d3d11tokenizedprogramformat = [
-            ];
-            d3d12 = [
-            ];
-            d3d12sdklayers = [
-            ];
-            d3d12shader = [
-            ];
-            d3d9 = [
-            ];
-            d3d9caps = [
-            ];
-            d3d9types = [
-            ];
-            d3dcommon = [
-            ];
-            d3dcompiler = [
-            ];
-            d3dcsx = [
-            ];
-            d3dkmdt = [
-            ];
-            d3dkmthk = [
-            ];
-            d3dukmdt = [
-            ];
-            d3dx10core = [
-            ];
-            d3dx10math = [
-            ];
-            d3dx10mesh = [
-            ];
-            datetimeapi = [
-            ];
-            davclnt = [
-            ];
-            dbghelp = [
-            ];
-            dbt = [
-            ];
-            dcommon = [
-            ];
-            dcomp = [
-            ];
-            dcompanimation = [
-            ];
-            dcomptypes = [
-            ];
-            dde = [
-            ];
-            ddraw = [
-            ];
-            ddrawi = [
-            ];
-            ddrawint = [
-            ];
+            accctrl = [];
+            aclapi = [];
+            activation = [];
+            appmgmt = [];
+            audioclient = [];
+            audiosessiontypes = [];
+            avrt = [];
+            basetsd = [];
+            bcrypt = [];
+            bits = [];
+            bits10_1 = [];
+            bits1_5 = [];
+            bits2_0 = [];
+            bits2_5 = [];
+            bits3_0 = [];
+            bits4_0 = [];
+            bits5_0 = [];
+            bitscfg = [];
+            bitsmsg = [];
+            bugcodes = [];
+            cderr = [];
+            cfg = [];
+            cfgmgr32 = [];
+            cguid = [];
+            combaseapi = [];
+            coml2api = [];
+            commapi = [];
+            commctrl = [];
+            commdlg = [];
+            commoncontrols = [];
+            consoleapi = [];
+            corsym = [];
+            d2d1 = [];
+            d2d1_1 = [];
+            d2d1_2 = [];
+            d2d1_3 = [];
+            d2d1effectauthor = [];
+            d2d1effects = [];
+            d2d1effects_1 = [];
+            d2d1effects_2 = [];
+            d2d1svg = [];
+            d2dbasetypes = [];
+            d3d = [];
+            d3d10 = [];
+            d3d10_1 = [];
+            d3d10_1shader = [];
+            d3d10effect = [];
+            d3d10misc = [];
+            d3d10sdklayers = [];
+            d3d10shader = [];
+            d3d11 = [];
+            d3d11_1 = [];
+            d3d11_2 = [];
+            d3d11_3 = [];
+            d3d11_4 = [];
+            d3d11on12 = [];
+            d3d11sdklayers = [];
+            d3d11shader = [];
+            d3d11tokenizedprogramformat = [];
+            d3d12 = [];
+            d3d12sdklayers = [];
+            d3d12shader = [];
+            d3d9 = [];
+            d3d9caps = [];
+            d3d9types = [];
+            d3dcommon = [];
+            d3dcompiler = [];
+            d3dcsx = [];
+            d3dkmdt = [];
+            d3dkmthk = [];
+            d3dukmdt = [];
+            d3dx10core = [];
+            d3dx10math = [];
+            d3dx10mesh = [];
+            datetimeapi = [];
+            davclnt = [];
+            dbghelp = [];
+            dbt = [];
+            dcommon = [];
+            dcomp = [];
+            dcompanimation = [];
+            dcomptypes = [];
+            dde = [];
+            ddraw = [];
+            ddrawi = [];
+            ddrawint = [];
             debug = [
               "impl-debug"
             ];
-            debugapi = [
-            ];
-            devguid = [
-            ];
-            devicetopology = [
-            ];
-            devpkey = [
-            ];
-            devpropdef = [
-            ];
-            dinput = [
-            ];
-            dinputd = [
-            ];
-            dispex = [
-            ];
-            dmksctl = [
-            ];
-            dmusicc = [
-            ];
-            docobj = [
-            ];
-            documenttarget = [
-            ];
-            dpa_dsa = [
-            ];
-            dpapi = [
-            ];
-            dsgetdc = [
-            ];
-            dsound = [
-            ];
-            dsrole = [
-            ];
-            dvp = [
-            ];
-            dwmapi = [
-            ];
-            dwrite = [
-            ];
-            dwrite_1 = [
-            ];
-            dwrite_2 = [
-            ];
-            dwrite_3 = [
-            ];
-            dxdiag = [
-            ];
-            dxfile = [
-            ];
-            dxgi = [
-            ];
-            dxgi1_2 = [
-            ];
-            dxgi1_3 = [
-            ];
-            dxgi1_4 = [
-            ];
-            dxgi1_5 = [
-            ];
-            dxgi1_6 = [
-            ];
-            dxgidebug = [
-            ];
-            dxgiformat = [
-            ];
-            dxgitype = [
-            ];
-            dxva2api = [
-            ];
-            dxvahd = [
-            ];
-            enclaveapi = [
-            ];
-            endpointvolume = [
-            ];
-            errhandlingapi = [
-            ];
-            everything = [
-            ];
-            evntcons = [
-            ];
-            evntprov = [
-            ];
-            evntrace = [
-            ];
-            excpt = [
-            ];
-            exdisp = [
-            ];
-            fibersapi = [
-            ];
-            fileapi = [
-            ];
-            gl-gl = [
-            ];
-            guiddef = [
-            ];
-            handleapi = [
-            ];
-            heapapi = [
-            ];
-            hidclass = [
-            ];
-            hidpi = [
-            ];
-            hidsdi = [
-            ];
-            hidusage = [
-            ];
-            highlevelmonitorconfigurationapi = [
-            ];
-            hstring = [
-            ];
-            http = [
-            ];
-            ifdef = [
-            ];
-            imm = [
-            ];
-            impl-debug = [
-            ];
-            impl-default = [
-            ];
-            in6addr = [
-            ];
-            inaddr = [
-            ];
-            inspectable = [
-            ];
-            interlockedapi = [
-            ];
-            intsafe = [
-            ];
-            ioapiset = [
-            ];
-            jobapi = [
-            ];
-            jobapi2 = [
-            ];
-            knownfolders = [
-            ];
-            ks = [
-            ];
-            ksmedia = [
-            ];
-            ktmtypes = [
-            ];
-            ktmw32 = [
-            ];
-            libloaderapi = [
-            ];
-            limits = [
-            ];
-            lmaccess = [
-            ];
-            lmalert = [
-            ];
-            lmapibuf = [
-            ];
-            lmat = [
-            ];
-            lmcons = [
-            ];
-            lmdfs = [
-            ];
-            lmerrlog = [
-            ];
-            lmjoin = [
-            ];
-            lmmsg = [
-            ];
-            lmremutl = [
-            ];
-            lmrepl = [
-            ];
-            lmserver = [
-            ];
-            lmshare = [
-            ];
-            lmstats = [
-            ];
-            lmsvc = [
-            ];
-            lmuse = [
-            ];
-            lmwksta = [
-            ];
-            lowlevelmonitorconfigurationapi = [
-            ];
-            lsalookup = [
-            ];
-            memoryapi = [
-            ];
-            minschannel = [
-            ];
-            minwinbase = [
-            ];
-            minwindef = [
-            ];
-            mmdeviceapi = [
-            ];
-            mmeapi = [
-            ];
-            mmreg = [
-            ];
-            mmsystem = [
-            ];
-            msaatext = [
-            ];
-            mscat = [
-            ];
-            mschapp = [
-            ];
-            mssip = [
-            ];
-            mstcpip = [
-            ];
-            mswsock = [
-            ];
-            mswsockdef = [
-            ];
-            namedpipeapi = [
-            ];
-            namespaceapi = [
-            ];
-            nb30 = [
-            ];
-            ncrypt = [
-            ];
-            netioapi = [
-            ];
-            ntddscsi = [
-            ];
-            ntddser = [
-            ];
-            ntdef = [
-            ];
-            ntlsa = [
-            ];
-            ntsecapi = [
-            ];
-            ntstatus = [
-            ];
-            oaidl = [
-            ];
-            objbase = [
-            ];
-            objidl = [
-            ];
-            objidlbase = [
-            ];
-            ocidl = [
-            ];
-            ole2 = [
-            ];
-            oleauto = [
-            ];
-            olectl = [
-            ];
-            oleidl = [
-            ];
-            opmapi = [
-            ];
-            pdh = [
-            ];
-            perflib = [
-            ];
-            physicalmonitorenumerationapi = [
-            ];
-            playsoundapi = [
-            ];
-            portabledevice = [
-            ];
-            portabledeviceapi = [
-            ];
-            portabledevicetypes = [
-            ];
-            powerbase = [
-            ];
-            powersetting = [
-            ];
-            powrprof = [
-            ];
-            processenv = [
-            ];
-            processsnapshot = [
-            ];
-            processthreadsapi = [
-            ];
-            processtopologyapi = [
-            ];
-            profileapi = [
-            ];
-            propidl = [
-            ];
-            propkeydef = [
-            ];
-            propsys = [
-            ];
-            prsht = [
-            ];
-            psapi = [
-            ];
-            qos = [
-            ];
-            realtimeapiset = [
-            ];
-            reason = [
-            ];
-            restartmanager = [
-            ];
-            restrictederrorinfo = [
-            ];
-            rmxfguid = [
-            ];
-            roapi = [
-            ];
-            robuffer = [
-            ];
-            roerrorapi = [
-            ];
-            rpc = [
-            ];
-            rpcdce = [
-            ];
-            rpcndr = [
-            ];
-            sapi = [
-            ];
-            sapi51 = [
-            ];
-            sapi53 = [
-            ];
-            sapiddk = [
-            ];
-            sapiddk51 = [
-            ];
-            schannel = [
-            ];
-            sddl = [
-            ];
-            securityappcontainer = [
-            ];
-            securitybaseapi = [
-            ];
-            servprov = [
-            ];
-            setupapi = [
-            ];
-            shellapi = [
-            ];
-            shellscalingapi = [
-            ];
-            shlobj = [
-            ];
-            shobjidl = [
-            ];
-            shobjidl_core = [
-            ];
-            shtypes = [
-            ];
-            spapidef = [
-            ];
-            spellcheck = [
-            ];
-            sporder = [
-            ];
-            sql = [
-            ];
-            sqlext = [
-            ];
-            sqltypes = [
-            ];
-            sqlucode = [
-            ];
-            sspi = [
-            ];
-            std = [
-            ];
-            stralign = [
-            ];
-            stringapiset = [
-            ];
-            strmif = [
-            ];
-            subauth = [
-            ];
-            synchapi = [
-            ];
-            sysinfoapi = [
-            ];
-            systemtopologyapi = [
-            ];
-            taskschd = [
-            ];
-            textstor = [
-            ];
-            threadpoolapiset = [
-            ];
-            threadpoollegacyapiset = [
-            ];
-            timeapi = [
-            ];
-            timezoneapi = [
-            ];
-            tlhelp32 = [
-            ];
-            transportsettingcommon = [
-            ];
-            tvout = [
-            ];
-            unknwnbase = [
-            ];
-            urlhist = [
-            ];
-            urlmon = [
-            ];
-            usb = [
-            ];
-            usbiodef = [
-            ];
-            usbspec = [
-            ];
-            userenv = [
-            ];
-            usp10 = [
-            ];
-            utilapiset = [
-            ];
-            uxtheme = [
-            ];
-            vadefs = [
-            ];
-            vcruntime = [
-            ];
-            vsbackup = [
-            ];
-            vss = [
-            ];
-            vsserror = [
-            ];
-            vswriter = [
-            ];
-            wbemads = [
-            ];
-            wbemcli = [
-            ];
-            wbemdisp = [
-            ];
-            wbemprov = [
-            ];
-            wbemtran = [
-            ];
-            wct = [
-            ];
-            werapi = [
-            ];
-            winbase = [
-            ];
-            wincodec = [
-            ];
-            wincodecsdk = [
-            ];
-            wincon = [
-            ];
-            wincontypes = [
-            ];
-            wincred = [
-            ];
-            wincrypt = [
-            ];
-            windef = [
-            ];
-            windowsceip = [
-            ];
-            windowsx = [
-            ];
-            winefs = [
-            ];
-            winerror = [
-            ];
-            winevt = [
-            ];
-            wingdi = [
-            ];
-            winhttp = [
-            ];
-            wininet = [
-            ];
-            winineti = [
-            ];
-            winioctl = [
-            ];
-            winnetwk = [
-            ];
-            winnls = [
-            ];
-            winnt = [
-            ];
-            winreg = [
-            ];
-            winsafer = [
-            ];
-            winscard = [
-            ];
-            winsmcrd = [
-            ];
-            winsock2 = [
-            ];
-            winspool = [
-            ];
-            winstring = [
-            ];
-            winsvc = [
-            ];
-            winusb = [
-            ];
-            winusbio = [
-            ];
-            winuser = [
-            ];
-            winver = [
-            ];
-            wmistr = [
-            ];
-            wnnc = [
-            ];
-            wow64apiset = [
-            ];
-            wpdmtpextensions = [
-            ];
-            ws2def = [
-            ];
-            ws2ipdef = [
-            ];
-            ws2spi = [
-            ];
-            ws2tcpip = [
-            ];
-            wtypes = [
-            ];
-            wtypesbase = [
-            ];
-            xinput = [
-            ];
+            debugapi = [];
+            devguid = [];
+            devicetopology = [];
+            devpkey = [];
+            devpropdef = [];
+            dinput = [];
+            dinputd = [];
+            dispex = [];
+            dmksctl = [];
+            dmusicc = [];
+            docobj = [];
+            documenttarget = [];
+            dpa_dsa = [];
+            dpapi = [];
+            dsgetdc = [];
+            dsound = [];
+            dsrole = [];
+            dvp = [];
+            dwmapi = [];
+            dwrite = [];
+            dwrite_1 = [];
+            dwrite_2 = [];
+            dwrite_3 = [];
+            dxdiag = [];
+            dxfile = [];
+            dxgi = [];
+            dxgi1_2 = [];
+            dxgi1_3 = [];
+            dxgi1_4 = [];
+            dxgi1_5 = [];
+            dxgi1_6 = [];
+            dxgidebug = [];
+            dxgiformat = [];
+            dxgitype = [];
+            dxva2api = [];
+            dxvahd = [];
+            enclaveapi = [];
+            endpointvolume = [];
+            errhandlingapi = [];
+            everything = [];
+            evntcons = [];
+            evntprov = [];
+            evntrace = [];
+            excpt = [];
+            exdisp = [];
+            fibersapi = [];
+            fileapi = [];
+            gl-gl = [];
+            guiddef = [];
+            handleapi = [];
+            heapapi = [];
+            hidclass = [];
+            hidpi = [];
+            hidsdi = [];
+            hidusage = [];
+            highlevelmonitorconfigurationapi = [];
+            hstring = [];
+            http = [];
+            ifdef = [];
+            imm = [];
+            impl-debug = [];
+            impl-default = [];
+            in6addr = [];
+            inaddr = [];
+            inspectable = [];
+            interlockedapi = [];
+            intsafe = [];
+            ioapiset = [];
+            jobapi = [];
+            jobapi2 = [];
+            knownfolders = [];
+            ks = [];
+            ksmedia = [];
+            ktmtypes = [];
+            ktmw32 = [];
+            libloaderapi = [];
+            limits = [];
+            lmaccess = [];
+            lmalert = [];
+            lmapibuf = [];
+            lmat = [];
+            lmcons = [];
+            lmdfs = [];
+            lmerrlog = [];
+            lmjoin = [];
+            lmmsg = [];
+            lmremutl = [];
+            lmrepl = [];
+            lmserver = [];
+            lmshare = [];
+            lmstats = [];
+            lmsvc = [];
+            lmuse = [];
+            lmwksta = [];
+            lowlevelmonitorconfigurationapi = [];
+            lsalookup = [];
+            memoryapi = [];
+            minschannel = [];
+            minwinbase = [];
+            minwindef = [];
+            mmdeviceapi = [];
+            mmeapi = [];
+            mmreg = [];
+            mmsystem = [];
+            msaatext = [];
+            mscat = [];
+            mschapp = [];
+            mssip = [];
+            mstcpip = [];
+            mswsock = [];
+            mswsockdef = [];
+            namedpipeapi = [];
+            namespaceapi = [];
+            nb30 = [];
+            ncrypt = [];
+            netioapi = [];
+            ntddscsi = [];
+            ntddser = [];
+            ntdef = [];
+            ntlsa = [];
+            ntsecapi = [];
+            ntstatus = [];
+            oaidl = [];
+            objbase = [];
+            objidl = [];
+            objidlbase = [];
+            ocidl = [];
+            ole2 = [];
+            oleauto = [];
+            olectl = [];
+            oleidl = [];
+            opmapi = [];
+            pdh = [];
+            perflib = [];
+            physicalmonitorenumerationapi = [];
+            playsoundapi = [];
+            portabledevice = [];
+            portabledeviceapi = [];
+            portabledevicetypes = [];
+            powerbase = [];
+            powersetting = [];
+            powrprof = [];
+            processenv = [];
+            processsnapshot = [];
+            processthreadsapi = [];
+            processtopologyapi = [];
+            profileapi = [];
+            propidl = [];
+            propkeydef = [];
+            propsys = [];
+            prsht = [];
+            psapi = [];
+            qos = [];
+            realtimeapiset = [];
+            reason = [];
+            restartmanager = [];
+            restrictederrorinfo = [];
+            rmxfguid = [];
+            roapi = [];
+            robuffer = [];
+            roerrorapi = [];
+            rpc = [];
+            rpcdce = [];
+            rpcndr = [];
+            sapi = [];
+            sapi51 = [];
+            sapi53 = [];
+            sapiddk = [];
+            sapiddk51 = [];
+            schannel = [];
+            sddl = [];
+            securityappcontainer = [];
+            securitybaseapi = [];
+            servprov = [];
+            setupapi = [];
+            shellapi = [];
+            shellscalingapi = [];
+            shlobj = [];
+            shobjidl = [];
+            shobjidl_core = [];
+            shtypes = [];
+            spapidef = [];
+            spellcheck = [];
+            sporder = [];
+            sql = [];
+            sqlext = [];
+            sqltypes = [];
+            sqlucode = [];
+            sspi = [];
+            std = [];
+            stralign = [];
+            stringapiset = [];
+            strmif = [];
+            subauth = [];
+            synchapi = [];
+            sysinfoapi = [];
+            systemtopologyapi = [];
+            taskschd = [];
+            textstor = [];
+            threadpoolapiset = [];
+            threadpoollegacyapiset = [];
+            timeapi = [];
+            timezoneapi = [];
+            tlhelp32 = [];
+            transportsettingcommon = [];
+            tvout = [];
+            unknwnbase = [];
+            urlhist = [];
+            urlmon = [];
+            usb = [];
+            usbiodef = [];
+            usbspec = [];
+            userenv = [];
+            usp10 = [];
+            utilapiset = [];
+            uxtheme = [];
+            vadefs = [];
+            vcruntime = [];
+            vsbackup = [];
+            vss = [];
+            vsserror = [];
+            vswriter = [];
+            wbemads = [];
+            wbemcli = [];
+            wbemdisp = [];
+            wbemprov = [];
+            wbemtran = [];
+            wct = [];
+            werapi = [];
+            winbase = [];
+            wincodec = [];
+            wincodecsdk = [];
+            wincon = [];
+            wincontypes = [];
+            wincred = [];
+            wincrypt = [];
+            windef = [];
+            windowsceip = [];
+            windowsx = [];
+            winefs = [];
+            winerror = [];
+            winevt = [];
+            wingdi = [];
+            winhttp = [];
+            wininet = [];
+            winineti = [];
+            winioctl = [];
+            winnetwk = [];
+            winnls = [];
+            winnt = [];
+            winreg = [];
+            winsafer = [];
+            winscard = [];
+            winsmcrd = [];
+            winsock2 = [];
+            winspool = [];
+            winstring = [];
+            winsvc = [];
+            winusb = [];
+            winusbio = [];
+            winuser = [];
+            winver = [];
+            wmistr = [];
+            wnnc = [];
+            wow64apiset = [];
+            wpdmtpextensions = [];
+            ws2def = [];
+            ws2ipdef = [];
+            ws2spi = [];
+            ws2tcpip = [];
+            wtypes = [];
+            wtypesbase = [];
+            xinput = [];
           };
           target = {
             i686-pc-windows-gnu = {
@@ -16217,8 +15668,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "winapi-build";
@@ -16251,8 +15701,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "winapi-i686-pc-windows-gnu";
@@ -16354,8 +15803,7 @@
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "winapi-x86_64-pc-windows-gnu";

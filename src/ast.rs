@@ -93,7 +93,7 @@ impl Generate for App {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         use Expr::*;
         let needs_quote = match *self.0 {
-            App(_) | Lam(_) | Ident(_) | Projection(_) => false,
+            App(_) | Lam(_) | Ident(_) | Projection(_) | AttrSet(_) | List(_) => false,
             _ => true,
         };
         if needs_quote {
@@ -104,8 +104,8 @@ impl Generate for App {
             writer.write_char(')')?;
         }
         writer.write_char(' ')?;
-        let needs_quote = match *self.0 {
-            App(_) | Lam(_) | Ident(_) | Projection(_) => false,
+        let needs_quote = match *self.1 {
+            Lam(_) | Ident(_) | Projection(_) | AttrSet(_) | List(_) => false,
             _ => true,
         };
         if needs_quote {
@@ -468,49 +468,51 @@ impl Generate for AttrSet {
             writer.write_str("rec ")?;
         }
         writer.write_char('{')?;
-        writer.indent(2);
-        for (key, value) in &self.attrs {
-            writer.new_line()?;
-            match (key, value) {
-                (AttrsPath(ref path), Expr::Ident(Ident(ref ivalue)))
-                    if path.len() == 1
-                        && if let Key::Key(ref key) = path[0] {
-                            key == ivalue
+        if self.attrs.len() > 0 {
+            writer.indent(2);
+            for (key, value) in &self.attrs {
+                writer.new_line()?;
+                match (key, value) {
+                    (AttrsPath(ref path), Expr::Ident(Ident(ref ivalue)))
+                        if path.len() == 1
+                            && if let Key::Key(ref key) = path[0] {
+                                key == ivalue
+                            } else {
+                                false
+                            } =>
+                    {
+                        writer.write_str("inherit ")?;
+                        value.generate_word(writer)?;
+                    }
+                    (
+                        AttrsPath(ref path),
+                        Expr::Projection(Projection {
+                            ref record,
+                            key: Key::Key(ref key),
+                        }),
+                    ) if path.len() == 1
+                        && if let Key::Key(ref key_) = path[0] {
+                            key == key_ && !key.contains(NEED_QUOTE)
                         } else {
                             false
                         } =>
-                {
-                    writer.write_str("inherit ")?;
-                    value.generate_word(writer)?;
+                    {
+                        writer.write_str("inherit (")?;
+                        record.generate_word(writer)?;
+                        writer.write_str(") ")?;
+                        writer.write_str(key)?;
+                    }
+                    _ => {
+                        key.generate_word(writer)?;
+                        writer.write_str(" = ")?;
+                        value.generate_word(writer)?;
+                    }
                 }
-                (
-                    AttrsPath(ref path),
-                    Expr::Projection(Projection {
-                        ref record,
-                        key: Key::Key(ref key),
-                    }),
-                ) if path.len() == 1
-                    && if let Key::Key(ref key_) = path[0] {
-                        key == key_ && !key.contains(NEED_QUOTE)
-                    } else {
-                        false
-                    } =>
-                {
-                    writer.write_str("inherit (")?;
-                    record.generate_word(writer)?;
-                    writer.write_str(") ")?;
-                    writer.write_str(key)?;
-                }
-                _ => {
-                    key.generate_word(writer)?;
-                    writer.write_str(" = ")?;
-                    value.generate_word(writer)?;
-                }
+                writer.write_char(';')?;
             }
-            writer.write_char(';')?;
+            writer.indent(-2);
+            writer.new_line()?;
         }
-        writer.indent(-2);
-        writer.new_line()?;
         writer.write_char('}')
     }
 }
@@ -627,26 +629,27 @@ macro_rules! list {
 impl Generate for List {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         writer.write_char('[')?;
-        writer.indent(2);
-        for expr in &self.0 {
-            writer.new_line()?;
-            use Expr::*;
-            let needs_quote = match *expr {
-                AttrSet(_) | Ident(_) | List(_) | NixString(_) | Projection(_) | ConstNum(_) => {
-                    false
+        if self.0.len() > 0 {
+            writer.indent(2);
+            for expr in &self.0 {
+                writer.new_line()?;
+                use Expr::*;
+                let needs_quote = match *expr {
+                    AttrSet(_) | Ident(_) | List(_) | NixString(_) | Projection(_)
+                    | ConstNum(_) => false,
+                    _ => true,
+                };
+                if needs_quote {
+                    writer.write_char('(')?;
                 }
-                _ => true,
-            };
-            if needs_quote {
-                writer.write_char('(')?;
+                expr.generate_word(writer)?;
+                if needs_quote {
+                    writer.write_char(')')?;
+                }
             }
-            expr.generate_word(writer)?;
-            if needs_quote {
-                writer.write_char(')')?;
-            }
+            writer.indent(-2);
+            writer.new_line()?;
         }
-        writer.indent(-2);
-        writer.new_line()?;
         writer.write_char(']')
     }
 }
