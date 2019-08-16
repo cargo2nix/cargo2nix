@@ -43,25 +43,26 @@
         rustPackageConfig = config';
       };
     };
-    features = lib.fold lib.recursiveUpdate {
-    } [
-      (bootstrap.unknown.cargo2nix."0.1.0".computePackageFeatures [
-      ])
+    all-features = lib.fold lib.recursiveUpdate {} [
+      (bootstrap.unknown.cargo2nix."0.1.0".computePackageFeatures [])
     ];
+    features = lib.fold lib.recursiveUpdate {} (lib.mapAttrsToList (_:
+      (features:
+        features)) all-features);
   in
   pkgs.rustBuilder.makePackageSet {
     inherit cargo;
     inherit rustc;
     inherit packageFun;
     rustPackageConfig = lib.recursiveUpdate config' {
-      features = features.${pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.hostPlatform};
+      inherit features;
     };
     buildRustPackages = buildPackages.rustBuilder.makePackageSet {
       inherit cargo;
       inherit rustc;
       inherit packageFun;
       rustPackageConfig = lib.recursiveUpdate buildConfig' {
-        features = features.${pkgs.rustBuilder.rustLib.realHostTriple buildPackages.stdenv.hostPlatform};
+        inherit features;
       };
     };
   })

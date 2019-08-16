@@ -9,7 +9,7 @@ use serde::Deserialize;
 use serde_json;
 use tokio_process::CommandExt;
 
-use crate::ast::{AttrSet, Eq, Expr, Key, List, NixString};
+use crate::ast::{AttrSet, Eq, Expr, List, NixString};
 
 lazy_static! {
     static ref PACKAGE_ID_WITH_SRC: Regex = Regex::new("^(.+) (.+) \\((.+)\\)$").unwrap();
@@ -373,7 +373,7 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                 }).into()
                             );
                     }).into());
-            features.clone() => {
+            ident!("all-features") => {
                 app!(
                     app!(
                         app!(
@@ -382,6 +382,32 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                         attrs!({})
                     ),
                     package_features
+                )
+            };
+            features.clone() => {
+                app!(
+                    app!(
+                        app!(
+                            proj!(ident!("lib").into(), key!("fold")),
+                            proj!(ident!("lib").into(), key!("recursiveUpdate"))
+                        ),
+                        attrs!({}).into()
+                    ),
+                    app!(
+                        app!(
+                            proj!(ident!("lib").into(), key!("mapAttrsToList")),
+                            lambda!(
+                                symbolic ident!("_") =>
+                                    Box::new(
+                                        lambda!(
+                                            symbolic ident!("features") =>
+                                                Box::new(ident!("features").into())
+                                        ).into()
+                                    )
+                            ).into()
+                        ),
+                        ident!("all-features").into()
+                    )
                 )
             };
             in
@@ -402,22 +428,7 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                     ident!("config'").into()
                                 ),
                                 attrs!({
-                                    attrs_path!(key!("features")) =>
-                                        proj!(
-                                            features.clone().into(),
-                                            Key::Expr(
-                                                app!(
-                                                    proj!(
-                                                        pkgs.clone().into(),
-                                                        key!(rustBuilder),
-                                                        key!(rustLib),
-                                                        key!("realHostTriple")),
-                                                    proj!(
-                                                        pkgs.clone().into(),
-                                                        key!("stdenv"),
-                                                        key!("hostPlatform"))
-                                                ).into()
-                                            ).into());
+                                    attrs_path!(key!("features")) => features.clone().into();
                                 })
                             );
                         attrs_path!(key!("buildRustPackages")) =>
@@ -439,22 +450,7 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
                                                 ident!("buildConfig'").into()
                                             ),
                                             attrs!({
-                                                attrs_path!(key!("features")) =>
-                                                    proj!(
-                                                        features.clone().into(),
-                                                        Key::Expr(
-                                                            app!(
-                                                                proj!(
-                                                                    pkgs.clone().into(),
-                                                                    key!(rustBuilder),
-                                                                    key!(rustLib),
-                                                                    key!("realHostTriple")),
-                                                                proj!(
-                                                                    buildPackages.clone().into(),
-                                                                    key!("stdenv"),
-                                                                    key!("hostPlatform"))
-                                                            ).into()
-                                                        ).into());
+                                                attrs_path!(key!("features")) => features.into();
                                             })
                                         );
                                 }).into()

@@ -10,6 +10,7 @@
   rustPackages,
   stdenv,
 
+  # custom target triple
   target ? null,
 }:
 {
@@ -252,9 +253,7 @@ let
         mapAttrs
           (_: pkg:
             pkg // {
-              drv =
-              (selectPlatform pkg).override
-                (_: { inherit panicAbortOk; });
+              drv = (selectPlatform pkg).override (_: { panicAbortOk = panicAbortOk && !doCheck; });
             })
           (depPkgs final-features);
       buildDependencies =
@@ -266,7 +265,10 @@ let
           (buildDepPkgs final-features);
       devDependencies =
         mapAttrs
-          (_: pkg: pkg // { drv = selectPlatform pkg; })
+          (_: pkg:
+            pkg // {
+              drv = (selectPlatform pkg).override (_: { panicAbortOk = false; });
+            })
           (optionalAttrs doCheck (devDepPkgs final-features));
     in
     { inherit dependencies buildDependencies devDependencies; };
@@ -353,7 +355,7 @@ let
 
     outputs = [ "out" ] ++ optional doCheck "tests";
 
-    # wasm32-wasi always uses `wasm-ld`
+    # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
