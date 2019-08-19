@@ -33,7 +33,7 @@ let
 
   # choice of rustc
   rustChannel = pkgs.buildPackages.rustChannelOf {
-    channel = "1.36.0";
+    channel = "1.37.0";
   };
 
   inherit (rustChannel) cargo;
@@ -62,7 +62,7 @@ let
 
   config = pkgs: {
     rustcflags = {
-      "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.5" = [
+      "registry+https://github.com/rust-lang/crates.io-index"."*" = [
         "--cap-lints"
         "warn"
       ];
@@ -86,7 +86,7 @@ let
 in
 {
   # your rust build is available here
-  package = rustPackages.unknown.cargo2nix."0.1.0";
+  package = rustPackages.unknown.cargo2nix."0.1.0".override { freezeFeatures = true; };
 
   # and you can make a development shell
   shell = pkgs.rustBuilder.makeShell {

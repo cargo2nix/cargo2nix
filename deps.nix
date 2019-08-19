@@ -45,13 +45,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.3" = mkRustCrate {
-        package-id = "aho-corasick 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" = mkRustCrate {
+        package-id = "aho-corasick 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "aho-corasick";
-          version = "0.7.3";
-          sha256 = "e6f484ae0c99fec2e858eb6134949117399f222608d84cadb3f58c1f97c2364c";
+          version = "0.7.6";
+          sha256 = "58fb5e95d83b38284460a5fda7d6470aa0b8844d283a0b614b8535e880800d2d";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -62,21 +62,21 @@
               "memchr"
             ];
             extern-name = "memchr";
-            package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "aho-corasick";
-            version = "0.7.3";
+            version = "0.7.6";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
             exclude = [
               "/aho-corasick-debug"
-              "/bench"
               "/ci/*"
               "/.travis.yml"
+              "/appveyor.yml"
             ];
             autotests = false;
             description = "Fast multiple substring searching.";
@@ -112,6 +112,11 @@
               default-features = false;
             };
           };
+          dev-dependencies = {
+            doc-comment = {
+              version = "0.3.1";
+            };
+          };
           features = {
             default = [
               "std"
@@ -122,7 +127,7 @@
           };
           badges = {
             appveyor = {
-              repository = "BurntSushi/regex-automata";
+              repository = "BurntSushi/aho-corasick";
             };
             travis-ci = {
               repository = "BurntSushi/aho-corasick";
@@ -184,13 +189,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".arc-swap."0.3.11" = mkRustCrate {
-        package-id = "arc-swap 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".arc-swap."0.4.2" = mkRustCrate {
+        package-id = "arc-swap 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "arc-swap";
-          version = "0.3.11";
-          sha256 = "bc4662175ead9cd84451d5c35070517777949a2ed84551764129cedb88384841";
+          version = "0.4.2";
+          sha256 = "854ede29f7a0ce90519fb2439d030320c6201119b87dab0ee96044603e1130b9";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -199,7 +204,7 @@
         cargo-manifest = {
           package = {
             name = "arc-swap";
-            version = "0.3.11";
+            version = "0.4.2";
             authors = [
               "Michal 'vorner' Vaner <vorner@vorner.cz>"
             ];
@@ -216,32 +221,21 @@
             ];
             license = "Apache-2.0/MIT";
             repository = "https://github.com/vorner/arc-swap";
+            metadata = {
+              docs = {
+                rs = {
+                  all-features = true;
+                };
+              };
+            };
           };
           profile = {
             bench = {
               debug = true;
             };
           };
-          bench = [
-            {
-              name = "atomics";
-              path = "benches/atomics.rs";
-            }
-            {
-              name = "background";
-              path = "benches/background.rs";
-            }
-            {
-              name = "int-access";
-              path = "benches/int-access.rs";
-              harness = false;
-            }
-          ];
           dependencies = {};
           dev-dependencies = {
-            crossbeam = {
-              version = "~0.5";
-            };
             crossbeam-utils = {
               version = "~0.6";
             };
@@ -252,20 +246,20 @@
               version = "~1";
             };
             model = {
-              version = "~0.0.4";
+              version = "~0.1";
             };
             num_cpus = {
               version = "~1";
             };
-            parking_lot = {
-              version = "~0.7";
-            };
             proptest = {
-              version = "~0.7";
+              version = "~0.8";
             };
             version-sync = {
-              version = "~0.7";
+              version = "~0.8";
             };
+          };
+          features = {
+            unstable-weak = [];
           };
           badges = {
             appveyor = {
@@ -280,13 +274,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".arrayvec."0.4.10" = mkRustCrate {
-        package-id = "arrayvec 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".arrayvec."0.4.11" = mkRustCrate {
+        package-id = "arrayvec 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "arrayvec";
-          version = "0.4.10";
-          sha256 = "92c7fb76bc8826a8b33b4ee5bb07a247a81e76764ab4d55e8f73e3a4d8808c71";
+          version = "0.4.11";
+          sha256 = "b8d73f9beda665eaa98ab9e4f7442bd4e7de6652587de55b2525e52e29c1b0ba";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -303,7 +297,7 @@
         cargo-manifest = {
           package = {
             name = "arrayvec";
-            version = "0.4.10";
+            version = "0.4.11";
             authors = [
               "bluss"
             ];
@@ -382,13 +376,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".atty."0.2.11" = mkRustCrate {
-        package-id = "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" = mkRustCrate {
+        package-id = "atty 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "atty";
-          version = "0.2.11";
-          sha256 = "9a7d5b8723950951411ee34d271d99dddcc2035a16ab25310ea2c8cfd4369652";
+          version = "0.2.13";
+          sha256 = "1803c647a3ec87095e7ae7acfca019e98de5ec9a7d01343f611cf3152ed71a90";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -399,14 +393,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "termion"
-            ];
-            extern-name = "termion";
-            package-id = "termion 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -419,9 +406,13 @@
         cargo-manifest = {
           package = {
             name = "atty";
-            version = "0.2.11";
+            version = "0.2.13";
             authors = [
               "softprops <d.tangren@gmail.com>"
+            ];
+            exclude = [
+              "/.travis.yml"
+              "/appveyor.yml"
             ];
             description = "A simple interface for querying atty";
             homepage = "https://github.com/softprops/atty";
@@ -430,18 +421,12 @@
             keywords = [
               "terminal"
               "tty"
+              "isatty"
             ];
             license = "MIT";
             repository = "https://github.com/softprops/atty";
           };
           target = {
-            "cfg(target_os = \"redox\")" = {
-              dependencies = {
-                termion = {
-                  version = "1.5";
-                };
-              };
-            };
             "cfg(unix)" = {
               dependencies = {
                 libc = {
@@ -472,13 +457,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.4" = mkRustCrate {
-        package-id = "autocfg 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.5" = mkRustCrate {
+        package-id = "autocfg 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "autocfg";
-          version = "0.1.4";
-          sha256 = "0e49efa51329a5fd37e7c79db4621af617cd4e3e5bc224939808d076077077bf";
+          version = "0.1.5";
+          sha256 = "22130e92352b948e7e82a49cdb0aa94f2211761117f29e052dd397c1ac33542b";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -487,7 +472,7 @@
         cargo-manifest = {
           package = {
             name = "autocfg";
-            version = "0.1.4";
+            version = "0.1.5";
             authors = [
               "Josh Stone <cuviper@gmail.com>"
             ];
@@ -507,13 +492,13 @@
           dependencies = {};
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.30" = mkRustCrate {
-        package-id = "backtrace 0.3.30 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.34" = mkRustCrate {
+        package-id = "backtrace 0.3.34 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "backtrace";
-          version = "0.3.30";
-          sha256 = "ada4c783bb7e7443c14e0480f429ae2cc99da95065aeab7ee1b81ada0419404f";
+          version = "0.3.34";
+          sha256 = "b5164d292487f037ece34ec0de2fcede2faa162f085dd96d2385ab81b12765ba";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -521,17 +506,10 @@
         dependencies = [
           {
             toml-names = [
-              "autocfg"
-            ];
-            extern-name = "autocfg";
-            package-id = "autocfg 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
               "backtrace-sys"
             ];
             extern-name = "backtrace_sys";
-            package-id = "backtrace-sys 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "backtrace-sys 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -545,20 +523,21 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "rustc-demangle"
             ];
             extern-name = "rustc_demangle";
-            package-id = "rustc-demangle 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rustc-demangle 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
+            edition = "2018";
             name = "backtrace";
-            version = "0.3.30";
+            version = "0.3.34";
             authors = [
               "The Rust Project Developers"
             ];
@@ -619,7 +598,11 @@
           dependencies = {
             addr2line = {
               version = "0.9.0";
+              features = [
+                "std"
+              ];
               optional = true;
+              default-features = false;
             };
             backtrace-sys = {
               version = "0.1.17";
@@ -628,14 +611,31 @@
             cfg-if = {
               version = "0.1.6";
             };
+            compiler_builtins = {
+              version = "0.1.2";
+              optional = true;
+            };
+            core = {
+              version = "1.0.0";
+              optional = true;
+              package = "rustc-std-workspace-core";
+            };
             cpp_demangle = {
               version = "0.2.3";
               optional = true;
               default-features = false;
             };
             findshlibs = {
-              version = "0.4.1";
+              version = "0.5.0";
               optional = true;
+            };
+            goblin = {
+              version = "0.0.23";
+              features = [
+                "std"
+              ];
+              optional = true;
+              default-features = false;
             };
             libc = {
               version = "0.2.45";
@@ -654,16 +654,10 @@
             };
             serde = {
               version = "1.0";
+              features = [
+                "derive"
+              ];
               optional = true;
-            };
-            serde_derive = {
-              version = "1.0";
-              optional = true;
-            };
-          };
-          build-dependencies = {
-            autocfg = {
-              version = "0.1";
             };
           };
           features = {
@@ -673,7 +667,6 @@
               "std"
               "libunwind"
               "libbacktrace"
-              "coresymbolication"
               "dladdr"
               "dbghelp"
             ];
@@ -682,18 +675,26 @@
               "addr2line"
               "findshlibs"
               "memmap"
+              "goblin"
             ];
             kernel32 = [];
             libbacktrace = [
               "backtrace-sys"
             ];
             libunwind = [];
+            rustc-dep-of-std = [
+              "backtrace-sys/rustc-dep-of-std"
+              "cfg-if/rustc-dep-of-std"
+              "core"
+              "compiler_builtins"
+              "libc/rustc-dep-of-std"
+              "rustc-demangle/rustc-dep-of-std"
+            ];
             serialize-rustc = [
               "rustc-serialize"
             ];
             serialize-serde = [
               "serde"
-              "serde_derive"
             ];
             std = [];
             unix-backtrace = [];
@@ -708,8 +709,43 @@
             ];
           };
           target = {
+            "cfg(not(any(target_os = \"macos\", windows)))" = {
+              dependencies = {
+                goblin = {
+                  version = "0.0.23";
+                  features = [
+                    "elf32"
+                    "elf64"
+                  ];
+                  optional = true;
+                  default-features = false;
+                };
+              };
+            };
+            "cfg(target_os = \"macos\")" = {
+              dependencies = {
+                goblin = {
+                  version = "0.0.23";
+                  features = [
+                    "mach32"
+                    "mach64"
+                  ];
+                  optional = true;
+                  default-features = false;
+                };
+              };
+            };
             "cfg(windows)" = {
               dependencies = {
+                goblin = {
+                  version = "0.0.23";
+                  features = [
+                    "pe32"
+                    "pe64"
+                  ];
+                  optional = true;
+                  default-features = false;
+                };
                 winapi = {
                   version = "0.3.3";
                   optional = true;
@@ -719,13 +755,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.28" = mkRustCrate {
-        package-id = "backtrace-sys 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.31" = mkRustCrate {
+        package-id = "backtrace-sys 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "backtrace-sys";
-          version = "0.1.28";
-          sha256 = "797c830ac25ccc92a7f8a7b9862bde440715531514594a6154e3d4a54dd769b6";
+          version = "0.1.31";
+          sha256 = "82a830b4ef2d1124a711c71d263c5abdc710ef8e907bd508c88be475cebc422b";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -736,20 +772,20 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "backtrace-sys";
-            version = "0.1.28";
+            version = "0.1.31";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -761,6 +797,15 @@
             repository = "https://github.com/alexcrichton/backtrace-rs";
           };
           dependencies = {
+            compiler_builtins = {
+              version = "0.1.2";
+              optional = true;
+            };
+            core = {
+              version = "1.0.0";
+              optional = true;
+              package = "rustc-std-workspace-core";
+            };
             libc = {
               version = "0.2";
               default-features = false;
@@ -768,8 +813,14 @@
           };
           build-dependencies = {
             cc = {
-              version = "1.0";
+              version = "1.0.37";
             };
+          };
+          features = {
+            rustc-dep-of-std = [
+              "core"
+              "compiler_builtins"
+            ];
           };
         };
       };
@@ -834,13 +885,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".bstr."0.1.4" = mkRustCrate {
-        package-id = "bstr 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".bstr."0.2.7" = mkRustCrate {
+        package-id = "bstr 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "bstr";
-          version = "0.1.4";
-          sha256 = "59604ece62a407dc9164732e5adea02467898954c3a5811fd2dc140af14ef15b";
+          version = "0.2.7";
+          sha256 = "94cdf78eb7e94c566c1f5dbe2abf8fc70a548fc902942a48c4b3a98b48ca9ade";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -851,13 +902,13 @@
               "memchr"
             ];
             extern-name = "memchr";
-            package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "bstr";
-            version = "0.1.4";
+            version = "0.2.7";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
@@ -952,45 +1003,6 @@
             travis-ci = {
               repository = "BurntSushi/bstr";
             };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".build_const."0.2.1" = mkRustCrate {
-        package-id = "build_const 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "build_const";
-          version = "0.2.1";
-          sha256 = "39092a32794787acd8525ee150305ff051b0aa6cc2abaf193924f5ab05425f39";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [];
-        cargo-manifest = {
-          package = {
-            name = "build_const";
-            version = "0.2.1";
-            authors = [
-              "Garrett Berg <vitiral@gmail.com>"
-            ];
-            description = "library for creating importable constants from build.rs or a script";
-            documentation = "https://docs.rs/build_const";
-            keywords = [
-              "embedded"
-              "no_std"
-              "build"
-              "const"
-              "static"
-            ];
-            license = "MIT";
-            repository = "https://github.com/vitiral/build_const";
-          };
-          features = {
-            default = [
-              "std"
-            ];
-            std = [];
           };
         };
       };
@@ -1209,6 +1221,105 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".c2-chacha."0.2.2" = mkRustCrate {
+        package-id = "c2-chacha 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "c2-chacha";
+          version = "0.2.2";
+          sha256 = "7d64d04786e0f528460fc884753cf8dddcc466be308f6026f8e355c41a0e4101";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "lazy_static"
+            ];
+            extern-name = "lazy_static";
+            package-id = "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "ppv-lite86"
+            ];
+            extern-name = "ppv_lite86";
+            package-id = "ppv-lite86 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "c2-chacha";
+            version = "0.2.2";
+            authors = [
+              "The CryptoCorrosion Contributors"
+            ];
+            description = "The ChaCha family of stream ciphers";
+            documentation = "https://docs.rs/c2-chacha";
+            readme = "README.md";
+            keywords = [
+              "chacha"
+              "chacha20"
+              "xchacha20"
+              "cipher"
+              "crypto"
+            ];
+            categories = [
+              "cryptography"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/cryptocorrosion/cryptocorrosion";
+          };
+          dependencies = {
+            byteorder = {
+              version = "1.3";
+              optional = true;
+            };
+            lazy_static = {
+              version = "1.2";
+              optional = true;
+            };
+            ppv-lite86 = {
+              version = "0.2.1";
+              package = "ppv-lite86";
+            };
+            stream-cipher = {
+              version = "0.3";
+              optional = true;
+            };
+          };
+          dev-dependencies = {
+            hex-literal = {
+              version = "0.1";
+            };
+          };
+          features = {
+            default = [
+              "std"
+              "simd"
+              "rustcrypto_api"
+            ];
+            rustcrypto_api = [
+              "stream-cipher"
+              "byteorder"
+            ];
+            simd = [
+              "ppv-lite86/simd"
+            ];
+            std = [
+              "lazy_static"
+            ];
+          };
+          badges = {
+            travis-ci = {
+              repository = "cryptocorrosion/cryptocorrosion";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".cargo."0.37.0" = mkRustCrate {
         package-id = "cargo 0.37.0 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -1226,7 +1337,7 @@
               "atty"
             ];
             extern-name = "atty";
-            package-id = "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "atty 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1268,14 +1379,14 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "crypto-hash"
             ];
             extern-name = "crypto_hash";
-            package-id = "crypto-hash 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crypto-hash 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1289,7 +1400,7 @@
               "curl-sys"
             ];
             extern-name = "curl_sys";
-            package-id = "curl-sys 0.4.19 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "curl-sys 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1310,14 +1421,14 @@
               "filetime"
             ];
             extern-name = "filetime";
-            package-id = "filetime 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "filetime 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "flate2"
             ];
             extern-name = "flate2";
-            package-id = "flate2 1.0.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "flate2 1.0.11 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1373,7 +1484,7 @@
               "ignore"
             ];
             extern-name = "ignore";
-            package-id = "ignore 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "ignore 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1387,7 +1498,7 @@
               "jobserver"
             ];
             extern-name = "jobserver";
-            package-id = "jobserver 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "jobserver 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1408,7 +1519,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1422,14 +1533,14 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "memchr"
             ];
             extern-name = "memchr";
-            package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1464,14 +1575,14 @@
               "rustfix"
             ];
             extern-name = "rustfix";
-            package-id = "rustfix 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rustfix 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "same-file"
             ];
             extern-name = "same_file";
-            package-id = "same-file 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1485,7 +1596,7 @@
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1499,7 +1610,7 @@
               "serde_json"
             ];
             extern-name = "serde_json";
-            package-id = "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1520,7 +1631,7 @@
               "tempfile"
             ];
             extern-name = "tempfile";
-            package-id = "tempfile 3.0.8 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1534,7 +1645,7 @@
               "toml"
             ];
             extern-name = "toml";
-            package-id = "toml 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "toml 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1562,7 +1673,7 @@
               "walkdir"
             ];
             extern-name = "walkdir";
-            package-id = "walkdir 2.2.8 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "walkdir 2.2.9 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1868,7 +1979,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -1882,49 +1993,49 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "regex"
             ];
             extern-name = "regex";
-            package-id = "regex 1.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "regex 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde_json"
             ];
             extern-name = "serde_json";
-            package-id = "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "tokio"
             ];
             extern-name = "tokio";
-            package-id = "tokio 0.1.21 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "tokio-process"
             ];
             extern-name = "tokio_process";
-            package-id = "tokio-process 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-process 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "toml"
             ];
             extern-name = "toml";
-            package-id = "toml 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "toml 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -1956,13 +2067,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".cc."1.0.37" = mkRustCrate {
-        package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".cc."1.0.40" = mkRustCrate {
+        package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "cc";
-          version = "1.0.37";
-          sha256 = "39f75544d7bbaf57560d2168f28fd649ff9c76153874db88bdbdfd839b1a7e7d";
+          version = "1.0.40";
+          sha256 = "b548a4ee81fccb95919d4e22cfea83c7693ebfd78f0495493178db20b3139da7";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -1971,7 +2082,7 @@
         cargo-manifest = {
           package = {
             name = "cc";
-            version = "1.0.37";
+            version = "1.0.40";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -2067,7 +2178,7 @@
               "atty"
             ];
             extern-name = "atty";
-            package-id = "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "atty 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -2419,7 +2530,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -2482,7 +2593,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -2600,28 +2711,28 @@
               "http"
             ];
             extern-name = "http";
-            package-id = "http 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "http 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde_derive"
             ];
             extern-name = "serde_derive";
-            package-id = "serde_derive 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde_derive 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde_json"
             ];
             extern-name = "serde_json";
-            package-id = "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -2672,59 +2783,6 @@
             url = {
               version = "1.0";
             };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".crc."1.8.1" = mkRustCrate {
-        package-id = "crc 1.8.1 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "crc";
-          version = "1.8.1";
-          sha256 = "d663548de7f5cca343f1e0a48d14dcfb0e9eb4e079ec58883b7251539fa10aeb";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [
-          {
-            toml-names = [
-              "build_const"
-            ];
-            extern-name = "build_const";
-            package-id = "build_const 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-        ];
-        cargo-manifest = {
-          package = {
-            name = "crc";
-            version = "1.8.1";
-            authors = [
-              "Rui Hu <code@mrhooray.com>"
-            ];
-            description = "Rust implementation of CRC(16, 32, 64) with support of various standards";
-            documentation = "https://docs.rs/crc";
-            readme = "README.md";
-            keywords = [
-              "crc"
-              "crc16"
-              "crc32"
-              "crc64"
-              "hash"
-            ];
-            license = "MIT OR Apache-2.0";
-            repository = "https://github.com/mrhooray/crc-rs.git";
-          };
-          build-dependencies = {
-            build_const = {
-              version = "0.2";
-            };
-          };
-          features = {
-            default = [
-              "std"
-            ];
-            std = [];
           };
         };
       };
@@ -2800,13 +2858,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.8" = mkRustCrate {
-        package-id = "crossbeam-channel 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.9" = mkRustCrate {
+        package-id = "crossbeam-channel 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "crossbeam-channel";
-          version = "0.3.8";
-          sha256 = "0f0ed1a4de2235cabda8558ff5840bffb97fcb64c97827f354a451307df5f72b";
+          version = "0.3.9";
+          sha256 = "c8ec7fcd21571dc78f96cc96243cab8d8f035247c3efd16c687be154c3fa9efa";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -2817,20 +2875,13 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "smallvec"
-            ];
-            extern-name = "smallvec";
-            package-id = "smallvec 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "crossbeam-channel";
-            version = "0.3.8";
+            version = "0.3.9";
             authors = [
               "The Crossbeam Project Developers"
             ];
@@ -2850,18 +2901,18 @@
               "concurrency"
               "data-structures"
             ];
-            license = "MIT/Apache-2.0";
+            license = "MIT/Apache-2.0 AND BSD-2-Clause";
             repository = "https://github.com/crossbeam-rs/crossbeam";
           };
           dependencies = {
             crossbeam-utils = {
               version = "0.6.5";
             };
-            smallvec = {
-              version = "0.6.2";
-            };
           };
           dev-dependencies = {
+            num_cpus = {
+              version = "1.10.0";
+            };
             rand = {
               version = "0.6";
             };
@@ -2888,14 +2939,14 @@
               "crossbeam-epoch"
             ];
             extern-name = "crossbeam_epoch";
-            package-id = "crossbeam-epoch 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-epoch 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -2938,13 +2989,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".crossbeam-epoch."0.7.1" = mkRustCrate {
-        package-id = "crossbeam-epoch 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".crossbeam-epoch."0.7.2" = mkRustCrate {
+        package-id = "crossbeam-epoch 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "crossbeam-epoch";
-          version = "0.7.1";
-          sha256 = "04c9e3102cc2d69cd681412141b390abd55a362afc1540965dad0ad4d34280b4";
+          version = "0.7.2";
+          sha256 = "fedcd6772e37f3da2a9af9bf12ebe046c0dfe657992377b4df982a2b54cd37a9";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -2955,7 +3006,7 @@
               "arrayvec"
             ];
             extern-name = "arrayvec";
-            package-id = "arrayvec 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "arrayvec 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -2969,7 +3020,7 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -2983,20 +3034,20 @@
               "memoffset"
             ];
             extern-name = "memoffset";
-            package-id = "memoffset 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memoffset 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "scopeguard"
             ];
             extern-name = "scopeguard";
-            package-id = "scopeguard 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "scopeguard 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "crossbeam-epoch";
-            version = "0.7.1";
+            version = "0.7.2";
             authors = [
               "The Crossbeam Project Developers"
             ];
@@ -3024,7 +3075,7 @@
               default-features = false;
             };
             cfg-if = {
-              version = "0.1";
+              version = "0.1.2";
             };
             crossbeam-utils = {
               version = "0.6";
@@ -3035,10 +3086,10 @@
               optional = true;
             };
             memoffset = {
-              version = "0.2";
+              version = "0.5";
             };
             scopeguard = {
-              version = "0.3";
+              version = "1";
               default-features = false;
             };
           };
@@ -3048,6 +3099,9 @@
             };
           };
           features = {
+            alloc = [
+              "crossbeam-utils/alloc"
+            ];
             default = [
               "std"
             ];
@@ -3080,7 +3134,7 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -3120,13 +3174,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.5" = mkRustCrate {
-        package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" = mkRustCrate {
+        package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "crossbeam-utils";
-          version = "0.6.5";
-          sha256 = "f8306fcef4a7b563b76b7dd949ca48f52bc1141aa067d2ea09565f3e2652aa5c";
+          version = "0.6.6";
+          sha256 = "04973fa96e96579258a5091af6003abde64af786b860f18622b82e026cca60e6";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -3150,7 +3204,7 @@
         cargo-manifest = {
           package = {
             name = "crossbeam-utils";
-            version = "0.6.5";
+            version = "0.6.6";
             authors = [
               "The Crossbeam Project Developers"
             ];
@@ -3175,7 +3229,7 @@
           };
           dependencies = {
             cfg-if = {
-              version = "0.1";
+              version = "0.1.2";
             };
             lazy_static = {
               version = "1.1.0";
@@ -3188,6 +3242,7 @@
             };
           };
           features = {
+            alloc = [];
             default = [
               "std"
             ];
@@ -3198,13 +3253,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.3" = mkRustCrate {
-        package-id = "crypto-hash 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.4" = mkRustCrate {
+        package-id = "crypto-hash 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "crypto-hash";
-          version = "0.3.3";
-          sha256 = "20ff87d28defc77c9980a5b81cae1a33c791dd0ead8af0cee0833eb98c8305b9";
+          version = "0.3.4";
+          sha256 = "8a77162240fd97248d19a564a565eb563a3f592b386e4136fb300909e67dddca";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -3229,7 +3284,7 @@
               "openssl"
             ];
             extern-name = "openssl";
-            package-id = "openssl 0.10.23 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl 0.10.24 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3242,7 +3297,7 @@
         cargo-manifest = {
           package = {
             name = "crypto-hash";
-            version = "0.3.3";
+            version = "0.3.4";
             authors = [
               "Mark Lee"
             ];
@@ -3320,7 +3375,7 @@
               "curl-sys"
             ];
             extern-name = "curl_sys";
-            package-id = "curl-sys 0.4.19 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "curl-sys 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3334,7 +3389,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3348,7 +3403,7 @@
               "openssl-sys"
             ];
             extern-name = "openssl_sys";
-            package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3362,7 +3417,7 @@
               "socket2"
             ];
             extern-name = "socket2";
-            package-id = "socket2 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "socket2 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3479,13 +3534,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.19" = mkRustCrate {
-        package-id = "curl-sys 0.4.19 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.20" = mkRustCrate {
+        package-id = "curl-sys 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "curl-sys";
-          version = "0.4.19";
-          sha256 = "d2427916f870661c5473e41bb7a5ac08d1a01ae1a4db495f724e7b7212e40a73";
+          version = "0.4.20";
+          sha256 = "5e90ae10f635645cba9cad1023535f54915a95c58c44751c6ed70dbaeb17a408";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -3497,7 +3552,7 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3505,14 +3560,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libnghttp2-sys"
             ];
             extern-name = "libnghttp2_sys";
-            package-id = "libnghttp2-sys 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libnghttp2-sys 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3528,7 +3583,7 @@
               "openssl-sys"
             ];
             extern-name = "openssl_sys";
-            package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3536,7 +3591,7 @@
               "pkg-config"
             ];
             extern-name = "pkg_config";
-            package-id = "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "pkg-config 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3544,7 +3599,7 @@
               "vcpkg"
             ];
             extern-name = "vcpkg";
-            package-id = "vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "vcpkg 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3558,7 +3613,7 @@
         cargo-manifest = {
           package = {
             name = "curl-sys";
-            version = "0.4.19";
+            version = "0.4.20";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -3668,7 +3723,7 @@
               "atty"
             ];
             extern-name = "atty";
-            package-id = "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "atty 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3682,14 +3737,14 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "regex"
             ];
             extern-name = "regex";
-            package-id = "regex 1.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "regex 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3785,7 +3840,7 @@
               "backtrace"
             ];
             extern-name = "backtrace";
-            package-id = "backtrace 0.3.30 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "backtrace 0.3.34 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3856,14 +3911,14 @@
               "quote"
             ];
             extern-name = "quote";
-            package-id = "quote 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "quote 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "syn"
             ];
             extern-name = "syn";
-            package-id = "syn 0.15.36 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "syn 0.15.44 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3914,13 +3969,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.6" = mkRustCrate {
-        package-id = "filetime 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" = mkRustCrate {
+        package-id = "filetime 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "filetime";
-          version = "0.2.6";
-          sha256 = "450537dc346f0c4d738dda31e790da1da5d4bd12145aad4da0d03d713cb3794f";
+          version = "0.2.7";
+          sha256 = "6bd7380b54ced79dda72ecc35cc4fbbd1da6bba54afaa37e96fd1c2a308cd469";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -3938,14 +3993,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "redox_syscall"
             ];
             extern-name = "syscall";
-            package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -3959,7 +4014,7 @@
           package = {
             edition = "2018";
             name = "filetime";
-            version = "0.2.6";
+            version = "0.2.7";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -4014,13 +4069,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.7" = mkRustCrate {
-        package-id = "flate2 1.0.7 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.11" = mkRustCrate {
+        package-id = "flate2 1.0.11 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "flate2";
-          version = "1.0.7";
-          sha256 = "f87e68aa82b2de08a6e037f1385455759df6e445a8df5e005b4297191dbf18aa";
+          version = "1.0.11";
+          sha256 = "2adaffba6388640136149e18ed080b77a78611c1e1d6de75aedcdf78df5d4682";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -4038,7 +4093,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4056,16 +4111,16 @@
           }
           {
             toml-names = [
-              "miniz_oxide_c_api"
+              "miniz_oxide"
             ];
-            extern-name = "miniz_oxide_c_api";
-            package-id = "miniz_oxide_c_api 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            extern-name = "miniz_oxide";
+            package-id = "miniz_oxide 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "flate2";
-            version = "1.0.7";
+            version = "1.0.11";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -4105,11 +4160,8 @@
               version = "0.1.11";
               optional = true;
             };
-            miniz_oxide_c_api = {
-              version = "0.2";
-              features = [
-                "no_c_export"
-              ];
+            miniz_oxide = {
+              version = "0.3.2";
               optional = true;
             };
             tokio-io = {
@@ -4122,11 +4174,11 @@
               version = "0.1";
             };
             quickcheck = {
-              version = "0.7";
+              version = "0.8";
               default-features = false;
             };
             rand = {
-              version = "0.6";
+              version = "0.7";
             };
             tokio-io = {
               version = "0.1.11";
@@ -4143,7 +4195,7 @@
               "miniz-sys"
             ];
             rust_backend = [
-              "miniz_oxide_c_api"
+              "miniz_oxide"
             ];
             tokio = [
               "tokio-io"
@@ -4156,11 +4208,8 @@
           target = {
             "cfg(all(target_arch = \"wasm32\", not(target_os = \"emscripten\")))" = {
               dependencies = {
-                miniz_oxide_c_api = {
-                  version = "0.2";
-                  features = [
-                    "no_c_export"
-                  ];
+                miniz_oxide = {
+                  version = "0.3.2";
                 };
               };
             };
@@ -4288,7 +4337,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4463,13 +4512,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".futures."0.1.27" = mkRustCrate {
-        package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".futures."0.1.28" = mkRustCrate {
+        package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "futures";
-          version = "0.1.27";
-          sha256 = "a2037ec1c6c1c4f79557762eab1f7eae1f64f6cb418ace90fae88f0942b60139";
+          version = "0.1.28";
+          sha256 = "45dc39533a6cae6da2b56da48edae506bb767ec07370f86f70fc062e9d435869";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -4478,7 +4527,7 @@
         cargo-manifest = {
           package = {
             name = "futures";
-            version = "0.1.27";
+            version = "0.1.28";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -4534,7 +4583,7 @@
               "memchr"
             ];
             extern-name = "memchr";
-            package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4591,6 +4640,130 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.10" = mkRustCrate {
+        package-id = "getrandom 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "getrandom";
+          version = "0.1.10";
+          sha256 = "6171a6cc63fbabbe27c2b5ee268e8b7fe5dc1eb0dd2dfad537c1dfed6f69117e";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "cfg-if"
+              "cfg-if"
+            ];
+            extern-name = "cfg_if";
+            package-id = "cfg-if 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "libc"
+              "libc"
+            ];
+            extern-name = "libc";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "wasi"
+              "wasi"
+            ];
+            extern-name = "wasi";
+            package-id = "wasi 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "getrandom";
+            version = "0.1.10";
+            authors = [
+              "The Rand Project Developers"
+            ];
+            exclude = [
+              "utils/*"
+              ".*"
+              "appveyor.yml"
+            ];
+            description = "A small cross-platform library for retrieving random data from system source";
+            documentation = "https://docs.rs/getrandom";
+            categories = [
+              "os"
+              "no-std"
+            ];
+            license = "MIT OR Apache-2.0";
+            repository = "https://github.com/rust-random/getrandom";
+          };
+          dependencies = {
+            cfg-if = {
+              version = "0.1";
+            };
+            compiler_builtins = {
+              version = "0.1";
+              optional = true;
+            };
+            core = {
+              version = "1.0";
+              optional = true;
+              package = "rustc-std-workspace-core";
+            };
+            log = {
+              version = "0.4";
+              optional = true;
+            };
+          };
+          features = {
+            dummy = [];
+            rustc-dep-of-std = [
+              "compiler_builtins"
+              "core"
+            ];
+            std = [];
+          };
+          target = {
+            "cfg(any(unix, target_os = \"redox\"))" = {
+              dependencies = {
+                libc = {
+                  version = "0.2.60";
+                  default-features = false;
+                };
+              };
+            };
+            "cfg(target_os = \"wasi\")" = {
+              dependencies = {
+                wasi = {
+                  version = "0.5";
+                };
+              };
+            };
+            wasm32-unknown-unknown = {
+              dependencies = {
+                stdweb = {
+                  version = "0.4.18";
+                  optional = true;
+                };
+                wasm-bindgen = {
+                  version = "0.2.29";
+                  optional = true;
+                };
+              };
+            };
+          };
+          badges = {
+            appveyor = {
+              repository = "rust-random/getrandom";
+            };
+            travis-ci = {
+              repository = "rust-random/getrandom";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".git2."0.8.0" = mkRustCrate {
         package-id = "git2 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -4615,7 +4788,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4629,7 +4802,7 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4643,7 +4816,7 @@
               "openssl-sys"
             ];
             extern-name = "openssl_sys";
-            package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4791,7 +4964,7 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4886,13 +5059,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".globset."0.4.3" = mkRustCrate {
-        package-id = "globset 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".globset."0.4.4" = mkRustCrate {
+        package-id = "globset 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "globset";
-          version = "0.4.3";
-          sha256 = "ef4feaabe24a0a658fd9cf4a9acf6ed284f045c77df0f49020ba3245cfb7b454";
+          version = "0.4.4";
+          sha256 = "925aa2cac82d8834e2b2a4415b6f6879757fb5c0928fc445ae76461a12eed8f2";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -4903,14 +5076,14 @@
               "aho-corasick"
             ];
             extern-name = "aho_corasick";
-            package-id = "aho-corasick 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "aho-corasick 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "bstr"
             ];
             extern-name = "bstr";
-            package-id = "bstr 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "bstr 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -4924,20 +5097,20 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "regex"
             ];
             extern-name = "regex";
-            package-id = "regex 1.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "regex 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "globset";
-            version = "0.4.3";
+            version = "0.4.4";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
@@ -4964,7 +5137,7 @@
               version = "0.7.3";
             };
             bstr = {
-              version = "0.1.2";
+              version = "0.2.0";
               features = [
                 "std"
               ];
@@ -5081,13 +5254,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".http."0.1.17" = mkRustCrate {
-        package-id = "http 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".http."0.1.18" = mkRustCrate {
+        package-id = "http 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "http";
-          version = "0.1.17";
-          sha256 = "eed324f0f0daf6ec10c474f150505af2c143f251722bf9dbd1261bd1f2ee2c1a";
+          version = "0.1.18";
+          sha256 = "372bcb56f939e449117fb0869c2e8fd8753a8223d92a172c6e808cf123a5b6e4";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -5118,14 +5291,13 @@
         cargo-manifest = {
           package = {
             name = "http";
-            version = "0.1.17";
+            version = "0.1.18";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
               "Carl Lerche <me@carllerche.com>"
               "Sean McArthur <sean@seanmonstar.com>"
             ];
             description = "A set of types for representing HTTP requests and responses.\n";
-            homepage = "https://github.com/hyperium/http";
             documentation = "https://docs.rs/http";
             readme = "README.md";
             keywords = [
@@ -5141,6 +5313,10 @@
             {
               name = "header_map";
               path = "benches/header_map/mod.rs";
+            }
+            {
+              name = "header_name";
+              path = "benches/header_name.rs";
             }
             {
               name = "header_value";
@@ -5163,6 +5339,9 @@
             };
           };
           dev-dependencies = {
+            doc-comment = {
+              version = "0.3";
+            };
             indexmap = {
               version = "1.0";
             };
@@ -5328,13 +5507,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.7" = mkRustCrate {
-        package-id = "ignore 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.10" = mkRustCrate {
+        package-id = "ignore 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "ignore";
-          version = "0.4.7";
-          sha256 = "8dc57fa12805f367736a38541ac1a9fc6a52812a0ca959b1d4d4b640a89eb002";
+          version = "0.4.10";
+          sha256 = "0ec16832258409d571aaef8273f3c3cc5b060d784e159d1a0f3b0017308f84a7";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -5345,14 +5524,14 @@
               "crossbeam-channel"
             ];
             extern-name = "crossbeam_channel";
-            package-id = "crossbeam-channel 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-channel 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "globset"
             ];
             extern-name = "globset";
-            package-id = "globset 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "globset 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -5366,28 +5545,28 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "memchr"
             ];
             extern-name = "memchr";
-            package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "regex"
             ];
             extern-name = "regex";
-            package-id = "regex 1.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "regex 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "same-file"
             ];
             extern-name = "same_file";
-            package-id = "same-file 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -5401,7 +5580,7 @@
               "walkdir"
             ];
             extern-name = "walkdir";
-            package-id = "walkdir 2.2.8 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "walkdir 2.2.9 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -5414,7 +5593,7 @@
         cargo-manifest = {
           package = {
             name = "ignore";
-            version = "0.4.7";
+            version = "0.4.10";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
@@ -5463,11 +5642,6 @@
             };
             walkdir = {
               version = "2.2.7";
-            };
-          };
-          dev-dependencies = {
-            tempfile = {
-              version = "3.0.5";
             };
           };
           features = {
@@ -5631,7 +5805,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -5729,13 +5903,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.14" = mkRustCrate {
-        package-id = "jobserver 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.16" = mkRustCrate {
+        package-id = "jobserver 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "jobserver";
-          version = "0.1.14";
-          sha256 = "680de885fb4b562691e35943978a85fa6401197014a4bf545d92510073fa41df";
+          version = "0.1.16";
+          sha256 = "f74e73053eaf95399bf926e48fc7a2a3ce50bd0eaaa2357d391e95b2dcdd4f10";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -5746,27 +5920,27 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "rand"
             ];
             extern-name = "rand";
-            package-id = "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "jobserver";
-            version = "0.1.14";
+            version = "0.1.16";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -5834,7 +6008,7 @@
             "cfg(windows)" = {
               dependencies = {
                 rand = {
-                  version = "0.6.5";
+                  version = "0.7.0";
                 };
               };
             };
@@ -6028,13 +6202,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".libc."0.2.58" = mkRustCrate {
-        package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".libc."0.2.62" = mkRustCrate {
+        package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "libc";
-          version = "0.2.58";
-          sha256 = "6281b86796ba5e4366000be6e9e18bf35580adf9e63fbe2294aadb587613a319";
+          version = "0.2.62";
+          sha256 = "34fcd2c08d2f832f376f4173a231990fa5aef4e99fb569867318a227ef4c06ba";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -6043,15 +6217,14 @@
         cargo-manifest = {
           package = {
             name = "libc";
-            version = "0.2.58";
+            version = "0.2.62";
             authors = [
               "The Rust Project Developers"
             ];
             build = "build.rs";
             exclude = [
               "/ci/*"
-              "/.travis.yml"
-              "/appveyor.yml"
+              "/azure-pipelines.yml"
             ];
             description = "Raw FFI bindings to platform libraries like libc.\n";
             homepage = "https://github.com/rust-lang/libc";
@@ -6122,14 +6295,14 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "curl-sys"
             ];
             extern-name = "curl_sys";
-            package-id = "curl-sys 0.4.19 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "curl-sys 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -6137,7 +6310,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -6159,7 +6332,7 @@
               "openssl-sys"
             ];
             extern-name = "openssl_sys";
-            package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -6167,7 +6340,7 @@
               "pkg-config"
             ];
             extern-name = "pkg_config";
-            package-id = "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "pkg-config 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -6238,13 +6411,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.1" = mkRustCrate {
-        package-id = "libnghttp2-sys 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.2" = mkRustCrate {
+        package-id = "libnghttp2-sys 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "libnghttp2-sys";
-          version = "0.1.1";
-          sha256 = "d75d7966bda4730b722d1eab8e668df445368a24394bae9fc1e8dc0ab3dbe4f4";
+          version = "0.1.2";
+          sha256 = "02254d44f4435dd79e695f2c2b83cd06a47919adea30216ceaf0c57ca0a72463";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -6255,20 +6428,20 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "libnghttp2-sys";
-            version = "0.1.1";
+            version = "0.1.2";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -6311,14 +6484,14 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -6332,21 +6505,21 @@
               "openssl-sys"
             ];
             extern-name = "openssl_sys";
-            package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "pkg-config"
             ];
             extern-name = "pkg_config";
-            package-id = "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "pkg-config 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "vcpkg"
             ];
             extern-name = "vcpkg";
-            package-id = "vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "vcpkg 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -6417,28 +6590,28 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "pkg-config"
             ];
             extern-name = "pkg_config";
-            package-id = "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "pkg-config 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "vcpkg"
             ];
             extern-name = "vcpkg";
-            package-id = "vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "vcpkg 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -6549,13 +6722,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".log."0.4.6" = mkRustCrate {
-        package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" = mkRustCrate {
+        package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "log";
-          version = "0.4.6";
-          sha256 = "c84ec4b527950aa83a329754b01dbe3f58361d1c5efacd1f6d68c494d08a17c6";
+          version = "0.4.8";
+          sha256 = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -6573,12 +6746,17 @@
         cargo-manifest = {
           package = {
             name = "log";
-            version = "0.4.6";
+            version = "0.4.8";
             authors = [
               "The Rust Project Developers"
             ];
+            build = "build.rs";
+            exclude = [
+              "rfcs/**/*"
+              "/.travis.yml"
+              "/appveyor.yml"
+            ];
             description = "A lightweight logging facade for Rust\n";
-            homepage = "https://github.com/rust-lang/log";
             documentation = "https://docs.rs/log";
             readme = "README.md";
             keywords = [
@@ -6587,7 +6765,7 @@
             categories = [
               "development-tools::debugging"
             ];
-            license = "MIT/Apache-2.0";
+            license = "MIT OR Apache-2.0";
             repository = "https://github.com/rust-lang/log";
             metadata = {
               docs = {
@@ -6595,6 +6773,7 @@
                   features = [
                     "std"
                     "serde"
+                    "kv_unstable_sval"
                   ];
                 };
               };
@@ -6615,13 +6794,29 @@
               optional = true;
               default-features = false;
             };
+            sval = {
+              version = "0.4.2";
+              optional = true;
+              default-features = false;
+            };
           };
           dev-dependencies = {
             serde_test = {
               version = "1.0";
             };
+            sval = {
+              version = "0.4.2";
+              features = [
+                "test"
+              ];
+            };
           };
           features = {
+            kv_unstable = [];
+            kv_unstable_sval = [
+              "kv_unstable"
+              "sval/fmt"
+            ];
             max_level_debug = [];
             max_level_error = [];
             max_level_info = [];
@@ -6676,13 +6871,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.0" = mkRustCrate {
-        package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" = mkRustCrate {
+        package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "memchr";
-          version = "2.2.0";
-          sha256 = "2efc7bc57c883d4a4d6e3246905283d8dae951bb3bd32f49d6ef297f546e1c39";
+          version = "2.2.1";
+          sha256 = "88579771288728879b57485cc7d6b07d648c9f0141eb955f8ab7f9d45394468e";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -6691,7 +6886,7 @@
         cargo-manifest = {
           package = {
             name = "memchr";
-            version = "2.2.0";
+            version = "2.2.1";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
               "bluss"
@@ -6754,22 +6949,30 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".memoffset."0.2.1" = mkRustCrate {
-        package-id = "memoffset 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".memoffset."0.5.1" = mkRustCrate {
+        package-id = "memoffset 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "memoffset";
-          version = "0.2.1";
-          sha256 = "0f9dc261e2b62d7a622bf416ea3c5245cdd5d9a7fcc428c0d06804dfce1775b3";
+          version = "0.5.1";
+          sha256 = "ce6075db033bbbb7ee5a0bbd3a3186bbae616f57fb001c485c7ff77955f8177f";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [];
+        dependencies = [
+          {
+            toml-names = [
+              "rustc_version"
+            ];
+            extern-name = "rustc_version";
+            package-id = "rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
         cargo-manifest = {
           package = {
             name = "memoffset";
-            version = "0.2.1";
+            version = "0.5.1";
             authors = [
               "Gilad Naaman <gilad.naaman@gmail.com>"
             ];
@@ -6787,7 +6990,11 @@
             license = "MIT";
             repository = "https://github.com/Gilnaa/memoffset";
           };
-          dependencies = {};
+          build-dependencies = {
+            rustc_version = {
+              version = "0.2.3";
+            };
+          };
         };
       };
       "registry+https://github.com/rust-lang/crates.io-index".miniz-sys."0.1.12" = mkRustCrate {
@@ -6807,14 +7014,14 @@
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -6850,13 +7057,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.2.1" = mkRustCrate {
-        package-id = "miniz_oxide 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.3.2" = mkRustCrate {
+        package-id = "miniz_oxide 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "miniz_oxide";
-          version = "0.2.1";
-          sha256 = "c468f2369f07d651a5d0bb2c9079f8488a66d5466efe42d0c5c6466edcb7f71e";
+          version = "0.3.2";
+          sha256 = "7108aff85b876d06f22503dcce091e29f76733b2bfdd91eebce81f5e68203a10";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -6872,10 +7079,12 @@
         ];
         cargo-manifest = {
           package = {
+            edition = "2018";
             name = "miniz_oxide";
-            version = "0.2.1";
+            version = "0.3.2";
             authors = [
               "Frommi <daniil.liferenko@gmail.com>"
+              "oyvindln <oyvindln@users.noreply.github.com>"
             ];
             description = "DEFLATE compression and decompression library rewritten in Rust based on miniz";
             homepage = "https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide";
@@ -6898,129 +7107,7 @@
           };
           dependencies = {
             adler32 = {
-              version = "1.0.2";
-            };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".miniz_oxide_c_api."0.2.1" = mkRustCrate {
-        package-id = "miniz_oxide_c_api 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "miniz_oxide_c_api";
-          version = "0.2.1";
-          sha256 = "b7fe927a42e3807ef71defb191dc87d4e24479b221e67015fe38ae2b7b447bab";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [
-          {
-            toml-names = [
-              "cc"
-            ];
-            extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "crc"
-            ];
-            extern-name = "crc";
-            package-id = "crc 1.8.1 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "libc"
-            ];
-            extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "miniz_oxide"
-            ];
-            extern-name = "miniz_oxide";
-            package-id = "miniz_oxide 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-        ];
-        cargo-manifest = {
-          package = {
-            name = "miniz_oxide_c_api";
-            version = "0.2.1";
-            authors = [
-              "Frommi <daniil.liferenko@gmail.com>"
-            ];
-            build = "src/build.rs";
-            exclude = [
-              "benches/data/*"
-              "/*.sh"
-              "/redefine.txt"
-            ];
-            description = "DEFLATE compression and decompression API designed to be Rust drop-in replacement for miniz";
-            homepage = "https://github.com/Frommi/miniz_oxide/";
-            documentation = "https://docs.rs/miniz_oxide_c_api";
-            readme = "README.md";
-            keywords = [
-              "zlib"
-              "miniz"
-              "deflate"
-              "encoding"
-            ];
-            categories = [
-              "compression"
-            ];
-            license = "MIT";
-            repository = "https://github.com/Frommi/miniz_oxide";
-          };
-          profile = {
-            dev = {
-              panic = "abort";
-            };
-            release = {
-              panic = "abort";
-            };
-          };
-          lib = {
-            name = "miniz_oxide_c_api";
-          };
-          dependencies = {
-            crc = {
-              version = "1.0.0";
-            };
-            libc = {
-              version = "0.2.22";
-            };
-            miniz_oxide = {
-              version = "0.2.1";
-            };
-          };
-          build-dependencies = {
-            cc = {
-              version = "1.0";
-            };
-          };
-          features = {
-            benching = [
-              "build_orig_miniz"
-              "no_c_export"
-            ];
-            build_orig_miniz = [];
-            build_stub_miniz = [];
-            default = [];
-            fuzzing = [
-              "build_orig_miniz"
-              "no_c_export"
-            ];
-            libc_stub = [];
-            miniz_zip = [
-              "build_stub_miniz"
-            ];
-            no_c_export = [];
-          };
-          badges = {
-            travis-ci = {
-              repository = "Frommi/miniz_oxide";
+              version = "1.0.3";
             };
           };
         };
@@ -7070,14 +7157,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -7224,7 +7311,7 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -7321,7 +7408,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -7467,7 +7554,7 @@
               "socket2"
             ];
             extern-name = "socket2";
-            package-id = "socket2 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "socket2 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -7550,7 +7637,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -7683,7 +7770,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -7716,46 +7803,6 @@
             doc-comment = {
               version = "0.3";
             };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".numtoa."0.1.0" = mkRustCrate {
-        package-id = "numtoa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "numtoa";
-          version = "0.1.0";
-          sha256 = "b8f8bdf33df195859076e54ab11ee78a1b208382d3a26ec40d142ffc1ecc49ef";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [];
-        cargo-manifest = {
-          package = {
-            name = "numtoa";
-            version = "0.1.0";
-            authors = [
-              "Michael Aaron Murphy <mmstickman@gmail.com>"
-            ];
-            description = "Convert numbers into stack-allocated byte arrays";
-            documentation = "https://docs.rs/numtoa";
-            readme = "README.md";
-            keywords = [
-              "numbers"
-              "convert"
-              "numtoa"
-              "itoa"
-              "no_std"
-            ];
-            categories = [
-              "value-formatting"
-            ];
-            license = "MIT OR Apache-2.0";
-            repository = "https://gitlab.com/mmstick/numtoa";
-          };
-          features = {
-            std = [];
           };
         };
       };
@@ -7823,13 +7870,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.23" = mkRustCrate {
-        package-id = "openssl 0.10.23 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.24" = mkRustCrate {
+        package-id = "openssl 0.10.24 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "openssl";
-          version = "0.10.23";
-          sha256 = "97c140cbb82f3b3468193dd14c1b88def39f341f68257f8a7fe8ed9ed3f628a5";
+          version = "0.10.24";
+          sha256 = "8152bb5a9b5b721538462336e3bef9a539f892715e5037fda0f984577311af15";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -7868,20 +7915,20 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "openssl-sys"
             ];
             extern-name = "openssl_sys";
-            package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "openssl";
-            version = "0.10.23";
+            version = "0.10.24";
             authors = [
               "Steven Fackler <sfackler@gmail.com>"
             ];
@@ -7917,7 +7964,7 @@
               version = "0.2";
             };
             openssl-sys = {
-              version = "0.9.47";
+              version = "0.9.48";
             };
           };
           dev-dependencies = {
@@ -7966,13 +8013,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.47" = mkRustCrate {
-        package-id = "openssl-sys 0.9.47 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.49" = mkRustCrate {
+        package-id = "openssl-sys 0.9.49 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "openssl-sys";
-          version = "0.9.47";
-          sha256 = "75bdd6dbbb4958d38e47a1d2348847ad1eb4dc205dc5d37473ae504391865acc";
+          version = "0.9.49";
+          sha256 = "f4fad9e54bd23bd4cbbe48fdc08a1b8091707ac869ef8508edea2fec77dcc884";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -7983,41 +8030,41 @@
               "autocfg"
             ];
             extern-name = "autocfg";
-            package-id = "autocfg 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "autocfg 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "cc"
             ];
             extern-name = "cc";
-            package-id = "cc 1.0.37 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "cc 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "pkg-config"
             ];
             extern-name = "pkg_config";
-            package-id = "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "pkg-config 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "vcpkg"
             ];
             extern-name = "vcpkg";
-            package-id = "vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "vcpkg 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "openssl-sys";
-            version = "0.9.47";
+            version = "0.9.49";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
               "Steven Fackler <sfackler@gmail.com>"
@@ -8216,7 +8263,7 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -8358,13 +8405,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.14" = mkRustCrate {
-        package-id = "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.15" = mkRustCrate {
+        package-id = "pkg-config 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "pkg-config";
-          version = "0.3.14";
-          sha256 = "676e8eb2b1b4c9043511a9b7bea0915320d7e502b0a079fb03f9635a5252b18c";
+          version = "0.3.15";
+          sha256 = "a7c1d2cfa5a714db3b5f24f0915e74fcdf91d09d496ba61329705dda7774d2af";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -8373,7 +8420,7 @@
         cargo-manifest = {
           package = {
             name = "pkg-config";
-            version = "0.3.14";
+            version = "0.3.15";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -8383,7 +8430,7 @@
               "build-dependencies"
             ];
             license = "MIT/Apache-2.0";
-            repository = "https://github.com/alexcrichton/pkg-config-rs";
+            repository = "https://github.com/rust-lang/pkg-config-rs";
           };
           dev-dependencies = {
             lazy_static = {
@@ -8392,7 +8439,56 @@
           };
           badges = {
             travis-ci = {
-              repository = "alexcrichton/pkg-config-rs";
+              repository = "rust-lang/pkg-config-rs";
+            };
+          };
+        };
+      };
+      "registry+https://github.com/rust-lang/crates.io-index".ppv-lite86."0.2.5" = mkRustCrate {
+        package-id = "ppv-lite86 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "ppv-lite86";
+          version = "0.2.5";
+          sha256 = "e3cbf9f658cdb5000fcf6f362b8ea2ba154b9f146a61c7a20d647034c6b6561b";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "ppv-lite86";
+            version = "0.2.5";
+            authors = [
+              "The CryptoCorrosion Contributors"
+            ];
+            description = "Implementation of the crypto-simd API for x86";
+            keywords = [
+              "crypto"
+              "simd"
+              "x86"
+            ];
+            categories = [
+              "cryptography"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/cryptocorrosion/cryptocorrosion";
+          };
+          dependencies = {};
+          features = {
+            default = [
+              "std"
+              "simd"
+            ];
+            simd = [];
+            std = [];
+          };
+          badges = {
+            travis-ci = {
+              repository = "cryptocorrosion/cryptocorrosion";
             };
           };
         };
@@ -8474,6 +8570,86 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.1" = mkRustCrate {
+        package-id = "proc-macro2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "proc-macro2";
+          version = "1.0.1";
+          sha256 = "4c5c2380ae88876faae57698be9e9775e3544decad214599c3a6266cca6ac802";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "unicode-xid"
+            ];
+            extern-name = "unicode_xid";
+            package-id = "unicode-xid 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "proc-macro2";
+            version = "1.0.1";
+            authors = [
+              "Alex Crichton <alex@alexcrichton.com>"
+            ];
+            description = "A stable implementation of the upcoming new `proc_macro` API. Comes with an\noption, off by default, to also reimplement itself in terms of the upstream\nunstable API.\n";
+            homepage = "https://github.com/alexcrichton/proc-macro2";
+            documentation = "https://docs.rs/proc-macro2";
+            readme = "README.md";
+            keywords = [
+              "macros"
+            ];
+            license = "MIT OR Apache-2.0";
+            repository = "https://github.com/alexcrichton/proc-macro2";
+            metadata = {
+              docs = {
+                rs = {
+                  rustc-args = [
+                    "--cfg"
+                    "procmacro2_semver_exempt"
+                  ];
+                  rustdoc-args = [
+                    "--cfg"
+                    "procmacro2_semver_exempt"
+                  ];
+                };
+              };
+            };
+          };
+          lib = {
+            name = "proc_macro2";
+          };
+          dependencies = {
+            unicode-xid = {
+              version = "0.2";
+            };
+          };
+          dev-dependencies = {
+            quote = {
+              version = "1.0";
+            };
+          };
+          features = {
+            default = [
+              "proc-macro"
+            ];
+            nightly = [];
+            proc-macro = [];
+            span-locations = [];
+          };
+          badges = {
+            travis-ci = {
+              repository = "alexcrichton/proc-macro2";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".quick-error."1.2.2" = mkRustCrate {
         package-id = "quick-error 1.2.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -8511,13 +8687,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".quote."0.6.12" = mkRustCrate {
-        package-id = "quote 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".quote."0.6.13" = mkRustCrate {
+        package-id = "quote 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "quote";
-          version = "0.6.12";
-          sha256 = "faf4799c5d274f3868a4aae320a0a182cbd2baee377b378f080e16a23e9d80db";
+          version = "0.6.13";
+          sha256 = "6ce23b6b870e8f94f81fb0a363d65d86675884b34a09043c81e5562f11c1f8e1";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -8534,7 +8710,7 @@
         cargo-manifest = {
           package = {
             name = "quote";
-            version = "0.6.12";
+            version = "0.6.13";
             authors = [
               "David Tolnay <dtolnay@gmail.com>"
             ];
@@ -8555,13 +8731,93 @@
             categories = [
               "development-tools::procedural-macro-helpers"
             ];
-            license = "MIT/Apache-2.0";
+            license = "MIT OR Apache-2.0";
             repository = "https://github.com/dtolnay/quote";
           };
           dependencies = {
             proc-macro2 = {
               version = "0.4.21";
               default-features = false;
+            };
+          };
+          features = {
+            default = [
+              "proc-macro"
+            ];
+            proc-macro = [
+              "proc-macro2/proc-macro"
+            ];
+          };
+          badges = {
+            travis-ci = {
+              repository = "dtolnay/quote";
+            };
+          };
+        };
+      };
+      "registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" = mkRustCrate {
+        package-id = "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "quote";
+          version = "1.0.2";
+          sha256 = "053a8c8bcc71fcce321828dc897a98ab9760bef03a4fc36693c231e5b3216cfe";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "proc-macro2"
+            ];
+            extern-name = "proc_macro2";
+            package-id = "proc-macro2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "quote";
+            version = "1.0.2";
+            authors = [
+              "David Tolnay <dtolnay@gmail.com>"
+            ];
+            include = [
+              "Cargo.toml"
+              "src/**/*.rs"
+              "tests/**/*.rs"
+              "README.md"
+              "LICENSE-APACHE"
+              "LICENSE-MIT"
+            ];
+            description = "Quasi-quoting macro quote!(...)";
+            documentation = "https://docs.rs/quote/";
+            readme = "README.md";
+            keywords = [
+              "syn"
+            ];
+            categories = [
+              "development-tools::procedural-macro-helpers"
+            ];
+            license = "MIT OR Apache-2.0";
+            repository = "https://github.com/dtolnay/quote";
+          };
+          lib = {
+            name = "quote";
+          };
+          dependencies = {
+            proc-macro2 = {
+              version = "1.0";
+              default-features = false;
+            };
+          };
+          dev-dependencies = {
+            rustversion = {
+              version = "0.1";
+            };
+            trybuild = {
+              version = "1.0";
             };
           };
           features = {
@@ -8596,14 +8852,14 @@
               "autocfg"
             ];
             extern-name = "autocfg";
-            package-id = "autocfg 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "autocfg 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -8617,7 +8873,7 @@
               "rand_core"
             ];
             extern-name = "rand_core";
-            package-id = "rand_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand_core 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -8822,6 +9078,201 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".rand."0.7.0" = mkRustCrate {
+        package-id = "rand 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "rand";
+          version = "0.7.0";
+          sha256 = "d47eab0e83d9693d40f825f86948aa16eff6750ead4bdffc4ab95b8b3a7f052c";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "getrandom_package"
+            ];
+            extern-name = "getrandom_package";
+            package-id = "getrandom 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "libc"
+            ];
+            extern-name = "libc";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "rand_chacha"
+            ];
+            extern-name = "rand_chacha";
+            package-id = "rand_chacha 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "rand_core"
+            ];
+            extern-name = "rand_core";
+            package-id = "rand_core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "rand_hc"
+            ];
+            extern-name = "rand_hc";
+            package-id = "rand_hc 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "rand";
+            version = "0.7.0";
+            authors = [
+              "The Rand Project Developers"
+              "The Rust Project Developers"
+            ];
+            exclude = [
+              "/utils/*"
+              "/.travis.yml"
+              "/appveyor.yml"
+              ".gitignore"
+            ];
+            autobenches = true;
+            description = "Random number generators and other randomness functionality.\n";
+            homepage = "https://crates.io/crates/rand";
+            documentation = "https://rust-random.github.io/rand/";
+            readme = "README.md";
+            keywords = [
+              "random"
+              "rng"
+            ];
+            categories = [
+              "algorithms"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/rust-random/rand";
+            metadata = {
+              docs = {
+                rs = {
+                  all-features = true;
+                };
+              };
+            };
+          };
+          dependencies = {
+            getrandom_package = {
+              version = "0.1.1";
+              optional = true;
+              package = "getrandom";
+            };
+            log = {
+              version = "0.4";
+              optional = true;
+            };
+            packed_simd = {
+              version = "0.3";
+              features = [
+                "into_bits"
+              ];
+              optional = true;
+            };
+            rand_core = {
+              version = "0.5";
+            };
+            rand_pcg = {
+              version = "0.2";
+              optional = true;
+            };
+          };
+          dev-dependencies = {
+            rand_hc = {
+              version = "0.2";
+            };
+            rand_isaac = {
+              version = "0.2";
+            };
+            rand_pcg = {
+              version = "0.2";
+            };
+            rand_xorshift = {
+              version = "0.2";
+            };
+            rand_xoshiro = {
+              version = "0.3";
+            };
+          };
+          features = {
+            alloc = [
+              "rand_core/alloc"
+            ];
+            default = [
+              "std"
+            ];
+            getrandom = [
+              "getrandom_package"
+              "rand_core/getrandom"
+            ];
+            nightly = [
+              "simd_support"
+            ];
+            serde1 = [];
+            simd_support = [
+              "packed_simd"
+            ];
+            small_rng = [
+              "rand_pcg"
+            ];
+            std = [
+              "rand_core/std"
+              "alloc"
+              "getrandom"
+            ];
+            stdweb = [
+              "getrandom_package/stdweb"
+            ];
+            wasm-bindgen = [
+              "getrandom_package/wasm-bindgen"
+            ];
+          };
+          target = {
+            "cfg(not(target_os = \"emscripten\"))" = {
+              dependencies = {
+                rand_chacha = {
+                  version = "0.2";
+                };
+              };
+            };
+            "cfg(target_os = \"emscripten\")" = {
+              dependencies = {
+                rand_hc = {
+                  version = "0.2";
+                };
+              };
+            };
+            "cfg(unix)" = {
+              dependencies = {
+                libc = {
+                  version = "0.2.22";
+                  default-features = false;
+                };
+              };
+            };
+          };
+          badges = {
+            appveyor = {
+              repository = "rust-random/rand";
+            };
+            travis-ci = {
+              repository = "rust-random/rand";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.1.1" = mkRustCrate {
         package-id = "rand_chacha 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -8839,7 +9290,7 @@
               "autocfg"
             ];
             extern-name = "autocfg";
-            package-id = "autocfg 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "autocfg 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -8895,6 +9346,91 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.2.1" = mkRustCrate {
+        package-id = "rand_chacha 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "rand_chacha";
+          version = "0.2.1";
+          sha256 = "03a2a90da8c7523f554344f921aa97283eadf6ac484a6d2a7d0212fa7f8d6853";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "c2-chacha"
+            ];
+            extern-name = "c2_chacha";
+            package-id = "c2-chacha 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "rand_core"
+            ];
+            extern-name = "rand_core";
+            package-id = "rand_core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "rand_chacha";
+            version = "0.2.1";
+            authors = [
+              "The Rand Project Developers"
+              "The Rust Project Developers"
+              "The CryptoCorrosion Contributors"
+            ];
+            description = "ChaCha random number generator\n";
+            homepage = "https://crates.io/crates/rand_chacha";
+            documentation = "https://rust-random.github.io/rand/rand_chacha/";
+            readme = "README.md";
+            keywords = [
+              "random"
+              "rng"
+              "chacha"
+            ];
+            categories = [
+              "algorithms"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/rust-random/rand";
+          };
+          dependencies = {
+            c2-chacha = {
+              version = "0.2.2";
+              features = [
+                "simd"
+              ];
+              default-features = false;
+            };
+            rand_core = {
+              version = "0.5";
+            };
+          };
+          features = {
+            default = [
+              "std"
+              "simd"
+            ];
+            simd = [];
+            std = [
+              "c2-chacha/std"
+            ];
+          };
+          badges = {
+            appveyor = {
+              repository = "rust-random/rand";
+            };
+            travis-ci = {
+              repository = "rust-random/rand";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.3.1" = mkRustCrate {
         package-id = "rand_core 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -8912,7 +9448,7 @@
               "rand_core"
             ];
             extern-name = "rand_core";
-            package-id = "rand_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand_core 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -8967,13 +9503,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.4.0" = mkRustCrate {
-        package-id = "rand_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.4.2" = mkRustCrate {
+        package-id = "rand_core 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "rand_core";
-          version = "0.4.0";
-          sha256 = "d0e7a549d590831370895ab7ba4ea0c1b6b011d106b5ff2da6eee112615e6dc0";
+          version = "0.4.2";
+          sha256 = "9c33a3c44ca05fa6f1807d8e6743f3824e8509beca625669633be0acbdf509dc";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -8982,14 +9518,14 @@
         cargo-manifest = {
           package = {
             name = "rand_core";
-            version = "0.4.0";
+            version = "0.4.2";
             authors = [
               "The Rand Project Developers"
               "The Rust Project Developers"
             ];
             description = "Core random number generator traits and tools for implementation.\n";
             homepage = "https://crates.io/crates/rand_core";
-            documentation = "https://rust-random.github.io/rand/rand_core";
+            documentation = "https://rust-random.github.io/rand/rand_core/";
             readme = "README.md";
             keywords = [
               "random"
@@ -9020,6 +9556,85 @@
             ];
             std = [
               "alloc"
+            ];
+          };
+          badges = {
+            appveyor = {
+              repository = "rust-random/rand";
+            };
+            travis-ci = {
+              repository = "rust-random/rand";
+            };
+          };
+        };
+      };
+      "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.0" = mkRustCrate {
+        package-id = "rand_core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "rand_core";
+          version = "0.5.0";
+          sha256 = "615e683324e75af5d43d8f7a39ffe3ee4a9dc42c5c701167a71dc59c3a493aca";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "getrandom"
+            ];
+            extern-name = "getrandom";
+            package-id = "getrandom 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            name = "rand_core";
+            version = "0.5.0";
+            authors = [
+              "The Rand Project Developers"
+              "The Rust Project Developers"
+            ];
+            description = "Core random number generator traits and tools for implementation.\n";
+            homepage = "https://crates.io/crates/rand_core";
+            documentation = "https://rust-random.github.io/rand/rand_core/";
+            readme = "README.md";
+            keywords = [
+              "random"
+              "rng"
+            ];
+            categories = [
+              "algorithms"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/rust-random/rand";
+          };
+          dependencies = {
+            getrandom = {
+              version = "0.1";
+              optional = true;
+            };
+            serde = {
+              version = "1";
+              optional = true;
+            };
+            serde_derive = {
+              version = "^1.0.38";
+              optional = true;
+            };
+          };
+          features = {
+            alloc = [];
+            serde1 = [
+              "serde"
+              "serde_derive"
+            ];
+            std = [
+              "alloc"
+              "getrandom"
+              "getrandom/std"
             ];
           };
           badges = {
@@ -9079,6 +9694,65 @@
             rand_core = {
               version = ">=0.2, <0.4";
               default-features = false;
+            };
+          };
+          badges = {
+            appveyor = {
+              repository = "rust-random/rand";
+            };
+            travis-ci = {
+              repository = "rust-random/rand";
+            };
+          };
+        };
+      };
+      "registry+https://github.com/rust-lang/crates.io-index".rand_hc."0.2.0" = mkRustCrate {
+        package-id = "rand_hc 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "rand_hc";
+          version = "0.2.0";
+          sha256 = "ca3129af7b92a17112d59ad498c6f81eaf463253766b90396d39ea7a39d6613c";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "rand_core"
+            ];
+            extern-name = "rand_core";
+            package-id = "rand_core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "rand_hc";
+            version = "0.2.0";
+            authors = [
+              "The Rand Project Developers"
+            ];
+            description = "HC128 random number generator\n";
+            homepage = "https://crates.io/crates/rand_hc";
+            documentation = "https://rust-random.github.io/rand/rand_hc/";
+            readme = "README.md";
+            keywords = [
+              "random"
+              "rng"
+              "hc128"
+            ];
+            categories = [
+              "algorithms"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/rust-random/rand";
+          };
+          dependencies = {
+            rand_core = {
+              version = "0.5";
             };
           };
           badges = {
@@ -9188,14 +9862,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "rand_core"
             ];
             extern-name = "rand_core";
-            package-id = "rand_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand_core 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -9298,14 +9972,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "rand_core"
             ];
             extern-name = "rand_core";
-            package-id = "rand_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand_core 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -9434,14 +10108,14 @@
               "autocfg"
             ];
             extern-name = "autocfg";
-            package-id = "autocfg 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "autocfg 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "rand_core"
             ];
             extern-name = "rand_core";
-            package-id = "rand_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand_core 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -9638,13 +10312,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.54" = mkRustCrate {
-        package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" = mkRustCrate {
+        package-id = "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "redox_syscall";
-          version = "0.1.54";
-          sha256 = "12229c14a0f65c4f1cb046a3b52047cdd9da1f4b30f8a39c5063c8bae515e252";
+          version = "0.1.56";
+          sha256 = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -9653,7 +10327,7 @@
         cargo-manifest = {
           package = {
             name = "redox_syscall";
-            version = "0.1.54";
+            version = "0.1.56";
             authors = [
               "Jeremy Soller <jackpot51@gmail.com>"
             ];
@@ -9667,56 +10341,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".redox_termios."0.1.1" = mkRustCrate {
-        package-id = "redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "redox_termios";
-          version = "0.1.1";
-          sha256 = "7e891cfe48e9100a70a3b6eb652fef28920c117d366339687bd5576160db0f76";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [
-          {
-            toml-names = [
-              "redox_syscall"
-            ];
-            extern-name = "syscall";
-            package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-        ];
-        cargo-manifest = {
-          package = {
-            name = "redox_termios";
-            version = "0.1.1";
-            authors = [
-              "Jeremy Soller <jackpot51@gmail.com>"
-            ];
-            description = "A Rust library to access Redox termios functions";
-            documentation = "https://docs.rs/redox_termios";
-            license = "MIT";
-            repository = "https://github.com/redox-os/termios";
-          };
-          lib = {
-            name = "redox_termios";
-            path = "src/lib.rs";
-          };
-          dependencies = {
-            redox_syscall = {
-              version = "0.1";
-            };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".regex."1.1.7" = mkRustCrate {
-        package-id = "regex 1.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".regex."1.2.1" = mkRustCrate {
+        package-id = "regex 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "regex";
-          version = "1.1.7";
-          sha256 = "0b2f0808e7d7e4fb1cb07feb6ff2f4bc827938f24f8c2e6a3beb7370af544bdd";
+          version = "1.2.1";
+          sha256 = "88c3d9193984285d544df4a30c23a4e62ead42edf70a4452ceb76dac1ce05c26";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -9727,21 +10358,21 @@
               "aho-corasick"
             ];
             extern-name = "aho_corasick";
-            package-id = "aho-corasick 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "aho-corasick 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "memchr"
             ];
             extern-name = "memchr";
-            package-id = "memchr 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "regex-syntax"
             ];
             extern-name = "regex_syntax";
-            package-id = "regex-syntax 0.6.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "regex-syntax 0.6.11 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -9750,18 +10381,11 @@
             extern-name = "thread_local";
             package-id = "thread_local 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
-          {
-            toml-names = [
-              "utf8-ranges"
-            ];
-            extern-name = "utf8_ranges";
-            package-id = "utf8-ranges 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
         ];
         cargo-manifest = {
           package = {
             name = "regex";
-            version = "1.1.7";
+            version = "1.2.1";
             authors = [
               "The Rust Project Developers"
             ];
@@ -9836,19 +10460,16 @@
           ];
           dependencies = {
             aho-corasick = {
-              version = "0.7.3";
+              version = "0.7.6";
             };
             memchr = {
-              version = "2.0.2";
+              version = "2.2.1";
             };
             regex-syntax = {
-              version = "0.6.6";
+              version = "0.6.11";
             };
             thread_local = {
               version = "0.3.6";
-            };
-            utf8-ranges = {
-              version = "1.0.1";
             };
           };
           dev-dependencies = {
@@ -9886,30 +10507,22 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.7" = mkRustCrate {
-        package-id = "regex-syntax 0.6.7 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.11" = mkRustCrate {
+        package-id = "regex-syntax 0.6.11 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "regex-syntax";
-          version = "0.6.7";
-          sha256 = "9d76410686f9e3a17f06128962e0ecc5755870bb890c34820c7af7f1db2e1d48";
+          version = "0.6.11";
+          sha256 = "b143cceb2ca5e56d5671988ef8b15615733e7ee16cd348e064333b251b89343f";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
         };
-        dependencies = [
-          {
-            toml-names = [
-              "ucd-util"
-            ];
-            extern-name = "ucd_util";
-            package-id = "ucd-util 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-        ];
+        dependencies = [];
         cargo-manifest = {
           package = {
             name = "regex-syntax";
-            version = "0.6.7";
+            version = "0.6.11";
             authors = [
               "The Rust Project Developers"
             ];
@@ -9918,11 +10531,6 @@
             documentation = "https://docs.rs/regex-syntax";
             license = "MIT/Apache-2.0";
             repository = "https://github.com/rust-lang/regex";
-          };
-          dependencies = {
-            ucd-util = {
-              version = "0.1.0";
-            };
           };
         };
       };
@@ -9996,13 +10604,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.15" = mkRustCrate {
-        package-id = "rustc-demangle 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.16" = mkRustCrate {
+        package-id = "rustc-demangle 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "rustc-demangle";
-          version = "0.1.15";
-          sha256 = "a7f4dccf6f4891ebcc0c39f9b6eb1a83b9bf5d747cb439ec6fba4f3b977038af";
+          version = "0.1.16";
+          sha256 = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10011,7 +10619,7 @@
         cargo-manifest = {
           package = {
             name = "rustc-demangle";
-            version = "0.1.15";
+            version = "0.1.16";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -10115,13 +10723,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.5" = mkRustCrate {
-        package-id = "rustfix 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.6" = mkRustCrate {
+        package-id = "rustfix 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "rustfix";
-          version = "0.4.5";
-          sha256 = "b96ea6eeae40f488397ccc9e1c0da19d720b23c75972bc63eaa6852b84d161e2";
+          version = "0.4.6";
+          sha256 = "7150ac777a2931a53489f5a41eb0937b84e3092a20cd0e73ad436b65b507f607";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10139,34 +10747,28 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "serde_derive"
-            ];
-            extern-name = "serde_derive";
-            package-id = "serde_derive 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "serde_json"
             ];
             extern-name = "serde_json";
-            package-id = "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
+            edition = "2018";
             name = "rustfix";
-            version = "0.4.5";
+            version = "0.4.6";
             authors = [
               "Pascal Hertleif <killercup@gmail.com>"
               "Oliver Schneider <oli-obk@users.noreply.github.com>"
@@ -10191,9 +10793,9 @@
             };
             serde = {
               version = "1.0";
-            };
-            serde_derive = {
-              version = "1.0";
+              features = [
+                "derive"
+              ];
             };
             serde_json = {
               version = "1.0";
@@ -10221,13 +10823,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".ryu."0.2.8" = mkRustCrate {
-        package-id = "ryu 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".ryu."1.0.0" = mkRustCrate {
+        package-id = "ryu 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "ryu";
-          version = "0.2.8";
-          sha256 = "b96a9549dc8d48f2c283938303c4b5a77aa29bfbc5b54b084fb1630408899a8f";
+          version = "1.0.0";
+          sha256 = "c92464b447c0ee8c4fb3824ecc8383b81717b9f1e74ba2e72540aef7b9f82997";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10236,7 +10838,7 @@
         cargo-manifest = {
           package = {
             name = "ryu";
-            version = "0.2.8";
+            version = "1.0.0";
             authors = [
               "David Tolnay <dtolnay@gmail.com>"
             ];
@@ -10271,13 +10873,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.4" = mkRustCrate {
-        package-id = "same-file 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" = mkRustCrate {
+        package-id = "same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "same-file";
-          version = "1.0.4";
-          sha256 = "8f20c4be53a8a1ff4c1f1b2bd14570d2f634628709752f0702ecdd2b3f9a5267";
+          version = "1.0.5";
+          sha256 = "585e8ddcedc187886a30fa705c47985c3fa88d06624095856b36ca0b82ff4421";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10294,7 +10896,7 @@
         cargo-manifest = {
           package = {
             name = "same-file";
-            version = "1.0.4";
+            version = "1.0.5";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
@@ -10314,11 +10916,6 @@
             ];
             license = "Unlicense/MIT";
             repository = "https://github.com/BurntSushi/same-file";
-          };
-          dev-dependencies = {
-            rand = {
-              version = "0.4";
-            };
           };
           target = {
             "cfg(windows)" = {
@@ -10446,6 +11043,53 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".scopeguard."1.0.0" = mkRustCrate {
+        package-id = "scopeguard 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "scopeguard";
+          version = "1.0.0";
+          sha256 = "b42e15e59b18a828bbf5c58ea01debb36b9b096346de35d941dcb89009f24a0d";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [];
+        cargo-manifest = {
+          package = {
+            name = "scopeguard";
+            version = "1.0.0";
+            authors = [
+              "bluss"
+            ];
+            description = "A RAII scope guard that will run a given closure when it goes out of scope,\neven if the code between panics (assuming unwinding panic).\n\nDefines the macros `defer!`, `defer_on_unwind!`, `defer_on_success!` as\nshorthands for guards with one of the implemented strategies.\n";
+            documentation = "https://docs.rs/scopeguard/";
+            keywords = [
+              "scope-guard"
+              "defer"
+              "panic"
+              "unwind"
+            ];
+            categories = [
+              "rust-patterns"
+              "no-std"
+            ];
+            license = "MIT/Apache-2.0";
+            repository = "https://github.com/bluss/scopeguard";
+            metadata = {
+              release = {
+                no-dev-version = true;
+              };
+            };
+          };
+          features = {
+            default = [
+              "use_std"
+            ];
+            use_std = [];
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" = mkRustCrate {
         package-id = "semver 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -10470,7 +11114,7 @@
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -10551,13 +11195,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".serde."1.0.92" = mkRustCrate {
-        package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".serde."1.0.99" = mkRustCrate {
+        package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "serde";
-          version = "1.0.92";
-          sha256 = "32746bf0f26eab52f06af0d0aa1984f641341d06d8d673c693871da2d188c9be";
+          version = "1.0.99";
+          sha256 = "fec2851eb56d010dc9a21b89ca53ee75e6528bab60c11e89d38390904982da9f";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10568,13 +11212,13 @@
               "serde_derive"
             ];
             extern-name = "serde_derive";
-            package-id = "serde_derive 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde_derive 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "serde";
-            version = "1.0.92";
+            version = "1.0.99";
             authors = [
               "Erick Tryzelaar <erick.tryzelaar@gmail.com>"
               "David Tolnay <dtolnay@gmail.com>"
@@ -10624,9 +11268,7 @@
             };
           };
           features = {
-            alloc = [
-              "unstable"
-            ];
+            alloc = [];
             default = [
               "std"
             ];
@@ -10647,13 +11289,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.92" = mkRustCrate {
-        package-id = "serde_derive 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.99" = mkRustCrate {
+        package-id = "serde_derive 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "serde_derive";
-          version = "1.0.92";
-          sha256 = "46a3223d0c9ba936b61c0d2e3e559e3217dbfb8d65d06d26e8b3c25de38bae3e";
+          version = "1.0.99";
+          sha256 = "cb4dc18c61206b08dc98216c98faa0232f4337e1e1b8574551d5bad29ea1b425";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10664,27 +11306,27 @@
               "proc-macro2"
             ];
             extern-name = "proc_macro2";
-            package-id = "proc-macro2 0.4.30 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "proc-macro2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "quote"
             ];
             extern-name = "quote";
-            package-id = "quote 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "syn"
             ];
             extern-name = "syn";
-            package-id = "syn 0.15.36 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "syn 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "serde_derive";
-            version = "1.0.92";
+            version = "1.0.99";
             authors = [
               "Erick Tryzelaar <erick.tryzelaar@gmail.com>"
               "David Tolnay <dtolnay@gmail.com>"
@@ -10715,13 +11357,13 @@
           };
           dependencies = {
             proc-macro2 = {
-              version = "0.4";
+              version = "1.0";
             };
             quote = {
-              version = "0.6.3";
+              version = "1.0";
             };
             syn = {
-              version = "0.15.22";
+              version = "1.0";
               features = [
                 "visit"
               ];
@@ -10763,7 +11405,7 @@
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -10792,13 +11434,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.39" = mkRustCrate {
-        package-id = "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.40" = mkRustCrate {
+        package-id = "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "serde_json";
-          version = "1.0.39";
-          sha256 = "5a23aa71d4a4d43fdbfaac00eff68ba8a06a51759a89ac3304323e800c4dd40d";
+          version = "1.0.40";
+          sha256 = "051c49229f282f7c6f3813f8286cc1e3323e8051823fce42c7ea80fe13521704";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10818,7 +11460,7 @@
               "ryu"
             ];
             extern-name = "ryu";
-            package-id = "ryu 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "ryu 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -10826,13 +11468,13 @@
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "serde_json";
-            version = "1.0.39";
+            version = "1.0.40";
             authors = [
               "Erick Tryzelaar <erick.tryzelaar@gmail.com>"
               "David Tolnay <dtolnay@gmail.com>"
@@ -10855,7 +11497,7 @@
             categories = [
               "encoding"
             ];
-            license = "MIT/Apache-2.0";
+            license = "MIT OR Apache-2.0";
             repository = "https://github.com/serde-rs/json";
             metadata = {
               docs = {
@@ -10882,7 +11524,7 @@
               version = "0.4.3";
             };
             ryu = {
-              version = "0.2";
+              version = "1.0";
             };
             serde = {
               version = "1.0.60";
@@ -10892,20 +11534,20 @@
             automod = {
               version = "0.1";
             };
-            compiletest_rs = {
-              version = "0.3";
-              features = [
-                "stable"
-              ];
+            select-rustc = {
+              version = "0.1";
             };
             serde_bytes = {
-              version = "0.10";
+              version = "0.11";
             };
             serde_derive = {
               version = "1.0";
             };
             serde_stacker = {
               version = "0.1";
+            };
+            trybuild = {
+              version = "1.0";
             };
           };
           features = {
@@ -10953,13 +11595,13 @@
           dependencies = {};
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".signal-hook."0.1.9" = mkRustCrate {
-        package-id = "signal-hook 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".signal-hook."0.1.10" = mkRustCrate {
+        package-id = "signal-hook 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "signal-hook";
-          version = "0.1.9";
-          sha256 = "72ab58f1fda436857e6337dcb6a5aaa34f16c5ddc87b3a8b6ef7a212f90b9c5a";
+          version = "0.1.10";
+          sha256 = "4f61c4d59f3aaa9f61bba6450a9b80ba48362fd7d651689e7a10c453b1f6dc68";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -10970,20 +11612,20 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "signal-hook-registry"
             ];
             extern-name = "signal_hook_registry";
-            package-id = "signal-hook-registry 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "signal-hook-registry 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "signal-hook";
-            version = "0.1.9";
+            version = "0.1.10";
             authors = [
               "Michal 'vorner' Vaner <vorner@vorner.cz>"
             ];
@@ -11000,10 +11642,7 @@
             metadata = {
               docs = {
                 rs = {
-                  features = [
-                    "mio-support"
-                    "tokio-support"
-                  ];
+                  all-features = true;
                 };
               };
             };
@@ -11017,10 +11656,6 @@
               version = "~0.2";
             };
             mio = {
-              version = "~0.6";
-              optional = true;
-            };
-            mio-uds = {
               version = "~0.6";
               optional = true;
             };
@@ -11043,7 +11678,6 @@
           features = {
             mio-support = [
               "mio"
-              "mio-uds"
             ];
             tokio-support = [
               "futures"
@@ -11061,13 +11695,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".signal-hook-registry."1.0.1" = mkRustCrate {
-        package-id = "signal-hook-registry 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".signal-hook-registry."1.1.1" = mkRustCrate {
+        package-id = "signal-hook-registry 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "signal-hook-registry";
-          version = "1.0.1";
-          sha256 = "cded4ffa32146722ec54ab1f16320568465aa922aa9ab4708129599740da85d7";
+          version = "1.1.1";
+          sha256 = "1797d48f38f91643908bb14e35e79928f9f4b3cefb2420a564dde0991b4358dc";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -11078,22 +11712,23 @@
               "arc-swap"
             ];
             extern-name = "arc_swap";
-            package-id = "arc-swap 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "arc-swap 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "signal-hook-registry";
-            version = "1.0.1";
+            version = "1.1.1";
             authors = [
               "Michal 'vorner' Vaner <vorner@vorner.cz>"
+              "Masaki Hara <ackie.h.gmai@gmail.com>"
             ];
             description = "Backend crate for signal-hook";
             documentation = "https://docs.rs/signal-hook-registry";
@@ -11108,7 +11743,7 @@
           };
           dependencies = {
             arc-swap = {
-              version = "~0.3.5";
+              version = "~0.4";
             };
             libc = {
               version = "~0.2";
@@ -11293,13 +11928,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.9" = mkRustCrate {
-        package-id = "socket2 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" = mkRustCrate {
+        package-id = "socket2 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "socket2";
-          version = "0.3.9";
-          sha256 = "4e626972d3593207547f14bf5fc9efa4d0e7283deb73fef1dff313dae9ab8878";
+          version = "0.3.11";
+          sha256 = "e8b74de517221a2cb01a53349cf54182acdc31a074727d3079068448c0676d85";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -11317,14 +11952,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "redox_syscall"
             ];
             extern-name = "syscall";
-            package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -11336,8 +11971,9 @@
         ];
         cargo-manifest = {
           package = {
+            edition = "2018";
             name = "socket2";
-            version = "0.3.9";
+            version = "0.3.11";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -11480,13 +12116,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".syn."0.15.36" = mkRustCrate {
-        package-id = "syn 0.15.36 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".syn."0.15.44" = mkRustCrate {
+        package-id = "syn 0.15.44 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "syn";
-          version = "0.15.36";
-          sha256 = "8b4f551a91e2e3848aeef8751d0d4eec9489b6474c720fd4c55958d8d31a430c";
+          version = "0.15.44";
+          sha256 = "9ca4b3b69a77cbe1ffc9e198781b7acb0c7365a883670e8f1c1bc66fba79a5c5";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -11494,7 +12130,6 @@
         dependencies = [
           {
             toml-names = [
-              "proc-macro2"
               "proc-macro2"
               "proc-macro2"
             ];
@@ -11505,14 +12140,12 @@
             toml-names = [
               "quote"
               "quote"
-              "quote"
             ];
             extern-name = "quote";
-            package-id = "quote 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "quote 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
-              "unicode-xid"
               "unicode-xid"
               "unicode-xid"
             ];
@@ -11523,7 +12156,7 @@
         cargo-manifest = {
           package = {
             name = "syn";
-            version = "0.15.36";
+            version = "0.15.44";
             authors = [
               "David Tolnay <dtolnay@gmail.com>"
             ];
@@ -11533,7 +12166,8 @@
               "/LICENSE-APACHE"
               "/LICENSE-MIT"
               "/README.md"
-              "/src/**/*.rs"
+              "/src/**"
+              "/tests/**"
             ];
             description = "Parser for Rust source code";
             documentation = "https://docs.rs/syn";
@@ -11619,6 +12253,164 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".syn."1.0.3" = mkRustCrate {
+        package-id = "syn 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "syn";
+          version = "1.0.3";
+          sha256 = "158521e6f544e7e3dcfc370ac180794aa38cb34a1b1e07609376d4adcf429b93";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [
+          {
+            toml-names = [
+              "proc-macro2"
+            ];
+            extern-name = "proc_macro2";
+            package-id = "proc-macro2 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "quote"
+            ];
+            extern-name = "quote";
+            package-id = "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "unicode-xid"
+            ];
+            extern-name = "unicode_xid";
+            package-id = "unicode-xid 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+        ];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "syn";
+            version = "1.0.3";
+            authors = [
+              "David Tolnay <dtolnay@gmail.com>"
+            ];
+            include = [
+              "/benches/**"
+              "/build.rs"
+              "/Cargo.toml"
+              "/LICENSE-APACHE"
+              "/LICENSE-MIT"
+              "/README.md"
+              "/src/**"
+              "/tests/**"
+            ];
+            description = "Parser for Rust source code";
+            documentation = "https://docs.rs/syn";
+            readme = "README.md";
+            categories = [
+              "development-tools::procedural-macro-helpers"
+            ];
+            license = "MIT OR Apache-2.0";
+            repository = "https://github.com/dtolnay/syn";
+            metadata = {
+              docs = {
+                rs = {
+                  all-features = true;
+                };
+              };
+              playground = {
+                all-features = true;
+              };
+            };
+          };
+          lib = {
+            name = "syn";
+          };
+          bench = [
+            {
+              name = "rust";
+              harness = false;
+              required-features = [
+                "full"
+                "parsing"
+              ];
+              edition = "2018";
+            }
+            {
+              name = "file";
+              required-features = [
+                "full"
+                "parsing"
+              ];
+              edition = "2018";
+            }
+          ];
+          dependencies = {
+            proc-macro2 = {
+              version = "1.0";
+              default-features = false;
+            };
+            quote = {
+              version = "1.0";
+              optional = true;
+              default-features = false;
+            };
+            unicode-xid = {
+              version = "0.2";
+            };
+          };
+          dev-dependencies = {
+            insta = {
+              version = "0.9";
+            };
+            rayon = {
+              version = "1.0";
+            };
+            ref-cast = {
+              version = "0.2";
+            };
+            regex = {
+              version = "1.0";
+            };
+            termcolor = {
+              version = "1.0";
+            };
+            walkdir = {
+              version = "2.1";
+            };
+          };
+          features = {
+            clone-impls = [];
+            default = [
+              "derive"
+              "parsing"
+              "printing"
+              "clone-impls"
+              "proc-macro"
+            ];
+            derive = [];
+            extra-traits = [];
+            fold = [];
+            full = [];
+            parsing = [];
+            printing = [
+              "quote"
+            ];
+            proc-macro = [
+              "proc-macro2/proc-macro"
+              "quote/proc-macro"
+            ];
+            visit = [];
+            visit-mut = [];
+          };
+          badges = {
+            travis-ci = {
+              repository = "dtolnay/syn";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".synstructure."0.10.2" = mkRustCrate {
         package-id = "synstructure 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -11643,14 +12435,14 @@
               "quote"
             ];
             extern-name = "quote";
-            package-id = "quote 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "quote 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "syn"
             ];
             extern-name = "syn";
-            package-id = "syn 0.15.36 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "syn 0.15.44 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -11731,21 +12523,21 @@
               "filetime"
             ];
             extern-name = "filetime";
-            package-id = "filetime 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "filetime 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "redox_syscall"
             ];
             extern-name = "syscall";
-            package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -11808,13 +12600,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".tempfile."3.0.8" = mkRustCrate {
-        package-id = "tempfile 3.0.8 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" = mkRustCrate {
+        package-id = "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "tempfile";
-          version = "3.0.8";
-          sha256 = "7dc4738f2e68ed2855de5ac9cdbe05c9216773ecde4739b2f095002ab03a13ef";
+          version = "3.1.0";
+          sha256 = "7a6e24d9338a0a5be79593e2fa15a648add6138caa803e2d5bc782c371732ca9";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -11832,21 +12624,21 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "rand"
             ];
             extern-name = "rand";
-            package-id = "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "rand 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "redox_syscall"
             ];
             extern-name = "syscall";
-            package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -11865,8 +12657,9 @@
         ];
         cargo-manifest = {
           package = {
+            edition = "2018";
             name = "tempfile";
-            version = "3.0.8";
+            version = "3.1.0";
             authors = [
               "Steven Allen <steven@stebalien.com>"
               "The Rust Project Developers"
@@ -11877,7 +12670,7 @@
               "/.travis.yml"
               "/appveyor.yml"
             ];
-            description = "A library for managing temporary files and directories.\n";
+            description = "A library for managing temporary files and directories.";
             homepage = "http://stebalien.com/projects/tempfile-rs";
             documentation = "https://docs.rs/tempfile";
             keywords = [
@@ -11885,7 +12678,7 @@
               "tmpfile"
               "filesystem"
             ];
-            license = "MIT/Apache-2.0";
+            license = "MIT OR Apache-2.0";
             repository = "https://github.com/Stebalien/tempfile";
           };
           dependencies = {
@@ -11893,7 +12686,7 @@
               version = "0.1";
             };
             rand = {
-              version = "0.6";
+              version = "0.7";
             };
             remove_dir_all = {
               version = "0.5";
@@ -11920,8 +12713,8 @@
                   version = "0.3";
                   features = [
                     "fileapi"
-                    "winbase"
                     "handleapi"
+                    "winbase"
                   ];
                 };
               };
@@ -11946,7 +12739,7 @@
               "wincolor"
             ];
             extern-name = "wincolor";
-            package-id = "wincolor 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "wincolor 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -11984,103 +12777,6 @@
               dependencies = {
                 wincolor = {
                   version = "1";
-                };
-              };
-            };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".termion."1.5.3" = mkRustCrate {
-        package-id = "termion 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "termion";
-          version = "1.5.3";
-          sha256 = "6a8fb22f7cde82c8220e5aeacb3258ed7ce996142c77cba193f203515e26c330";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [
-          {
-            toml-names = [
-              "libc"
-            ];
-            extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "numtoa"
-            ];
-            extern-name = "numtoa";
-            package-id = "numtoa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "redox_syscall"
-            ];
-            extern-name = "syscall";
-            package-id = "redox_syscall 0.1.54 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "redox_termios"
-            ];
-            extern-name = "redox_termios";
-            package-id = "redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-        ];
-        cargo-manifest = {
-          package = {
-            name = "termion";
-            version = "1.5.3";
-            authors = [
-              "ticki <Ticki@users.noreply.github.com>"
-              "gycos <alexandre.bury@gmail.com>"
-              "IGI-111 <igi-111@protonmail.com>"
-            ];
-            exclude = [
-              "target"
-              "CHANGELOG.md"
-              "image.png"
-              "Cargo.lock"
-            ];
-            description = "A bindless library for manipulating terminals.";
-            documentation = "https://docs.rs/termion";
-            keywords = [
-              "tty"
-              "color"
-              "terminal"
-              "password"
-              "tui"
-            ];
-            license = "MIT";
-            repository = "https://gitlab.redox-os.org/redox-os/termion";
-          };
-          dependencies = {
-            numtoa = {
-              version = "0.1.0";
-              features = [
-                "std"
-              ];
-            };
-          };
-          target = {
-            "cfg(not(target_os = \"redox\"))" = {
-              dependencies = {
-                libc = {
-                  version = "0.2.8";
-                };
-              };
-            };
-            "cfg(target_os = \"redox\")" = {
-              dependencies = {
-                redox_syscall = {
-                  version = "0.1";
-                };
-                redox_termios = {
-                  version = "0.1";
                 };
               };
             };
@@ -12234,13 +12930,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".tokio."0.1.21" = mkRustCrate {
-        package-id = "tokio 0.1.21 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".tokio."0.1.22" = mkRustCrate {
+        package-id = "tokio 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "tokio";
-          version = "0.1.21";
-          sha256 = "ec2ffcf4bcfc641413fa0f1427bf8f91dfc78f56a6559cbf50e04837ae442a87";
+          version = "0.1.22";
+          sha256 = "5a09c0b5bb588872ab2f09afa13ee6e9dac11e10a0ec9e8e3ba39a5a5d530af6";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -12258,7 +12954,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12293,7 +12989,7 @@
               "tokio-executor"
             ];
             extern-name = "tokio_executor";
-            package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12335,7 +13031,7 @@
               "tokio-threadpool"
             ];
             extern-name = "tokio_threadpool";
-            package-id = "tokio-threadpool 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-threadpool 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12343,13 +13039,6 @@
             ];
             extern-name = "tokio_timer";
             package-id = "tokio-timer 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-          {
-            toml-names = [
-              "tokio-trace-core"
-            ];
-            extern-name = "tokio_trace_core";
-            package-id = "tokio-trace-core 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12369,7 +13058,7 @@
         cargo-manifest = {
           package = {
             name = "tokio";
-            version = "0.1.21";
+            version = "0.1.22";
             authors = [
               "Carl Lerche <me@carllerche.com>"
             ];
@@ -12446,12 +13135,12 @@
               version = "0.2.8";
               optional = true;
             };
-            tokio-trace-core = {
-              version = "0.2";
-              optional = true;
-            };
             tokio-udp = {
               version = "0.1.0";
+              optional = true;
+            };
+            tracing-core = {
+              version = "0.1";
               optional = true;
             };
           };
@@ -12511,6 +13200,9 @@
               "udp"
               "uds"
             ];
+            experimental-tracing = [
+              "tracing-core"
+            ];
             fs = [
               "tokio-fs"
             ];
@@ -12530,7 +13222,6 @@
               "tokio-current-thread"
               "tokio-executor"
               "tokio-threadpool"
-              "tokio-trace-core"
             ];
             sync = [
               "tokio-sync"
@@ -12584,7 +13275,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12641,14 +13332,14 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "tokio-executor"
             ];
             extern-name = "tokio_executor";
-            package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -12682,13 +13373,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".tokio-executor."0.1.7" = mkRustCrate {
-        package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".tokio-executor."0.1.8" = mkRustCrate {
+        package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "tokio-executor";
-          version = "0.1.7";
-          sha256 = "83ea44c6c0773cc034771693711c35c677b4b5a4b21b9e7071704c54de7d555e";
+          version = "0.1.8";
+          sha256 = "0f27ee0e6db01c5f0b2973824547ce7e637b2ed79b891a9677b0de9bd532b6ac";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -12699,20 +13390,20 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "tokio-executor";
-            version = "0.1.7";
+            version = "0.1.8";
             authors = [
               "Carl Lerche <me@carllerche.com>"
             ];
@@ -12740,7 +13431,7 @@
           };
           dev-dependencies = {
             tokio = {
-              version = "0.1.17";
+              version = "0.1.18";
             };
           };
         };
@@ -12762,7 +13453,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12776,7 +13467,7 @@
               "tokio-threadpool"
             ];
             extern-name = "tokio_threadpool";
-            package-id = "tokio-threadpool 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-threadpool 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -12862,14 +13553,14 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -12906,13 +13597,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".tokio-process."0.2.3" = mkRustCrate {
-        package-id = "tokio-process 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".tokio-process."0.2.4" = mkRustCrate {
+        package-id = "tokio-process 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "tokio-process";
-          version = "0.2.3";
-          sha256 = "88e1281e412013f1ff5787def044a9577a0bed059f451e835f1643201f8b777d";
+          version = "0.2.4";
+          sha256 = "afbd6ef1b8cc2bd2c2b580d882774d443ebb1c6ceefe35ba9ea4ab586c89dbe8";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -12920,17 +13611,38 @@
         dependencies = [
           {
             toml-names = [
+              "crossbeam-queue"
+            ];
+            extern-name = "crossbeam_queue";
+            package-id = "crossbeam-queue 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "lazy_static"
+            ];
+            extern-name = "lazy_static";
+            package-id = "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            toml-names = [
+              "log"
+            ];
+            extern-name = "log";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -12978,9 +13690,10 @@
         cargo-manifest = {
           package = {
             name = "tokio-process";
-            version = "0.2.3";
+            version = "0.2.4";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
+              "Ivan Petkov <ivanppetkov@gmail.com>"
             ];
             description = "An implementation of an asynchronous process management backed futures.\n";
             homepage = "https://github.com/alexcrichton/tokio-process";
@@ -12995,9 +13708,6 @@
             futures = {
               version = "0.1.11";
             };
-            mio = {
-              version = "0.6.5";
-            };
             tokio-io = {
               version = "0.1";
             };
@@ -13006,25 +13716,37 @@
             };
           };
           dev-dependencies = {
-            env_logger = {
-              version = "0.4";
-              default-features = false;
+            failure = {
+              version = "0.1";
             };
             log = {
               version = "0.4";
             };
             tokio = {
               version = "0.1";
-            };
-            tokio-current-thread = {
-              version = "0.1";
+              features = [
+                "rt-full"
+              ];
+              default-features = false;
             };
           };
           target = {
             "cfg(unix)" = {
               dependencies = {
+                crossbeam-queue = {
+                  version = "0.1.2";
+                };
+                lazy_static = {
+                  version = "1.3";
+                };
                 libc = {
                   version = "0.2";
+                };
+                log = {
+                  version = "0.4";
+                };
+                mio = {
+                  version = "0.6.5";
                 };
                 tokio-signal = {
                   version = "0.2.5";
@@ -13056,6 +13778,9 @@
             appveyor = {
               repository = "alexcrichton/tokio-process";
             };
+            codecov = {
+              repository = "alexcrichton/tokio-process";
+            };
             travis-ci = {
               repository = "alexcrichton/tokio-process";
             };
@@ -13079,14 +13804,14 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13100,7 +13825,7 @@
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13135,7 +13860,7 @@
               "tokio-executor"
             ];
             extern-name = "tokio_executor";
-            package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13235,14 +13960,14 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13263,14 +13988,14 @@
               "signal-hook"
             ];
             extern-name = "signal_hook";
-            package-id = "signal-hook 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "signal-hook 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "tokio-executor"
             ];
             extern-name = "tokio_executor";
-            package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13393,7 +14118,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -13464,7 +14189,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13542,13 +14267,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".tokio-threadpool."0.1.14" = mkRustCrate {
-        package-id = "tokio-threadpool 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".tokio-threadpool."0.1.15" = mkRustCrate {
+        package-id = "tokio-threadpool 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "tokio-threadpool";
-          version = "0.1.14";
-          sha256 = "72558af20be886ea124595ea0f806dd5703b8958e4705429dd58b3d8231f72f2";
+          version = "0.1.15";
+          sha256 = "90ca01319dea1e376a001e8dc192d42ebde6dd532532a5bad988ac37db365b19";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -13573,21 +14298,21 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13615,13 +14340,13 @@
               "tokio-executor"
             ];
             extern-name = "tokio_executor";
-            package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             name = "tokio-threadpool";
-            version = "0.1.14";
+            version = "0.1.15";
             authors = [
               "Carl Lerche <me@carllerche.com>"
             ];
@@ -13665,7 +14390,7 @@
               version = "0.4.1";
             };
             tokio-executor = {
-              version = "0.1.7";
+              version = "0.1.8";
             };
           };
           dev-dependencies = {
@@ -13698,14 +14423,14 @@
               "crossbeam-utils"
             ];
             extern-name = "crossbeam_utils";
-            package-id = "crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13719,7 +14444,7 @@
               "tokio-executor"
             ];
             extern-name = "tokio_executor";
-            package-id = "tokio-executor 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "tokio-executor 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
@@ -13763,53 +14488,6 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".tokio-trace-core."0.2.0" = mkRustCrate {
-        package-id = "tokio-trace-core 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "tokio-trace-core";
-          version = "0.2.0";
-          sha256 = "a9c8a256d6956f7cb5e2bdfe8b1e8022f1a09206c6c2b1ba00f3b746b260c613";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [
-          {
-            toml-names = [
-              "lazy_static"
-            ];
-            extern-name = "lazy_static";
-            package-id = "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)";
-          }
-        ];
-        cargo-manifest = {
-          package = {
-            name = "tokio-trace-core";
-            version = "0.2.0";
-            authors = [
-              "Tokio Contributors <team@tokio.rs>"
-            ];
-            description = "Core primitives for tokio-trace.\n";
-            homepage = "https://tokio.rs";
-            documentation = "https://docs.rs/tokio-trace-core/0.2.0/tokio_trace_core";
-            keywords = [
-              "logging"
-              "tracing"
-            ];
-            categories = [
-              "development-tools::debugging"
-            ];
-            license = "MIT";
-            repository = "https://github.com/tokio-rs/tokio";
-          };
-          dependencies = {
-            lazy_static = {
-              version = "1.0.0";
-            };
-          };
-        };
-      };
       "registry+https://github.com/rust-lang/crates.io-index".tokio-udp."0.1.3" = mkRustCrate {
         package-id = "tokio-udp 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -13834,14 +14512,14 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13943,7 +14621,7 @@
               "futures"
             ];
             extern-name = "futures";
-            package-id = "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -13957,14 +14635,14 @@
               "libc"
             ];
             extern-name = "libc";
-            package-id = "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "libc 0.2.62 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
               "log"
             ];
             extern-name = "log";
-            package-id = "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -14060,13 +14738,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".toml."0.5.1" = mkRustCrate {
-        package-id = "toml 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" = mkRustCrate {
+        package-id = "toml 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "toml";
-          version = "0.5.1";
-          sha256 = "b8c96d7873fa7ef8bdeb3a9cda3ac48389b4154f32b9803b4bc26220b677b039";
+          version = "0.5.3";
+          sha256 = "c7aabe75941d914b72bf3e5d3932ed92ce0664d49d8432305a8b547c37227724";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -14077,14 +14755,14 @@
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         cargo-manifest = {
           package = {
             edition = "2018";
             name = "toml";
-            version = "0.5.1";
+            version = "0.5.3";
             authors = [
               "Alex Crichton <alex@alexcrichton.com>"
             ];
@@ -14109,7 +14787,7 @@
               optional = true;
             };
             serde = {
-              version = "1.0";
+              version = "1.0.97";
             };
           };
           dev-dependencies = {
@@ -14170,40 +14848,6 @@
             i128 = [];
             no_std = [];
             strict = [];
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".ucd-util."0.1.3" = mkRustCrate {
-        package-id = "ucd-util 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "ucd-util";
-          version = "0.1.3";
-          sha256 = "535c204ee4d8434478593480b8f86ab45ec9aae0e83c568ca81abf0fd0e88f86";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [];
-        cargo-manifest = {
-          package = {
-            name = "ucd-util";
-            version = "0.1.3";
-            authors = [
-              "Andrew Gallant <jamslam@gmail.com>"
-            ];
-            description = "A small utility library for working with the Unicode character database.\n";
-            homepage = "https://github.com/BurntSushi/ucd-generate";
-            documentation = "https://docs.rs/ucd-util";
-            readme = "README.md";
-            keywords = [
-              "unicode"
-              "database"
-              "character"
-              "property"
-            ];
-            license = "MIT/Apache-2.0";
-            repository = "https://github.com/BurntSushi/ucd-generate";
           };
         };
       };
@@ -14436,6 +15080,54 @@
           };
         };
       };
+      "registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" = mkRustCrate {
+        package-id = "unicode-xid 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "unicode-xid";
+          version = "0.2.0";
+          sha256 = "826e7639553986605ec5979c7dd957c7895e93eabed50ab2ffa7f6128a75097c";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [];
+        cargo-manifest = {
+          package = {
+            name = "unicode-xid";
+            version = "0.2.0";
+            authors = [
+              "erick.tryzelaar <erick.tryzelaar@gmail.com>"
+              "kwantam <kwantam@gmail.com>"
+            ];
+            exclude = [
+              "/scripts/*"
+              "/.travis.yml"
+            ];
+            description = "Determine whether characters have the XID_Start\nor XID_Continue properties according to\nUnicode Standard Annex #31.\n";
+            homepage = "https://github.com/unicode-rs/unicode-xid";
+            documentation = "https://unicode-rs.github.io/unicode-xid";
+            readme = "README.md";
+            keywords = [
+              "text"
+              "unicode"
+              "xid"
+            ];
+            license = "MIT OR Apache-2.0";
+            repository = "https://github.com/unicode-rs/unicode-xid";
+          };
+          features = {
+            bench = [];
+            default = [];
+            no_std = [];
+          };
+          badges = {
+            travis-ci = {
+              repository = "unicode-rs/unicode-xid";
+            };
+          };
+        };
+      };
       "registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" = mkRustCrate {
         package-id = "url 1.7.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
@@ -14595,7 +15287,7 @@
               "serde"
             ];
             extern-name = "serde";
-            package-id = "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -14635,68 +15327,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".utf8-ranges."1.0.3" = mkRustCrate {
-        package-id = "utf8-ranges 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)";
-        src = config.resolver {
-          source = "registry+https://github.com/rust-lang/crates.io-index";
-          name = "utf8-ranges";
-          version = "1.0.3";
-          sha256 = "9d50aa7650df78abf942826607c62468ce18d9019673d4a2ebe1865dbb96ffde";
-          source-info = {
-            index = "registry+https://github.com/rust-lang/crates.io-index";
-          };
-        };
-        dependencies = [];
-        cargo-manifest = {
-          package = {
-            name = "utf8-ranges";
-            version = "1.0.3";
-            authors = [
-              "Andrew Gallant <jamslam@gmail.com>"
-            ];
-            exclude = [
-              "/ci/*"
-              "/.travis.yml"
-              "/Makefile"
-              "/ctags.rust"
-              "/session.vim"
-            ];
-            description = "Convert ranges of Unicode codepoints to UTF-8 byte ranges.";
-            homepage = "https://github.com/BurntSushi/utf8-ranges";
-            documentation = "https://docs.rs/utf8-ranges";
-            readme = "README.md";
-            keywords = [
-              "codepoint"
-              "utf8"
-              "automaton"
-              "range"
-            ];
-            license = "Unlicense/MIT";
-            repository = "https://github.com/BurntSushi/utf8-ranges";
-          };
-          dev-dependencies = {
-            doc-comment = {
-              version = "0.3";
-            };
-            quickcheck = {
-              version = "0.8";
-              default-features = false;
-            };
-          };
-          badges = {
-            travis-ci = {
-              repository = "BurntSushi/utf8-ranges";
-            };
-          };
-        };
-      };
-      "registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.6" = mkRustCrate {
-        package-id = "vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" = mkRustCrate {
+        package-id = "vcpkg 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "vcpkg";
-          version = "0.2.6";
-          sha256 = "def296d3eb3b12371b2c7d0e83bfe1403e4db2d7a0bba324a12b21c4ee13143d";
+          version = "0.2.7";
+          sha256 = "33dd455d0f96e90a75803cfeb7f948768c08d70a6de9a8d2362461935698bf95";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -14705,7 +15342,7 @@
         cargo-manifest = {
           package = {
             name = "vcpkg";
-            version = "0.2.6";
+            version = "0.2.7";
             authors = [
               "Jim McGrath <jimmc2@gmail.com>"
             ];
@@ -14820,13 +15457,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.8" = mkRustCrate {
-        package-id = "walkdir 2.2.8 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" = mkRustCrate {
+        package-id = "walkdir 2.2.9 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "walkdir";
-          version = "2.2.8";
-          sha256 = "c7904a7e2bb3cdf0cf5e783f44204a85a37a93151738fa349f06680f59a98b45";
+          version = "2.2.9";
+          sha256 = "9658c94fa8b940eab2250bd5a457f9c48b748420d71293b165c8cdbe2f55f71e";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -14837,7 +15474,7 @@
               "same-file"
             ];
             extern-name = "same_file";
-            package-id = "same-file 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)";
+            package-id = "same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)";
           }
           {
             toml-names = [
@@ -14857,7 +15494,7 @@
         cargo-manifest = {
           package = {
             name = "walkdir";
-            version = "2.2.8";
+            version = "2.2.9";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
@@ -14891,22 +15528,6 @@
             doc-comment = {
               version = "0.3";
             };
-            docopt = {
-              version = "1.0.1";
-            };
-            quickcheck = {
-              version = "0.8";
-              default-features = false;
-            };
-            rand = {
-              version = "0.6";
-            };
-            serde = {
-              version = "1";
-            };
-            serde_derive = {
-              version = "1";
-            };
           };
           target = {
             "cfg(windows)" = {
@@ -14930,6 +15551,48 @@
             };
             travis-ci = {
               repository = "BurntSushi/walkdir";
+            };
+          };
+        };
+      };
+      "registry+https://github.com/rust-lang/crates.io-index".wasi."0.5.0" = mkRustCrate {
+        package-id = "wasi 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)";
+        src = config.resolver {
+          source = "registry+https://github.com/rust-lang/crates.io-index";
+          name = "wasi";
+          version = "0.5.0";
+          sha256 = "fd5442abcac6525a045cc8c795aedb60da7a2e5e89c7bf18a0d5357849bb23c7";
+          source-info = {
+            index = "registry+https://github.com/rust-lang/crates.io-index";
+          };
+        };
+        dependencies = [];
+        cargo-manifest = {
+          package = {
+            edition = "2018";
+            name = "wasi";
+            version = "0.5.0";
+            authors = [
+              "The Cranelift Project Developers"
+            ];
+            description = "Experimental WASI API bindings for Rust";
+            documentation = "https://docs.rs/wasi";
+            readme = "README.md";
+            keywords = [
+              "webassembly"
+              "wasm"
+            ];
+            categories = [
+              "no-std"
+              "wasm"
+            ];
+            license = "Apache-2.0 WITH LLVM-exception";
+            repository = "https://github.com/CraneStation/rust-wasi";
+          };
+          dependencies = {};
+          badges = {
+            maintenance = {
+              status = "experimental";
             };
           };
         };
@@ -15827,13 +16490,13 @@
           };
         };
       };
-      "registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.1" = mkRustCrate {
-        package-id = "wincolor 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)";
+      "registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.2" = mkRustCrate {
+        package-id = "wincolor 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)";
         src = config.resolver {
           source = "registry+https://github.com/rust-lang/crates.io-index";
           name = "wincolor";
-          version = "1.0.1";
-          sha256 = "561ed901ae465d6185fa7864d63fbd5720d0ef718366c9a4dc83cf6170d7e9ba";
+          version = "1.0.2";
+          sha256 = "96f5016b18804d24db43cebf3c77269e7569b8954a8464501c216cc5e070eaa9";
           source-info = {
             index = "registry+https://github.com/rust-lang/crates.io-index";
           };
@@ -15857,7 +16520,7 @@
         cargo-manifest = {
           package = {
             name = "wincolor";
-            version = "1.0.1";
+            version = "1.0.2";
             authors = [
               "Andrew Gallant <jamslam@gmail.com>"
             ];
@@ -15872,7 +16535,7 @@
               "ansi"
               "console"
             ];
-            license = "Unlicense/MIT";
+            license = "Unlicense OR MIT";
             repository = "https://github.com/BurntSushi/termcolor/tree/master/wincolor";
           };
           lib = {
