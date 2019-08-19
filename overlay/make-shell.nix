@@ -16,6 +16,7 @@ in
   features ? {},
   buildInputs ? [],
   nativeBuildInputs ? [],
+  shellHook ? "",
 
   lib,
   stdenv,
@@ -182,5 +183,6 @@ pkgs.mkShell (environment // {
       touch .cargo/config
       cat $replacementManifestPath >>.cargo/config
     }
+    ${shellHook}
   '';
 })

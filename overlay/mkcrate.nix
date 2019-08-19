@@ -386,6 +386,7 @@ let
     runCargo = ''
       (
         ${env-setup}
+        set -euo pipefail
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
@@ -400,7 +401,8 @@ let
           "CC_${host-triple}"="${ccForHost}" \
           "CXX_${host-triple}"="${cxxForHost}" \
           "''${depKeys[@]}" \
-          cargo build -vvv --tests --target ${host-triple} --features "$features"
+          cargo build -vvv --tests --target ${host-triple} --features "$features" --message-format=json | \
+          jq -r 'select(.profile.test==true)|.filenames[]' >.test-names
     '' + ''
       )
     '';
@@ -524,16 +526,21 @@ let
         --arg version $version >$out/.cargo-info
     '' + optionalString doCheck ''
       mkdir -p $tests
-      pushd target/${host-triple}/debug
-        for output in *; do
-          if [ -d "$output" ]; then
+      touch $tests/names
+      test_names=()
+      cat .test-names | (
+        cd target/${host-triple}/debug;
+        while read path; do
+          local name=`basename $path`
+          if [ -d "$name" ]; then
             continue
-          elif [ -x "$output" ]; then
+          elif [ -x "$name" ]; then
             mkdir -p $tests/bin
-            cp $output $tests/bin/
+            cp $name $tests/bin/
+            echo $name >> $tests/names
           fi
         done
-      popd
+      )
     '';
   };
 in
