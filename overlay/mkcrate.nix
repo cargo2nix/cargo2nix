@@ -25,6 +25,9 @@
   buildInputs ? [],
   nativeBuildInputs ? [],
   doCheck ? false,
+
+  # optimization hint: feature flags are maximal, so there is no need to resolve further
+  freezeFeatures ? false,
 }:
 with builtins; with lib;
 let
@@ -114,7 +117,11 @@ let
       inherit features profile;
     };
 
-  final-features = computeFinalFeatures cargo-manifest features;
+  final-features =
+    if freezeFeatures then
+      genAttrs features (_: {})
+    else
+      computeFinalFeatures cargo-manifest features;
 
   activatedPackages = features: specs: pkg-ids:
     let
@@ -253,21 +260,30 @@ let
         mapAttrs
           (_: pkg:
             pkg // {
-              drv = (selectPlatform pkg).override (_: { panicAbortOk = panicAbortOk && !doCheck; });
+              drv = (selectPlatform pkg).override (_: {
+                inherit freezeFeatures;
+                panicAbortOk = panicAbortOk && !doCheck;
+              });
             })
           (depPkgs final-features);
       buildDependencies =
         mapAttrs
           (_: pkg:
             pkg // {
-              drv = (nativeDrv pkg.drv).override (_: { panicAbortOk = false; });
+              drv = (nativeDrv pkg.drv).override (_: {
+                inherit freezeFeatures;
+                panicAbortOk = false;
+              });
             })
           (buildDepPkgs final-features);
       devDependencies =
         mapAttrs
           (_: pkg:
             pkg // {
-              drv = (selectPlatform pkg).override (_: { panicAbortOk = false; });
+              drv = (selectPlatform pkg).override (_: {
+                inherit freezeFeatures;
+                panicAbortOk = false;
+              });
             })
           (optionalAttrs doCheck (devDepPkgs final-features));
     in
@@ -335,10 +351,6 @@ let
         computePackageFeatures
         ;
       features = final-features;
-      debug.features = features;
-      debug.dependencies = dependencies;
-      debug.devDependencies = devDependencies;
-      debug.origFeatures = origFeatures;
       shell = pkgs.mkShell (removeAttrs drvAttrs ["src"]);
     };
 
