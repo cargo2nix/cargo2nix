@@ -2,9 +2,10 @@
   nixpkgsPath ? <nixpkgs>,
   system ? builtins.currentSystem,
   overlays ? [],
-  crossSystem ? null,
+  crossSystem ? (import <nixpkgs/lib>).systems.examples.musl64,
 }:
 let
+  version = "0.2.0";
 
   # mozilla nixpkgs rust overlay
   nixpkgs-mozilla = builtins.fetchGit {
@@ -40,6 +41,7 @@ let
   rustc = rustChannel.rust.override {
     targets = [
       (pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.targetPlatform)
+      "aarch64-unknown-linux-gnu"
     ];
   };
 
@@ -53,8 +55,8 @@ let
   ;
 
   # define source location
-  resolver = { source, name, version, ... }: {
-    unknown.cargo2nix."0.1.0" = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
+  resolver = let version' = version; in { source, name, version, ... }: {
+    unknown.cargo2nix.${version'} = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
   }.${source}.${name}.${version};
 
   # build your crate
@@ -75,6 +77,7 @@ let
       "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ];
     };
   };
+
   rustPackages = pkgs.callPackage ./crate.nix {
     inherit packageFun rustc cargo resolver;
     config = config pkgs;
@@ -83,10 +86,49 @@ let
 
   # done
 
+  # your rust build is available here
+  package = rustPackages.unknown.cargo2nix."0.2.0" {
+    freezeFeatures = true;
+    meta.platforms = lib.platforms.linux;
+  };
+
+  # how to use cargo2nix to speed up resolution:
+
+  resolveResponse =
+    let
+      request =
+        builtins.toFile
+          "resolve-request.json"
+          (builtins.toJSON
+            (pkgs.rustBuilder.rustLib.buildResolveRequest {
+              initial = [
+                {
+                  package-id = "cargo2nix 0.2.0";
+                }
+              ];
+              inherit (pkgs) stdenv;
+              inherit packageFun;
+            }));
+    in
+    lib.importJSON
+      (pkgs.runCommand
+        "resolve"
+        { nativeBuildInputs = [package]; }
+        "cargo2nix resolve <${request} >$out");
+
+  rustPackagesWithResolve = pkgs.callPackage ./crate.nix {
+    inherit packageFun rustc cargo resolver;
+    config = config pkgs // { resolve = resolveResponse; };
+    buildConfig = config pkgs.buildPackages;
+  };
+
 in
 {
-  # your rust build is available here
-  package = rustPackages.unknown.cargo2nix."0.1.0".override { freezeFeatures = true; };
+  inherit package;
+
+  package' = rustPackagesWithResolve.unknown.cargo2nix."0.2.0" {};
+
+  rustPackages = rustPackages.callPackage ({rustPackages}:rustPackages) {};
 
   # and you can make a development shell
   shell = pkgs.rustBuilder.makeShell {
@@ -97,6 +139,7 @@ in
       };
     excludeCrates.unknown = "*";
     environment.OPENSSL_DIR = openssl pkgs;
+    nativeBuildInputs = [ pkgs.buildPackages.buildPackages.jq ];
 
     inherit (rustPackages.config) features;
   };

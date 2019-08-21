@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use failure::{format_err, Error};
 use futures::{stream::iter_ok, Future, Stream};
@@ -122,12 +122,14 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Box<Expr>, Error =
         })
         .and_then(move |git_repo_sha| -> Result<Box<Expr>, Error> {
             let mut package_attrs = vec![];
+            let mut sources = BTreeSet::new();
             for package in packages {
                 let source = package
                     .source
                     .as_ref()
                     .map(String::as_ref)
                     .unwrap_or_else(|| UNKNOWN_SOURCE.as_str());
+                sources.insert(source.to_string());
                 let (source_info, checksum) = match package.source_info {
                     SourceInfo::Registry {
                         ref index,
@@ -198,6 +200,10 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Box<Expr>, Error =
                     .into(),
                 ));
             }
+            package_attrs.push((
+                attrs_path!(key!("sources")),
+                List(sources.into_iter().map(|s| nix_string!(s).into()).collect()).into(),
+            ));
             let pkgs = ident!("pkgs");
             let call_package = ident!("callPackage");
             Ok(Box::new(
@@ -222,6 +228,7 @@ pub fn generate(packages: Vec<Package>) -> impl Future<Item = Box<Expr>, Error =
         })
 }
 
+/// Stub generator that contains all the boilerplates
 pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
     let crates_io_index = nix_string!("registry+https://github.com/rust-lang/crates.io-index");
 
@@ -252,14 +259,20 @@ pub fn generate_builder(packages: Vec<PackageId>) -> Expr {
             .map(|p| {
                 app!(
                     proj!(
-                        bootstrap.clone().into(),
-                        key!(&p
-                            .source
-                            .as_ref()
-                            .map(String::as_str)
-                            .unwrap_or_else(|| UNKNOWN_SOURCE.as_str())),
-                        key!(&p.name),
-                        key!(&p.version),
+                        app!(
+                            proj!(
+                                bootstrap.clone().into(),
+                                key!(&p
+                                    .source
+                                    .as_ref()
+                                    .map(String::as_str)
+                                    .unwrap_or_else(|| UNKNOWN_SOURCE.as_str())),
+                                key!(&p.name),
+                                key!(&p.version)
+                            ),
+                            attrs!({}).into()
+                        )
+                        .into(),
                         key!("computePackageFeatures")
                     ),
                     list!().into()
