@@ -17,20 +17,40 @@
   src,
   package-id,
   cargo-manifest,
-  panicAbortOk ? true,
-  features ? [],
-  dependencies ? {},
-  buildDependencies ? {},
-  devDependencies ? {},
+
   buildInputs ? [],
+  dependencies ? [],
+  features ? [],
   nativeBuildInputs ? [],
+}:
+{
+  panic-strategy ? null,
   doCheck ? false,
+
+  # profile is either release or dev
+  profile ? "release",
 
   # optimization hint: feature flags are maximal, so there is no need to resolve further
   freezeFeatures ? false,
+  meta ? {},
 }:
 with builtins; with lib;
 let
+  dependencies' = dependencies;
+  hasResolve = config ? resolve;
+
+  profile' = if doCheck then "test" else profile;
+  default-panic-strategy =
+    if doCheck || profile == "test" || profile == "bench" then
+      "unwind"
+    else
+      cargo-manifest.profile.${profile'}.panic or "unwind";
+  panic-strategy' =
+    if panic-strategy == null then
+      default-panic-strategy
+    else
+      panic-strategy;
+
   origFeatures = features;
 
   inherit (rustLib) pkgName pkgVersion pkgRegistry computeFinalFeatures realHostTriple;
@@ -79,8 +99,9 @@ let
 in
 let
   features = features';
+  panic-strategy = panic-strategy';
 
-  patchManifest = final-features: panic-strategy: manifest:
+  patchManifest = let profile' = profile; in final-features: panic-strategy: manifest:
     let
       # https://doc.rust-lang.org/cargo/reference/manifest.html#rules
       packageToFeature = name: def:
@@ -107,7 +128,7 @@ let
         ] //
         { default = []; };
       profile = recursiveUpdate manifest.profile or {} {
-        release.panic = panic-strategy;
+        ${profile'}.panic = panic-strategy;
       };
     in
     intersectAttrs
@@ -118,7 +139,9 @@ let
     };
 
   final-features =
-    if freezeFeatures then
+    if hasResolve then
+      genAttrs config.resolve.features.${package-id} or [] (_: {})
+    else if freezeFeatures then
       genAttrs features (_: {})
     else
       computeFinalFeatures cargo-manifest features;
@@ -190,7 +213,7 @@ let
       final-features
       (getDepSpecs
         "dependencies"
-        (if isNull target then stdenv.hostPlatform else target)
+        ((if isNull target then stdenv.hostPlatform else target) // { crate-features = final-features; })
         cargo-manifest)
       dependencies;
   buildDepPkgs =
@@ -199,7 +222,7 @@ let
       final-features
       (getDepSpecs
         "build-dependencies"
-        stdenv.buildPlatform
+        (stdenv.buildPlatform // { crate-features = final-features; })
         cargo-manifest)
       dependencies;
   devDepPkgs =
@@ -208,7 +231,7 @@ let
       final-features
       (getDepSpecs
         "dev-dependencies"
-        (if isNull target then stdenv.hostPlatform else target)
+        ((if isNull target then stdenv.hostPlatform else target) // { crate-features = final-features; })
         cargo-manifest)
       dependencies;
 
@@ -248,10 +271,10 @@ let
 in
 let
   selectPlatform = pkg:
-    if pkg.drv.isProcMacro or false then
-      nativeDrv pkg.drv
+    if pkg.isProcMacro or false then
+      nativeDrv pkg
     else
-      crossDrv pkg.drv;
+      crossDrv pkg;
 
   computeDependencies =
     final-features:
@@ -260,9 +283,15 @@ let
         mapAttrs
           (_: pkg:
             pkg // {
-              drv = (selectPlatform pkg).override (_: {
-                inherit freezeFeatures;
-                panicAbortOk = panicAbortOk && !doCheck;
+              drv = selectPlatform (pkg.drv {
+                inherit freezeFeatures profile meta;
+                panic-strategy =
+                  if (pkg.drv {}).isProcMacro then
+                    "unwind"
+                  else if panic-strategy == null then
+                    default-panic-strategy
+                  else
+                    panic-strategy;
               });
             })
           (depPkgs final-features);
@@ -270,9 +299,9 @@ let
         mapAttrs
           (_: pkg:
             pkg // {
-              drv = (nativeDrv pkg.drv).override (_: {
-                inherit freezeFeatures;
-                panicAbortOk = false;
+              drv = nativeDrv (pkg.drv {
+                inherit freezeFeatures profile meta;
+                panic-strategy = "unwind";
               });
             })
           (buildDepPkgs final-features);
@@ -280,16 +309,28 @@ let
         mapAttrs
           (_: pkg:
             pkg // {
-              drv = (selectPlatform pkg).override (_: {
-                inherit freezeFeatures;
-                panicAbortOk = false;
+              drv = selectPlatform (pkg.drv {
+                inherit freezeFeatures profile meta;
+                panic-strategy =
+                  if (pkg.drv {}).isProcMacro then
+                    "unwind"
+                  else if panic-strategy == null then
+                    default-panic-strategy
+                  else
+                    panic-strategy;
               });
             })
           (optionalAttrs doCheck (devDepPkgs final-features));
     in
-    { inherit dependencies buildDependencies devDependencies; };
+      {
+        inherit dependencies buildDependencies devDependencies;
+      };
 
-  host-triple = if isNull target then realHostTriple stdenv.hostPlatform else realHostTriple target;
+  host-triple =
+    if target == null then
+      realHostTriple stdenv.hostPlatform
+    else
+      realHostTriple target;
 
   computePackageFeatures =
     features:
@@ -305,38 +346,157 @@ let
       .${pkgVersion package-id} = final-features;
     } (map (dep: dep.drv.passthru.computePackageFeatures dep.features) all-deps);
 
-  inherit (computeDependencies final-features) dependencies buildDependencies devDependencies;
+  final-dependencies =
+    let
+      findMatchingPackage =
+        pkg-id:
+        findFirst
+          (d: d.package-id == pkg-id)
+          null
+          dependencies';
+      takeResolvedPackage =
+        pkg-id:
+        let
+          pkg = findMatchingPackage pkg-id;
+          name = pkg.extern-name;
+        in
+          {
+            inherit name;
+            value = {
+              inherit (pkg) package-id;
+              drv = accessPackage pkg-id;
+              features = config.resolve.features.${pkg-id};
+            };
+          };
+      dependencies =
+        listToAttrs
+          (map
+            (pkg-id:
+              let
+                inherit (takeResolvedPackage pkg-id) name value;
+                inherit (value) drv;
+              in
+                {
+                  inherit name;
+                  value = {
+                    inherit (value) package-id features;
+                    drv = selectPlatform (drv {
+                      inherit freezeFeatures profile meta;
+                      panic-strategy =
+                        if (drv {}).isProcMacro then
+                          "unwind"
+                        else if panic-strategy == null then
+                          default-panic-strategy
+                        else
+                          panic-strategy;
+                    });
+                  };
+                }
+            )
+            config.resolve.dependencies.${package-id}.${host-triple} or []);
+      buildDependencies =
+        listToAttrs
+          (map
+            (pkg-id:
+              let
+                inherit (takeResolvedPackage pkg-id) name value;
+                inherit (value) drv;
+              in
+                {
+                  inherit name;
+                  value = {
+                    inherit (value) package-id features;
+                    drv = nativeDrv (drv {
+                      inherit freezeFeatures profile meta;
+                      panic-strategy = "unwind";
+                    });
+                  };
+                }
+            )
+            config.resolve.buildDependencies.${package-id}.${host-triple} or []);
 
-  panic-strategy =
-    if
-      cargo-manifest ? profile &&
-      cargo-manifest.profile ? release &&
-      cargo-manifest.profile.release ? panic &&
-      panicAbortOk
-    then
-      cargo-manifest.profile.release.panic
-    else if any (dep: dep.drv.passthru.panic-strategy == "abort") (attrValues dependencies) then
-      "abort"
+      devDependencies = optionalAttrs doCheck (
+        listToAttrs
+          (map
+            (pkg-id:
+              let
+                inherit (takeResolvedPackage pkg-id) name value;
+                inherit (value) drv;
+              in
+                {
+                  inherit name;
+                  value = {
+                    inherit (value) package-id features;
+                    drv = selectPlatform (drv {
+                      inherit freezeFeatures profile meta;
+                      panic-strategy =
+                        if (drv {}).isProcMacro then
+                          "unwind"
+                        else if panic-strategy == null then
+                          default-panic-strategy
+                        else
+                          panic-strategy;
+                    });
+                  };
+                }
+            )
+            config.resolve.devDependencies.${package-id}.${host-triple} or []));
+
+    in
+    if hasResolve then
+      {
+        inherit dependencies buildDependencies devDependencies;
+      }
     else
-      "unwind";
+      computeDependencies final-features;
+
+  inherit (final-dependencies) dependencies buildDependencies devDependencies;
 
   patched-manifest = patchManifest final-features panic-strategy cargo-manifest;
 
-  depMapToList = deps: flatten (mapAttrsToList (name: value: [ name value.drv ]) deps);
+  depMapToList =
+    deps:
+    flatten
+      (sort
+        (a: b: elemAt a 0 < elemAt b 0)
+        (mapAttrsToList
+          (name: value: [ name "${value.drv}" ])
+          deps));
 in
 let
+  buildRelease = ''
+    cargo build -vvv --release --target ${host-triple} --features "$features"
+  '';
+
+  buildDev = ''
+    cargo build -vvv --release --target ${host-triple} --features "$features"
+  '';
+
+  buildReleaseTest = ''
+    cargo build -vvv --tests --release --target ${host-triple} --features "$features"
+  '';
+
+  buildDevTest = ''
+    cargo build -vvv --tests --target ${host-triple} --features "$features"
+  '';
+
   drvAttrs = {
-    inherit src name version;
+    name = "crate-${name}-${version}";
+    inherit src version meta;
     crateName = cargo-manifest.lib.name or (replaceChars ["-"] ["_"] name);
     buildInputs =
-      map accessPackage buildInputs ++
-      accessConfig "buildInputs" [] package-id ++
-      optional (!isNull target.buildInputs or null) target.buildInputs or [];
+      sort
+        (a: b: "${a}" < "${b}")
+        (map accessPackage buildInputs ++
+         accessConfig "buildInputs" [] package-id ++
+         optional (!isNull target.buildInputs or null) target.buildInputs or []);
     nativeBuildInputs =
-      [ buildPackages.jq cargo buildPackages.pkg-config ] ++
-      map accessPackage nativeBuildInputs ++
-      accessConfig "nativeBuildInputs" [] package-id ++
-      optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or [];
+      sort
+        (a: b: "${a}" < "${b}")
+        ([ buildPackages.jq cargo buildPackages.pkg-config ] ++
+         map accessPackage nativeBuildInputs ++
+         accessConfig "nativeBuildInputs" [] package-id ++
+         optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or []);
 
     passthru = {
       inherit
@@ -364,8 +524,6 @@ let
     extraRustcFlags = accessConfig "rustcflags" [] package-id;
 
     shellHook = env-setup;
-
-    outputs = [ "out" ] ++ optional doCheck "tests";
 
     # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
     configureCargo = ''
@@ -405,19 +563,19 @@ let
           "CC_${host-triple}"="${ccForHost}" \
           "CXX_${host-triple}"="${cxxForHost}" \
           "''${depKeys[@]}" \
-          cargo build -vvv --release --target ${host-triple} --features "$features"
-    '' + optionalString doCheck ''
-        env \
-          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${host-triple}"="${ccForHost}" \
-          "CXX_${host-triple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
-          cargo build -vvv --tests --target ${host-triple} --features "$features" --message-format=json | \
-          jq -r 'select(.profile.test==true)|.filenames[]' >.test-names
-    '' + ''
-      )
-    '';
+    '' +
+    (if profile == "release" then
+      if doCheck then
+        buildReleaseTest
+      else
+        buildRelease
+     else if profile == "dev" then
+       if doCheck then
+         buildDevTest
+       else
+         buildDev
+     else
+       throw "unknown profile") + ")";
 
     setBuildEnv = ''
       . ${./utils.sh}
@@ -456,104 +614,27 @@ let
 
     installPhase = ''
       mkdir -p $out/lib
-      pushd target/${host-triple}/release
       cargo_links=${cargo-manifest.package.links or ""}
-      needs_deps=
-      has_output=
-      for output in *; do
-        if [ -d "$output" ]; then
-          continue
-        elif [ -x "$output" ]; then
-          mkdir -p $out/bin
-          cp $output $out/bin/
-          has_output=1
-        else
-          case `extractFileExt "$output"` in
-          rlib)
-            mkdir -p $out/lib/.dep-files
-            cp $output $out/lib/
-            link_flags=$out/lib/.link-flags
-            dep_keys=$out/lib/.dep-keys
-            touch $link_flags $dep_keys
-            for depinfo in build/*/output; do
-              dumpDepInfo $link_flags $dep_keys "$cargo_links" $out/lib/.dep-files $depinfo
-            done
-            needs_deps=1
-            has_output=1
-            ;;
-          a) ;&
-          so) ;&
-          dylib)
-            mkdir -p $out/lib
-            cp $output $out/lib/
-            has_output=1
-            ;;
-          *)
-            continue
-          esac
-        fi
-      done
-      popd
-
-      touch $out/lib/.link-flags
-      loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
-
-      if [ "$isProcMacro" ]; then
-        pushd target/release
-        for output in *; do
-          if [ -d "$output" ]; then
-            continue
-          fi
-          case `extractFileExt "$output"` in
-          so) ;&
-          dylib)
-            isProcMacro=`basename $output`
-            mkdir -p $out/lib
-            cp $output $out/lib
-            needs_deps=1
-            has_output=1
-            ;;
-          *)
-            continue
-          esac
-        done
-        popd
-      fi
-
-      if [ ! "$has_output" ]; then
-        echo NO OUTPUT IS FOUND
-        exit 1
-      fi
-
-      if [ "$needs_deps" ]; then
-        mkdir -p $out/lib/deps
-        linkExternCrateToDeps $out/lib/deps $dependencies
-      fi
-
-      echo {} | jq \
-        '{name:$name, metadata:$metadata, version:$version, proc_macro:$procmacro}' \
-        --arg name $crateName \
-        --arg metadata $NIX_RUST_METADATA \
-        --arg procmacro "$isProcMacro" \
-        --arg version $version >$out/.cargo-info
-    '' + optionalString doCheck ''
-      mkdir -p $tests
-      touch $tests/names
-      test_names=()
-      cat .test-names | (
-        cd target/${host-triple}/debug;
-        while read path; do
-          local name=`basename $path`
-          if [ -d "$name" ]; then
-            continue
-          elif [ -x "$name" ]; then
-            mkdir -p $tests/bin
-            cp $name $tests/bin/
-            echo $name >> $tests/names
-          fi
-        done
-      )
+      install_crate ${host-triple}
     '';
   };
+  installChecks = optionalString doCheck ''
+    mkdir -p $tests
+    touch $tests/names
+    test_names=()
+    cat .test-names | (
+      cd target/${host-triple}/debug;
+      while read path; do
+        local name=`basename $path`
+        if [ -d "$name" ]; then
+          continue
+        elif [ -x "$name" ]; then
+          mkdir -p $tests/bin
+          cp $name $tests/bin/
+          echo $name >> $tests/names
+        fi
+      done
+    )
+  '';
 in
 stdenv.mkDerivation drvAttrs
