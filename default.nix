@@ -128,7 +128,6 @@ in
 
   package' = rustPackagesWithResolve.unknown.cargo2nix.${version} {};
 
-  rustPackages = rustPackages.callPackage ({rustPackages}:rustPackages) {};
 
   # and you can make a development shell
   shell = pkgs.rustBuilder.makeShell {
