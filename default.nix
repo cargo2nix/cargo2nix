@@ -103,7 +103,7 @@ let
             (pkgs.rustBuilder.rustLib.buildResolveRequest {
               initial = [
                 {
-                  package-id = "cargo2nix 0.2.0";
+                  package-id = "cargo2nix ${version}";
                 }
               ];
               inherit (pkgs) stdenv;
