@@ -87,7 +87,7 @@ let
   # done
 
   # your rust build is available here
-  package = rustPackages.unknown.cargo2nix."0.2.0" {
+  package = rustPackages.unknown.cargo2nix.${version} {
     freezeFeatures = true;
     meta.platforms = lib.platforms.linux;
   };
