@@ -126,7 +126,7 @@ in
 {
   inherit package;
 
-  package' = rustPackagesWithResolve.unknown.cargo2nix."0.2.0" {};
+  package' = rustPackagesWithResolve.unknown.cargo2nix.${version} {};
 
   rustPackages = rustPackages.callPackage ({rustPackages}:rustPackages) {};
 
