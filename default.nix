@@ -119,7 +119,7 @@ let
   rustPackagesWithResolve = pkgs.callPackage ./crate.nix {
     inherit packageFun rustc cargo resolver;
     config = config pkgs // { resolve = resolveResponse; };
-    buildConfig = config pkgs.buildPackages;
+    buildConfig = config pkgs.buildPackages // { resolve = resolveResponse; };
   };
 
 in
