@@ -245,4 +245,6 @@ in
   computeFinalFeatures = import ./features.nix { inherit lib; };
 
   realHostTriple = import ./real-host-triple.nix;
+
+  buildResolveRequest = import ./resolve-request.nix { inherit lib; };
 }

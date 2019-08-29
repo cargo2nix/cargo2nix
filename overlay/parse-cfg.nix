@@ -320,6 +320,8 @@ let
       (value == "64" && platform.is64bit)
     else if key == "target_vendor" then
       platform.parsed.vendor.name == value
+    else if key == "feature" then
+      any (f: value == f) platform.crate-features or []
     else
       false;
 

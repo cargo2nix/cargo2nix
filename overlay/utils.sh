@@ -113,3 +113,86 @@ dumpDepInfo() {
         esac
     done
 }
+
+install_crate() {
+    local host_triple=$1
+    pushd target/${host_triple}/release
+    local needs_deps=
+    local has_output=
+    for output in *; do
+        if [ -d "$output" ]; then
+            continue
+        elif [ -x "$output" ]; then
+            mkdir -p $out/bin
+            cp $output $out/bin/
+            has_output=1
+        else
+            case `extractFileExt "$output"` in
+                rlib)
+                    mkdir -p $out/lib/.dep-files
+                    cp $output $out/lib/
+                    local link_flags=$out/lib/.link-flags
+                    local dep_keys=$out/lib/.dep-keys
+                    touch $link_flags $dep_keys
+                    for depinfo in build/*/output; do
+                        dumpDepInfo $link_flags $dep_keys "$cargo_links" $out/lib/.dep-files $depinfo
+                    done
+                    needs_deps=1
+                    has_output=1
+                    ;;
+                a) ;&
+                so) ;&
+                dylib)
+                    mkdir -p $out/lib
+                    cp $output $out/lib/
+                    has_output=1
+                    ;;
+                *)
+                    continue
+            esac
+        fi
+    done
+    popd
+
+    touch $out/lib/.link-flags
+    loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
+
+    if [ "$isProcMacro" ]; then
+        pushd target/release
+        for output in *; do
+            if [ -d "$output" ]; then
+                continue
+            fi
+            case `extractFileExt "$output"` in
+                so) ;&
+                dylib)
+                    isProcMacro=`basename $output`
+                    mkdir -p $out/lib
+                    cp $output $out/lib
+                    needs_deps=1
+                    has_output=1
+                    ;;
+                *)
+                    continue
+            esac
+        done
+        popd
+    fi
+
+    if [ ! "$has_output" ]; then
+        echo NO OUTPUT IS FOUND
+        exit 1
+    fi
+
+    if [ "$needs_deps" ]; then
+        mkdir -p $out/lib/deps
+        linkExternCrateToDeps $out/lib/deps $dependencies
+    fi
+
+    echo {} | jq \
+'{name:$name, metadata:$metadata, version:$version, proc_macro:$procmacro}' \
+--arg name $crateName \
+--arg metadata $NIX_RUST_METADATA \
+--arg procmacro "$isProcMacro" \
+--arg version $version >$out/.cargo-info
+}
