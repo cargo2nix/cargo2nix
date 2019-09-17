@@ -1,4 +1,7 @@
 //! A subset of Nix context-free grammar for expression generation
+use lazy_static::lazy_static;
+use regex::Regex;
+
 pub trait Write {
     type Error;
     fn indent(&mut self, offset: isize);
@@ -191,12 +194,22 @@ impl Generate for Lam {
 #[derive(Clone, Debug, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Ident(String);
 
+fn is_valid_ident(id: &str) -> bool {
+    // https://github.com/NixOS/nix/blob/6b83174ffffbdfc3f876d94d5178e0b83f675cae/src/libexpr/lexer.l#L91
+    lazy_static! {
+        static ref IDENT_RE: Regex = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_'-]*$").unwrap();
+    }
+
+    IDENT_RE.is_match(id)
+}
+
 impl Ident {
     pub fn new<T: AsRef<str>>(name: T) -> Self {
-        if name.as_ref().contains(NEED_QUOTE) {
+        let name = name.as_ref();
+        if !is_valid_ident(name) {
             panic!("identifier contains illegal characters, and this is a logical error if you are generating Nix expression mechanically")
         }
-        Self(name.as_ref().to_string())
+        Self(name.to_string())
     }
     pub fn into_inner(self) -> String {
         self.0
@@ -354,8 +367,6 @@ macro_rules! cons_formal_arg {
     }
 }
 
-const NEED_QUOTE: &[char] = &[' ', '.', '\n', '\r', '\t', '\"', '\\', '(', ')', '='];
-
 const QUOTE_MAP: &[(char, &str)] = &[
     ('\\', "\\\\"),
     ('\"', "\\\""),
@@ -385,10 +396,10 @@ impl Generate for Key {
     fn generate_word<W: Write>(&self, writer: &mut W) -> Result<(), <W as Write>::Error> {
         match self {
             Key::Key(ref key) => {
-                if key.contains(NEED_QUOTE) {
-                    write_quoted_str(key, writer)
-                } else {
+                if is_valid_ident(key) {
                     writer.write_str(key)
+                } else {
+                    write_quoted_str(key, writer)
                 }
             }
             Key::Expr(ref expr) => {
@@ -492,7 +503,7 @@ impl Generate for AttrSet {
                         }),
                     ) if path.len() == 1
                         && if let Key::Key(ref key_) = path[0] {
-                            key == key_ && !key.contains(NEED_QUOTE)
+                            key == key_ && is_valid_ident(key_)
                         } else {
                             false
                         } =>
