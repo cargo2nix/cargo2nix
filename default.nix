@@ -31,6 +31,12 @@ let
         paths = with pkgs.openssl; [out dev];
       };
 
+  # macos frameworks supply, if on darwin
+  macosFrameworks = if pkgs.stdenv.isDarwin
+    then
+      with pkgs.darwin.apple_sdk.frameworks;
+      [Security CoreServices]
+    else [];
 
   # choice of rustc
   rustChannel = pkgs.buildPackages.rustChannelOf {
@@ -74,7 +80,10 @@ let
     };
 
     buildInputs = {
-      "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ];
+      unknown.cargo2nix."*" = with pkgs; [ libiconv ] ++ macosFrameworks;
+      "registry+https://github.com/rust-lang/crates.io-index".cargo."*" = with pkgs; [ libiconv ] ++ macosFrameworks;
+      "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ] ++ macosFrameworks;
+      "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."*" = with pkgs; [ libiconv ] ++ macosFrameworks;
     };
   };
 
@@ -89,7 +98,7 @@ let
   # your rust build is available here
   package = rustPackages.unknown.cargo2nix.${version} {
     freezeFeatures = true;
-    meta.platforms = lib.platforms.linux;
+    meta.platforms = lib.platforms.darwin ++ lib.platforms.linux;
   };
 
   # how to use cargo2nix to speed up resolution:
