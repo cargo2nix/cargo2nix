@@ -15,8 +15,17 @@ This repository hosts two components:
 
 ## Build instructions
 
-1. Install [nix](https://nixos.org/nix) on your *NIX machine
-1. `nix-build -A package`
+1. Install the [Nix package manager](https://nixos.org/nix) on your *NIX
+   machine.
+2. Run the command below to build the `cargo2nix` utility:
+
+```bash
+# For Linux users
+nix-build -A package
+
+# For macOS/Darwin users
+nix-build -A package --arg crossSystem null
+```
 
 ## How to use this for your Rust projects
 
