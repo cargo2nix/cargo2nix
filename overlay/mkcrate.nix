@@ -527,6 +527,12 @@ let
          accessConfig "nativeBuildInputs" [] package-id ++
          optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or []);
 
+    # Running the default `strip -S` command on Darwin corrupts the
+    # .rlib files in "lib/".
+    #
+    # See https://github.com/NixOS/nixpkgs/pull/34227
+    stripDebugList = if stdenv.isDarwin then [ "bin" ] else null;
+
     passthru = {
       inherit
         buildDependencies
