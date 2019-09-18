@@ -5,7 +5,7 @@
   crossSystem ? (import <nixpkgs/lib>).systems.examples.musl64,
 }:
 let
-  version = "0.2.0";
+  version = "0.3.0";
 
   # mozilla nixpkgs rust overlay
   nixpkgs-mozilla = builtins.fetchGit {

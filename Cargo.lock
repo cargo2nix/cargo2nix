@@ -168,7 +168,7 @@ dependencies = [
 
 [[package]]
 name = "cargo2nix"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "bitflags 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "cargo 0.37.0 (registry+https://github.com/rust-lang/crates.io-index)",
