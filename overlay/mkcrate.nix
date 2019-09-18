@@ -526,6 +526,7 @@ let
          map accessPackage nativeBuildInputs ++
          accessConfig "nativeBuildInputs" [] package-id ++
          optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or []);
+    depsBuildBuild = [ buildPackages.stdenv.cc ];
 
     # Running the default `strip -S` command on Darwin corrupts the
     # .rlib files in "lib/".
