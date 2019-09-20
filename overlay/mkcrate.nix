@@ -522,11 +522,11 @@ let
     nativeBuildInputs =
       sort
         (a: b: "${a}" < "${b}")
-        ([ buildPackages.jq cargo buildPackages.pkg-config ] ++
+        ([ cargo buildPackages.pkg-config ] ++
          map accessPackage nativeBuildInputs ++
          accessConfig "nativeBuildInputs" [] package-id ++
          optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or []);
-    depsBuildBuild = [ buildPackages.stdenv.cc ];
+    depsBuildBuild = with buildPackages.buildPackages; [ stdenv.cc jq ];
 
     # Running the default `strip -S` command on Darwin corrupts the
     # .rlib files in "lib/".
