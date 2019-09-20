@@ -579,7 +579,7 @@ let
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
       echo source = \"registry+${registry}\" >> Cargo.lock
-      cp ${rustLib.json2toml patched-manifest} Cargo.toml
+      cp ${rustLib.json2toml { inherit name; json = patched-manifest; }} Cargo.toml
     '';
 
     configurePhase =

@@ -1,7 +1,7 @@
 { remarshal, runCommand }:
-json:
+{ name, json }:
   runCommand
-    "to.toml"
+    "${name}-to.toml"
     {
       nativeBuildInputs = [remarshal];
       passAsFile = [ "json" ];
