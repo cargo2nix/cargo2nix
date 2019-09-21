@@ -7,7 +7,7 @@ import
   (args // {
     config.packageOverrides = pkgs: {
       openssl = (pkgs.openssl.override {
-        # `perl` is only used at build time, but the derivation incorrectly uses host perl
+        # `perl` is only used at build time, but the derivation incorrectly uses host `perl`
         # as an input.
         perl = pkgs.buildPackages.buildPackages.perl;
       }).overrideAttrs (_: {
@@ -16,10 +16,9 @@ import
         outputs = [ "bin" "dev" "out" ];
       });
 
-      # `libuv` needs rebuilding because of the harmless `openssl` change above.
-      # The test suite fails for some reason so just disable it.
+      # These packages need rebuilding because of the harmless `openssl` change above.
+      # The test suites for them fails (for some reason) so just disable them.
       libuv = pkgs.libuv.overrideAttrs (_: { doCheck = false; });
-
       e2fsprogs = pkgs.e2fsprogs.overrideAttrs (_: { doCheck = false; });
     };
   })
