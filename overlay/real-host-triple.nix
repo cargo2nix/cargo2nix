@@ -5,7 +5,7 @@ let
   kernel = platform.parsed.kernel.name;
   abi = platform.parsed.abi.name;
 in
-if platform.isWasi then
+if platform.isWasi or false then
   "${platform.parsed.cpu.name}-wasi"
 else {
   "i686-linux"        = "i686-unknown-linux-${abi}";

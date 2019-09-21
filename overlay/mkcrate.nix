@@ -567,7 +567,7 @@ let
       cat > .cargo/config <<'EOF'
       [target."${realHostTriple stdenv.buildPlatform}"]
       linker = "${ccForBuild}"
-    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !stdenv.hostPlatform.isWasi && isNull target) ''
+    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false) && isNull target) ''
       [target."${host-triple}"]
       linker = "${ccForHost}"
     '' + ''
