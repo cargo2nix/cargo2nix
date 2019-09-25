@@ -1,5 +1,5 @@
 {
-  nixpkgsPath ? <nixpkgs>,
+  nixpkgsPath ? ./nixpkgs.nix,
   system ? builtins.currentSystem,
   overlays ? [],
   crossSystem ? (import <nixpkgs/lib>).systems.examples.musl64,

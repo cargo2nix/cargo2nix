@@ -522,10 +522,11 @@ let
     nativeBuildInputs =
       sort
         (a: b: "${a}" < "${b}")
-        ([ buildPackages.jq cargo buildPackages.pkg-config ] ++
+        ([ cargo buildPackages.pkg-config ] ++
          map accessPackage nativeBuildInputs ++
          accessConfig "nativeBuildInputs" [] package-id ++
          optional (!isNull target.nativeBuildInputs or null) target.nativeBuildInputs or []);
+    depsBuildBuild = [ buildPackages.buildPackages.stdenv.cc buildPackages.buildPackages.jq ];
 
     # Running the default `strip -S` command on Darwin corrupts the
     # .rlib files in "lib/".
@@ -566,7 +567,7 @@ let
       cat > .cargo/config <<'EOF'
       [target."${realHostTriple stdenv.buildPlatform}"]
       linker = "${ccForBuild}"
-    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !stdenv.hostPlatform.isWasi && isNull target) ''
+    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false) && isNull target) ''
       [target."${host-triple}"]
       linker = "${ccForHost}"
     '' + ''
@@ -578,7 +579,7 @@ let
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
       echo source = \"registry+${registry}\" >> Cargo.lock
-      cp ${rustLib.json2toml patched-manifest} Cargo.toml
+      cp ${rustLib.json2toml { inherit name; json = patched-manifest; }} Cargo.toml
     '';
 
     configurePhase =
