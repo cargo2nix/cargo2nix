@@ -23,11 +23,12 @@ let
 
   inherit (pkgs) lib;
 
-  # openssl supply
-  openssl =
+  # The openSSL crate expects both the headers and the library to be in the same directory
+  # so we need to undo nix's separation of concerns here
+  combinedOpenSSL =
     pkgs:
       pkgs.buildPackages.symlinkJoin {
-        name = "openssl";
+        name = "combined-openssl";
         paths = with pkgs.openssl; [out dev];
       };
 
@@ -76,7 +77,7 @@ let
       ];
     };
     environment = {
-      "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*".OPENSSL_DIR = openssl pkgs;
+      "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*".OPENSSL_DIR = combinedOpenSSL pkgs;
     };
 
     buildInputs = {
@@ -146,7 +147,7 @@ in
         src = resolver { inherit source name version; };
       };
     excludeCrates.unknown = "*";
-    environment.OPENSSL_DIR = openssl pkgs;
+    environment.OPENSSL_DIR = combinedOpenSSL pkgs;
     nativeBuildInputs = [ pkgs.buildPackages.buildPackages.jq ];
 
     inherit (rustPackages.config) features;
