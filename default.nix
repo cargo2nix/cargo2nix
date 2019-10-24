@@ -60,8 +60,8 @@ let
     (type == "unknown" -> false)
   ;
 
-  # define source location
-  resolver = let version' = version; in { source, name, version, ... }: {
+  # Where do we get our crates from?
+  srcFetcher = let version' = version; in { source, name, version, ... }: {
     unknown.cargo2nix.${version'} = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
   }.${source}.${name}.${version};
 
@@ -88,9 +88,10 @@ let
   };
 
   rustPackages = pkgs.callPackage ./crate.nix {
-    inherit packageFun rustc cargo resolver;
+    inherit packageFun rustc cargo;
     config = config pkgs;
     buildConfig = config pkgs.buildPackages;
+    resolver = srcFetcher;
   };
 
   # done
@@ -126,9 +127,10 @@ let
         "cargo2nix resolve <${request} >$out");
 
   rustPackagesWithResolve = pkgs.callPackage ./crate.nix {
-    inherit packageFun rustc cargo resolver;
+    inherit packageFun rustc cargo;
     config = config pkgs // { resolve = resolveResponse; };
     buildConfig = config pkgs.buildPackages // { resolve = resolveResponse; };
+    resolver = srcFetcher;
   };
 
 in
@@ -143,7 +145,7 @@ in
     inherit packageFun cargo rustc;
     packageResolver = { source, name, version, sha256, ... }:
       {
-        src = resolver { inherit source name version; };
+        src = srcFetcher { inherit source name version; };
       };
     excludeCrates.unknown = "*";
     environment.OPENSSL_DIR = openssl pkgs;
