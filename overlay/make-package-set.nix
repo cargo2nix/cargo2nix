@@ -1,4 +1,4 @@
-{
+args@{
   rustLib,
   pkgs,
   packageFun,
@@ -9,14 +9,16 @@
   rustc,
   mkRustCrate,
   buildRustPackages ? null,
-  target ? null,
+  localPatterns ? [ ''^(src)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
 }:
 lib.fix' (self:
   let
+    rustPackages = self;
+    buildRustPackages = if args.buildRustPackages == null then self else rustPackages;
     mkScope = scope:
       let
         prevStage = pkgs.__splicedPackages;
-        scopeSpliced = rustLib.splicePackages (buildRustPackages != null) {
+        scopeSpliced = rustLib.splicePackages (args.buildRustPackages != null) {
           pkgsBuildBuild = scope.buildRustPackages.buildRustPackages;
           pkgsBuildHost = scope.buildRustPackages;
           pkgsBuildTarget = {};
@@ -34,20 +36,16 @@ lib.fix' (self:
     mkRustCrate_ =
       lib.makeOverridable
         (callPackage mkRustCrate {
-          inherit rustLib target;
+          inherit rustLib;
           config = rustPackageConfig;
         });
-  in
-  packageFun
-    {
-      inherit pkgs stdenv callPackage rustLib;
-      mkRustCrate = mkRustCrate_;
-      config = rustPackageConfig;
-    }
-    self //
-  {
-    inherit callPackage buildRustPackages cargo rustc pkgs;
-    rustPackages = self;
+  in packageFun {
+    inherit rustPackages buildRustPackages lib;
+    inherit (stdenv) hostPlatform buildPlatform;
+    mkRustCrate = mkRustCrate_;
+    rustLib = rustLib // { fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath; };
+  } // {
+    inherit rustPackages buildRustPackages callPackage cargo rustc pkgs;
     config = rustPackageConfig;
     mkRustCrate = mkRustCrate_;
     __splicedPackages = defaultScope;

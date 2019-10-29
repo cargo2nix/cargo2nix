@@ -1,159 +1,92 @@
 {
-  nixpkgsPath ? ./nixpkgs.nix,
+  nixpkgs ? <nixpkgs>,
+  nixpkgsMozilla ? fetchGit {
+    url = https://github.com/mozilla/nixpkgs-mozilla;
+    rev = "50bae918794d3c283aeb335b209efd71e75e3954";
+  },
   system ? builtins.currentSystem,
-  overlays ? [],
-  crossSystem ? (import <nixpkgs/lib>).systems.examples.musl64,
+  crossSystem ? (import nixpkgs {}).lib.systems.examples.musl64
 }:
 let
-  version = "0.3.0";
-
-  # mozilla nixpkgs rust overlay
-  nixpkgs-mozilla = builtins.fetchGit {
-    url = https://github.com/mozilla/nixpkgs-mozilla;
-    ref = "master";
-    rev = "50bae918794d3c283aeb335b209efd71e75e3954";
-  };
-  rustOverlay = import "${nixpkgs-mozilla}/rust-overlay.nix";
-
-  # bootstrap Nixpkgs with the overlays
-  pkgs = import nixpkgsPath {
+  pkgs = import nixpkgs {
     inherit system crossSystem;
-    overlays = overlays ++ [ rustOverlay (import ./overlay) ];
+    overlays =
+      let
+        rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
+        cargo2nixOverlay = import ./overlay;
+      in
+       [ cargo2nixOverlay rustOverlay ];
   };
+  inherit (pkgs) lib buildPackages;
 
-  inherit (pkgs) lib;
-
-  # openssl supply
-  openssl =
-    pkgs:
-      pkgs.buildPackages.symlinkJoin {
-        name = "openssl";
-        paths = with pkgs.openssl; [out dev];
-      };
-
-  # macos frameworks supply, if on darwin
-  macosFrameworks = if pkgs.stdenv.isDarwin
-    then
-      with pkgs.darwin.apple_sdk.frameworks;
-      [Security CoreServices]
-    else [];
-
-  # choice of rustc
-  rustChannel = pkgs.buildPackages.rustChannelOf {
-    channel = "1.37.0";
+  rustChannel = buildPackages.rustChannelOf {
+    channel = "1.38.0";
   };
-
   inherit (rustChannel) cargo;
   rustc = rustChannel.rust.override {
     targets = [
       (pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.targetPlatform)
-      "aarch64-unknown-linux-gnu"
     ];
+    extensions = [ "rust-std" ];
   };
 
-  # source filter
-  srcFilter = {src, name, type}:
-    (type == "directory" && name == "${toString src}/overlay" -> false) &&
-    (type == "regular" && lib.hasSuffix ".nix" (baseNameOf name) -> false) &&
-    (type == "regular" && lib.hasPrefix "." (baseNameOf name) -> false) &&
-    (type == "symlink" && lib.hasPrefix "${toString src}/result" name -> false) &&
-    (type == "unknown" -> false)
-  ;
-
-  # define source location
-  resolver = let version' = version; in { source, name, version, ... }: {
-    # The naming convention here is <registry>.<crateName>.<version>
-    # Local crates (anything outside of crates.io) will have a <registry> of "unknown"
-    unknown.cargo2nix.${version'} = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
-  }.${source}.${name}.${version};
-
-  # build your crate
-  packageFun = import ./deps.nix;
-
-  config = pkgs: {
-    rustcflags = {
-      "registry+https://github.com/rust-lang/crates.io-index"."*" = [
-        "--cap-lints"
-        "warn"
-      ];
-    };
-    environment = {
-      "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*".OPENSSL_DIR = openssl pkgs;
-    };
-
-    buildInputs = {
-      unknown.cargo2nix."*" = with pkgs; [ libiconv ] ++ macosFrameworks;
-      "registry+https://github.com/rust-lang/crates.io-index".cargo."*" = with pkgs; [ libiconv ] ++ macosFrameworks;
-      "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = with pkgs; [ nghttp2 ] ++ macosFrameworks;
-      "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."*" = with pkgs; [ libiconv ] ++ macosFrameworks;
-    };
-  };
-
-  rustPackages = pkgs.callPackage ./crate.nix {
-    inherit packageFun rustc cargo resolver;
-    config = config pkgs;
-    buildConfig = config pkgs.buildPackages;
-  };
-
-  # done
-
-  # your rust build is available here
-  package = rustPackages.unknown.cargo2nix.${version} {
-    freezeFeatures = true;
-    meta.platforms = lib.platforms.darwin ++ lib.platforms.linux;
-  };
-
-  # how to use cargo2nix to speed up resolution:
-
-  resolveResponse =
+  packageFun = import ./Cargo.nix { };
+  rustPackageConfig =
     let
-      request =
-        builtins.toFile
-          "resolve-request.json"
-          (builtins.toJSON
-            (pkgs.rustBuilder.rustLib.buildResolveRequest {
-              initial = [
-                {
-                  package-id = "cargo2nix ${version}";
-                }
-              ];
-              inherit (pkgs) stdenv;
-              inherit packageFun;
-            }));
+      darwinFrameworks = lib.optionals pkgs.hostPlatform.isDarwin
+        (with pkgs.darwin.apple_sdk.frameworks; [ Security CoreServices ]);
     in
-    lib.importJSON
-      (pkgs.runCommand
-        "resolve"
-        { nativeBuildInputs = [package]; }
-        "cargo2nix resolve <${request} >$out");
-
-  rustPackagesWithResolve = pkgs.callPackage ./crate.nix {
-    inherit packageFun rustc cargo resolver;
-    config = config pkgs // { resolve = resolveResponse; };
-    buildConfig = config pkgs.buildPackages // { resolve = resolveResponse; };
-  };
-
-in
-{
-  inherit package;
-
-  package' = rustPackagesWithResolve.unknown.cargo2nix.${version} {};
-
-
-  # and you can make a development shell
-  shell = pkgs.rustBuilder.makeShell {
-    inherit packageFun cargo rustc;
-    packageResolver = { source, name, version, sha256, ... }:
       {
-        src = resolver { inherit source name version; };
-      };
-    excludeCrates.unknown = "*";
-    environment.OPENSSL_DIR = openssl pkgs;
-    nativeBuildInputs = [
-      pkgs.buildPackages.buildPackages.jq
-      pkgs.cacert # This is added as a workaround for https://github.com/target/lorri/issues/98
-    ];
+        rustcflags = {
+          "registry+https://github.com/rust-lang/crates.io-index"."*" = [ "--cap-lints" "warn" ];
+        };
+        nativeBuildInputs = {
+          "registry+https://github.com/rust-lang/crates.io-index".curl-sys."*" = darwinFrameworks;
+          "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."*" = darwinFrameworks;
+        };
+        buildInputs = {
+          "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."*" = [ pkgs.libiconv ];
+          "registry+https://github.com/rust-lang/crates.io-index".cargo."*" = [ pkgs.libiconv ] ++ darwinFrameworks;
+          unknown.cargo2nix2."*" = [ pkgs.libiconv ] ++ darwinFrameworks;
+        };
+        environment = {
+          "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*" =
+            let
+              envize = s: builtins.replaceStrings ["-"] ["_"] (lib.toUpper s);
+              envBuildPlatform = envize pkgs.buildPlatform.config;
+              envHostPlatform = envize pkgs.hostPlatform.config;
+              staticOpenssl = pkgs: (pkgs.openssl.override {
+                # `perl` is only used at build time, but the derivation incorrectly uses host `perl` as an input.
+                perl = pkgs.buildPackages.buildPackages.perl;
+                static = true;
+              }).overrideAttrs (drv: {
+                installTargets = "install_sw";
+                outputs = [ "dev" "out" "bin" ];
+                postInstall = builtins.replaceStrings ["rm -r " "rmdir "] ["rm -rf " "rm -rf "] drv.postInstall;
+              });
 
-    inherit (rustPackages.config) features;
+              joinOpenssl = openssl: buildPackages.symlinkJoin {
+                name = "openssl"; paths = with openssl; [ out dev ];
+              };
+            in
+              # We don't use key literals here, as they might collide if `hostPlatform == buildPlatform`.
+              builtins.listToAttrs [
+                { name = "${envBuildPlatform}_OPENSSL_DIR"; value = joinOpenssl (staticOpenssl buildPackages); }
+                { name = "${envHostPlatform}_OPENSSL_DIR"; value = joinOpenssl (staticOpenssl pkgs); }
+                { name = "OPENSSL_STATIC"; value = "1"; }
+              ];
+        };
+      };
+
+  rustPkgs = pkgs.rustBuilder.makePackageSet {
+    inherit cargo rustc packageFun rustPackageConfig;
+    buildRustPackages = buildPackages.rustBuilder.makePackageSet {
+      inherit cargo rustc packageFun rustPackageConfig;
+    };
   };
-}
+in
+  rustPkgs."cargo2nix2 0.1.0 unknown" { }
+  # rustPkgs."bytes 0.4.12 registry+https://github.com/rust-lang/crates.io-index" { }
+  # rustPkgs."libc 0.2.65 registry+https://github.com/rust-lang/crates.io-index" { }
+  # (rustPkgs."cargo 0.39.0 registry+https://github.com/rust-lang/crates.io-index" { }).dependencies
+  # rustPkgs."curl-sys 0.4.23 registry+https://github.com/rust-lang/crates.io-index" { }

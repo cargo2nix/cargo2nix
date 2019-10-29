@@ -1,19 +1,15 @@
 self: super:
 let
-  inherit (self) callPackage lib newScope;
+  inherit (self) lib newScope;
   scope = self: let inherit (self) callPackage; in
   {
     mkLocalRegistry = callPackage ./local-registry.nix {};
-
-    mkDirectorySource = callPackage ./directory-source.nix {};
 
     mkCrate = callPackage ./crate.nix {};
 
     cleanLocalSrc = callPackage ./clean-local-src.nix {};
 
-    cratesIoRegistry = callPackage ./crates-io-registry.nix {};
-
-    rustLib = callPackage ./lib.nix { };
+    rustLib = callPackage ./lib { };
 
     makePackageSet = callPackage ./make-package-set.nix;
 
