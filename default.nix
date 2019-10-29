@@ -147,7 +147,10 @@ in
       };
     excludeCrates.unknown = "*";
     environment.OPENSSL_DIR = openssl pkgs;
-    nativeBuildInputs = [ pkgs.buildPackages.buildPackages.jq ];
+    nativeBuildInputs = [
+      pkgs.buildPackages.buildPackages.jq
+      pkgs.cacert # This is added as a workaround for https://github.com/target/lorri/issues/98
+    ];
 
     inherit (rustPackages.config) features;
   };
