@@ -1,6 +1,7 @@
 {
   nixpkgs ? fetchGit {
     url = https://github.com/NixOS/nixpkgs;
+    ref = "release-19.09";
     rev = "63cdd9bd317e15e4a4f42dde455c73383ded1b41";
   },
   nixpkgsMozilla ? fetchGit {
@@ -8,6 +9,7 @@
     rev = "50bae918794d3c283aeb335b209efd71e75e3954";
   },
   system ? builtins.currentSystem,
+  overlays ? [ ],
   crossSystem ? (import nixpkgs {}).lib.systems.examples.musl64,
 }:
 let
@@ -18,7 +20,7 @@ let
         rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
         cargo2nixOverlay = import ./overlay;
       in
-       [ cargo2nixOverlay rustOverlay ];
+       overlays ++ [ cargo2nixOverlay rustOverlay ];
   };
   inherit (pkgs) lib buildPackages;
 
@@ -87,4 +89,4 @@ let
     };
   };
 in
-  rustPkgs."cargo2nix 0.4.0 unknown" { compileMode = "test"; }
+  rustPkgs."unknown".cargo2nix."0.4.0" { compileMode = "test"; }

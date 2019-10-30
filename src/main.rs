@@ -161,6 +161,10 @@ fn all_features<'a>(p: &'a Package) -> impl 'a + Iterator<Item = Feature<'a>> {
         })
 }
 
+fn is_proc_macro(p: &Package) -> bool {
+    p.targets().iter().any(|t| t.proc_macro())
+}
+
 /// Traverses the whole dependency graph starting at `pkg` and marks required packages and features.
 fn mark_required(
     root_pkg: &Package,
@@ -238,6 +242,41 @@ fn activate<'a>(
                 .unwrap()
                 .optionality
                 .activated_by(root_feature);
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+struct Scope<'a> {
+    crates: &'a str,
+    build_crates: &'a str,
+    root_features: &'a str,
+    expand_features: &'a str,
+    release: &'a str,
+    profiles: &'a str,
+    mk_rust_crate: &'a str,
+    fetch_crate_crates_io: &'a str,
+    fetch_crate_git: &'a str,
+    fetch_crate_local: &'a str,
+    optional: &'a str,
+    host_platform: &'a str,
+}
+
+impl Default for Scope<'static> {
+    fn default() -> Self {
+        Self {
+            crates: "rustPackages",
+            build_crates: "buildRustPackages",
+            root_features: "rootFeatures",
+            expand_features: "expandFeatures",
+            release: "release",
+            profiles: "profiles",
+            mk_rust_crate: "mkRustCrate",
+            fetch_crate_crates_io: "fetchCratesIo",
+            fetch_crate_git: "fetchCrateGit",
+            fetch_crate_local: "fetchCrateLocal",
+            optional: "lib.optional",
+            host_platform: "hostPlatform",
         }
     }
 }
@@ -347,12 +386,15 @@ impl<'a> ResolvedPackage<'a> {
         use self::BoolExpr::*;
 
         let mut f = Indented::new(f);
-        let pkg_id_string = display_pkg_id(self.pkg.package_id()).to_string();
-        writeln!(f, "{:?} = {} {{", pkg_id_string, outer.mk_rust_crate)?;
+        writeln!(
+            f,
+            "{} = {} {{",
+            display_pkg_id_nix(self.pkg.package_id()),
+            outer.mk_rust_crate
+        )?;
         {
             let mut f = f.indent(2);
             writeln!(f, "inherit {} {};", outer.release, outer.profiles)?;
-            writeln!(f, "packageId = {:?};", pkg_id_string)?;
             writeln!(f, "name = {:?};", self.pkg.name())?;
             writeln!(f, "version = {:?};", self.pkg.version().to_string())?;
             writeln!(
@@ -411,18 +453,18 @@ impl<'a> ResolvedPackage<'a> {
                     {
                         True => write!(
                             f,
-                            "{} = {}.{:?} {{ }}",
+                            "{} = {}.{} {{ }}",
                             dep.extern_name,
                             crate_set,
-                            display_pkg_id(dep_id.clone()).to_string(),
+                            display_pkg_id_nix(dep_id.clone()),
                         )?,
                         expr => write!(
                             f,
-                            "${{ if {} then {:?} else null }} = {}.{:?} {{ }}",
+                            "${{ if {} then {:?} else null }} = {}.{} {{ }}",
                             expr.to_nix(),
                             dep.extern_name,
                             crate_set,
-                            display_pkg_id(dep_id.clone()).to_string()
+                            display_pkg_id_nix(dep_id.clone())
                         )?,
                     }
                     writeln!(f, ";")?;
@@ -442,37 +484,39 @@ impl<'a> ResolvedPackage<'a> {
     }
 }
 
-#[derive(Copy, Clone)]
-struct Scope<'a> {
-    crates: &'a str,
-    build_crates: &'a str,
-    root_features: &'a str,
-    expand_features: &'a str,
-    release: &'a str,
-    profiles: &'a str,
-    mk_rust_crate: &'a str,
-    fetch_crate_crates_io: &'a str,
-    fetch_crate_git: &'a str,
-    fetch_crate_local: &'a str,
-    optional: &'a str,
-    host_platform: &'a str,
-}
+impl<'a> Optionality<'a> {
+    fn activated_by(&mut self, (pkg_name, feature): RootFeature<'a>) {
+        if !self.required_by_pkgs.contains(pkg_name) {
+            self.activated_by_features.push((pkg_name, feature));
+        }
+    }
 
-impl Default for Scope<'static> {
-    fn default() -> Self {
-        Self {
-            crates: "rustPackages",
-            build_crates: "buildRustPackages",
-            root_features: "rootFeatures",
-            expand_features: "expandFeatures",
-            release: "release",
-            profiles: "profiles",
-            mk_rust_crate: "mkRustCrate",
-            fetch_crate_crates_io: "fetchCratesIo",
-            fetch_crate_git: "fetchCrateGit",
-            fetch_crate_local: "fetchCrateLocal",
-            optional: "lib.optional",
-            host_platform: "hostPlatform",
+    fn required_by(&mut self, pkg_name: PackageName<'a>) {
+        self.required_by_pkgs.insert(pkg_name);
+    }
+
+    fn to_expr(&self, root_features_var: &str, n_root_pkgs: usize) -> BoolExpr {
+        use self::BoolExpr::*;
+        if self.required_by_pkgs.len() == n_root_pkgs {
+            // Required by all root packages, no conditioning needed.
+            True
+        } else {
+            BoolExpr::ors(
+                self.activated_by_features
+                    .iter()
+                    .map(|root_feature| {
+                        Single(format!(
+                            "{} ? {:?}",
+                            root_features_var,
+                            display_root_feature(*root_feature)
+                        ))
+                    })
+                    .chain(
+                        self.required_by_pkgs.iter().map(|pkg_name| {
+                            Single(format!("{} ? {:?}", root_features_var, pkg_name))
+                        }),
+                    ),
+            )
         }
     }
 }
@@ -550,43 +594,6 @@ fn write_source_nix<W: Write>(
     }
 }
 
-impl<'a> Optionality<'a> {
-    fn activated_by(&mut self, (pkg_name, feature): RootFeature<'a>) {
-        if !self.required_by_pkgs.contains(pkg_name) {
-            self.activated_by_features.push((pkg_name, feature));
-        }
-    }
-
-    fn required_by(&mut self, pkg_name: PackageName<'a>) {
-        self.required_by_pkgs.insert(pkg_name);
-    }
-
-    fn to_expr(&self, root_features_var: &str, n_root_pkgs: usize) -> BoolExpr {
-        use self::BoolExpr::*;
-        if self.required_by_pkgs.len() == n_root_pkgs {
-            // Required by all root packages, no conditioning needed.
-            True
-        } else {
-            BoolExpr::ors(
-                self.activated_by_features
-                    .iter()
-                    .map(|root_feature| {
-                        Single(format!(
-                            "{} ? {:?}",
-                            root_features_var,
-                            display_root_feature(*root_feature)
-                        ))
-                    })
-                    .chain(
-                        self.required_by_pkgs.iter().map(|pkg_name| {
-                            Single(format!("{} ? {:?}", root_features_var, pkg_name))
-                        }),
-                    ),
-            )
-        }
-    }
-}
-
 fn display_root_feature((pkg_name, feature): RootFeature) -> String {
     format!("{}/{}", pkg_name, feature)
 }
@@ -603,20 +610,16 @@ fn display_source_id(id: SourceId) -> impl fmt::Display {
     })
 }
 
-fn display_pkg_id(id: PackageId) -> impl fmt::Display {
+fn display_pkg_id_nix(id: PackageId) -> impl fmt::Display {
     DisplayFn(move |f: &mut fmt::Formatter| {
         write!(
             f,
-            "{} {} {}",
+            "{:?}.{}.{:?}",
+            display_source_id(id.source_id()).to_string(),
             id.name(),
-            id.version(),
-            display_source_id(id.source_id())
+            id.version().to_string(),
         )
     })
-}
-
-fn is_proc_macro(p: &Package) -> bool {
-    p.targets().iter().any(|t| t.proc_macro())
 }
 
 fn display_profiles_nix(profiles: &toml::value::Table) -> impl '_ + fmt::Display {

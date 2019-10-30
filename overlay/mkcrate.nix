@@ -11,7 +11,6 @@
 }:
 { # The second argument is provided by code generation.
   release, # Compiling in release profile?
-  packageId,
   name,
   version,
   registry,
