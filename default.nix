@@ -62,6 +62,8 @@ let
 
   # define source location
   resolver = let version' = version; in { source, name, version, ... }: {
+    # The naming convention here is <registry>.<crateName>.<version>
+    # Local crates (anything outside of crates.io) will have a <registry> of "unknown"
     unknown.cargo2nix.${version'} = pkgs.rustBuilder.rustLib.cleanLocalSource srcFilter ./.;
   }.${source}.${name}.${version};
 
