@@ -634,15 +634,11 @@ fn display_profiles_nix(profiles: &toml::value::Table) -> impl '_ + fmt::Display
 fn display_default_features_nix<'a>(pkgs: &'a [&Package]) -> impl 'a + fmt::Display {
     DisplayFn(move |f: &mut fmt::Formatter| {
         let mut f = Indented::new(f);
-        writeln!(f, "{{ ")?;
+        writeln!(f, "[")?;
         for pkg in pkgs.iter() {
-            writeln!(
-                f.indent(2),
-                "{:?} = {{ }};",
-                format!("{}/default", pkg.name())
-            )?;
+            writeln!(f.indent(2), "{:?} ", format!("{}/default", pkg.name()))?;
         }
-        write!(f, "}}")
+        write!(f, "]")
     })
 }
 

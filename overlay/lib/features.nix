@@ -8,6 +8,6 @@ let
       features: listToAttrs
         (map (feature: { name = feature; value = { }; })
           (concatMap (feature: [ feature (builtins.head (splitString "/" feature)) ])
-            (attrNames features)));
+            features));
 in
   { inherit expandFeatures; }
