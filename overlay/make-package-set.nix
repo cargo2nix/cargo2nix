@@ -15,11 +15,12 @@ args@{
 lib.fix' (self:
   let
     rustPackages = self;
-    buildRustPackages = if args.buildRustPackages == null then self else rustPackages;
+    hasBuildRustPackages = args ? buildRustPackages && args.buildRustPackages != null;
+    buildRustPackages = if hasBuildRustPackages then args.buildRustPackages else self;
     mkScope = scope:
       let
         prevStage = pkgs.__splicedPackages;
-        scopeSpliced = rustLib.splicePackages (args.buildRustPackages != null) {
+        scopeSpliced = rustLib.splicePackages hasBuildRustPackages {
           pkgsBuildBuild = scope.buildRustPackages.buildRustPackages;
           pkgsBuildHost = scope.buildRustPackages;
           pkgsBuildTarget = {};
