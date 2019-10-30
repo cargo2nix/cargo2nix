@@ -1,8 +1,7 @@
 {
   nixpkgs ? fetchGit {
     url = https://github.com/NixOS/nixpkgs;
-    ref = "release-19.09";
-    rev = "63cdd9bd317e15e4a4f42dde455c73383ded1b41";
+    rev = "47b551c6a854a049045455f8ab1b8750e7b00625";
   },
   nixpkgsMozilla ? fetchGit {
     url = https://github.com/mozilla/nixpkgs-mozilla;
@@ -13,6 +12,7 @@
   crossSystem ? (import nixpkgs {}).lib.systems.examples.musl64,
 }:
 let
+  # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.
   pkgs = import nixpkgs {
     inherit system crossSystem;
     overlays =
@@ -24,18 +24,25 @@ let
   };
   inherit (pkgs) lib buildPackages;
 
-  rustChannel = buildPackages.rustChannelOf {
-    channel = "1.37.0";
-  };
-  inherit (rustChannel) cargo;
-  rustc = rustChannel.rust.override {
-    targets = [
-      (pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.targetPlatform)
-    ];
-  };
-
-  packageFun = import ./Cargo.nix;
-  rustPackageConfig =
+  # 2. Configure environments for building crates.
+  # `rustPackageConfig` takes a package set and returns a set describing additional dependencies for building
+  # crates with that package set.
+  # The returned set should be of the form:
+  # {
+  #   <input> = {
+  #     <package_id> = {};
+  #     <package_id> = {};
+  #   };
+  # }
+  # where
+  # `<input>` is one of:
+  # - `environment: a set of environment variables available at build time.
+  # - `buildInputs`, `nativeBuildInputs`: similar to the `stdenv.mkDerivation` counter parts.
+  # - `rustcflags`: a list of extra flags that are passed to `rustc` when building the crate.
+  # - `rustcBuildFlags`: a list of extra flags that are passed to `rustc` when building the crate's build script (`build.rs`).
+  #
+  # `<package_id>` follows the convention `<registry>.<crate>.<version>` as mentioned in `README`.
+  rustPackageConfig = pkgs:
     let
       darwinFrameworks = lib.optionals pkgs.hostPlatform.isDarwin
         (with pkgs.darwin.apple_sdk.frameworks; [ Security CoreServices ]);
@@ -65,9 +72,7 @@ let
               }).overrideAttrs (drv: {
                 installTargets = "install_sw";
                 outputs = [ "dev" "out" "bin" ];
-                postInstall = builtins.replaceStrings ["rm -r " "rmdir "] ["rm -rf " "rm -rf "] drv.postInstall;
               });
-
               joinOpenssl = openssl: buildPackages.symlinkJoin {
                 name = "openssl"; paths = with openssl; [ out dev ];
               };
@@ -80,11 +85,30 @@ let
         };
       };
 
-  rustPkgs = pkgs.rustBuilder.makePackageSet {
-    inherit cargo rustc packageFun rustPackageConfig;
-    buildRustPackages = buildPackages.rustBuilder.makePackageSet {
-      inherit cargo rustc packageFun rustPackageConfig;
-    };
+  # 3. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
+  # `makePackageSet'` accepts the following arguments:
+  # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
+  # - `rustChannel` (required): The Rust channel used to build the package set.
+  # - `rustPackageConfig` (optional): See above.
+  # - `localPatterns` (optional):
+  #     A list of regular expressions that specify what should be included in the sources of your workspace's crates.
+  #     The expressions are relative to each crate's manifest directory.
+  #     This argument is optional and defaults to include the `src` directory and all `toml` files at the root of the manifest directory.
+  # - `rootFeatures` (optional):
+  #     A list of activated features on your workspace's crates.
+  #     Each feature should be of the form `<crate_name>[/<feature>]`.
+  #     If `/<feature>` is omitted, the crate is activated with no default features.
+  # - `release` (optional): Whether to enable release mode (equivalent to `cargo build --release`), defaults to `true`.
+  rustPkgs = pkgs.rustBuilder.makePackageSet' {
+    inherit rustPackageConfig;
+    rustChannel = "1.37";
+    packageFun = import ./Cargo.nix;
   };
 in
-  rustPkgs."unknown".cargo2nix."0.4.0" { compileMode = "test"; }
+  # `rustPkgs` now contains all crates in the dependency graph.
+  # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.
+  # To build test binaries (equivalent to `cargo build --tests`), use
+  #   `rustPkgs.<registry>.<crate>.<version> { complieMode = "test"; }`.
+  # To build bench binaries (equivalent to `cargo build --benches`), use
+  #   `rustPkgs.<registry>.<crate>.<version> { complieMode = "bench"; }`.
+  rustPkgs."unknown".cargo2nix."0.4.0" { }

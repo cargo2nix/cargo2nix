@@ -2,7 +2,7 @@ args@{
   rustLib,
   pkgs,
   packageFun,
-  rustPackageConfig,
+  rustPackageConfig ? { },
   stdenv,
   lib,
   cargo,

@@ -4,9 +4,9 @@ let
 in
 args@{
   release ? true,
-  rootFeatures ? { 
-    "cargo2nix/default" = { };
-  },
+  rootFeatures ? [
+    "cargo2nix/default" 
+  ],
   rustPackages,
   buildRustPackages,
   mkRustCrate,
@@ -37,7 +37,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Remi Rampin <remirampin@gmail.com>\"]\ndescription = \"Minimal Adler32 implementation for Rust.\"\ndocumentation = \"https://remram44.github.io/adler32-rs/index.html\"\nkeywords = [\"adler32\", \"hash\", \"rolling\"]\nlicense = \"Zlib\"\nname = \"adler32\"\nreadme = \"README.md\"\nrepository = \"https://github.com/remram44/adler32-rs\"\nversion = \"1.0.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" = mkRustCrate {
@@ -61,7 +60,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"aho_corasick\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\nautotests = false\ncategories = [\"text-processing\"]\ndescription = \"Fast multiple substring searching.\"\nexclude = [\"/aho-corasick-debug\", \"/ci/*\", \"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/BurntSushi/aho-corasick\"\nkeywords = [\"string\", \"search\", \"text\", \"aho\", \"multi\"]\nlicense = \"Unlicense/MIT\"\nname = \"aho-corasick\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/aho-corasick\"\nversion = \"0.7.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".ansi_term."0.11.0" = mkRustCrate {
@@ -83,7 +81,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"ansi_term\"\n\n[package]\nauthors = [\"ogham@bsago.me\", \"Ryan Scheel (Havvy) <ryan.havvy@gmail.com>\", \"Josh Triplett <josh@joshtriplett.org>\"]\ndescription = \"Library for ANSI terminal colours and styles (bold, underline)\"\ndocumentation = \"https://docs.rs/ansi_term\"\nhomepage = \"https://github.com/ogham/rust-ansi-term\"\nlicense = \"MIT\"\nname = \"ansi_term\"\nreadme = \"README.md\"\nversion = \"0.11.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" = mkRustCrate {
@@ -106,7 +103,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"softprops <d.tangren@gmail.com>\"]\ndescription = \"A simple interface for querying atty\"\ndocumentation = \"http://softprops.github.io/atty\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/softprops/atty\"\nkeywords = [\"terminal\", \"tty\", \"isatty\"]\nlicense = \"MIT\"\nname = \"atty\"\nreadme = \"README.md\"\nrepository = \"https://github.com/softprops/atty\"\nversion = \"0.2.13\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.7" = mkRustCrate {
@@ -127,7 +123,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Josh Stone <cuviper@gmail.com>\"]\ncategories = [\"development-tools::build-utils\"]\ndescription = \"Automatic cfg for Rust compiler features\"\nkeywords = [\"rustc\", \"build\", \"autoconf\"]\nlicense = \"Apache-2.0/MIT\"\nname = \"autocfg\"\nreadme = \"README.md\"\nrepository = \"https://github.com/cuviper/autocfg\"\nversion = \"0.1.7\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.40" = mkRustCrate {
@@ -159,7 +154,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[example]]\nname = \"backtrace\"\nrequired-features = [\"std\"]\n\n[[example]]\nname = \"raw\"\nrequired-features = [\"std\"]\n\n[[test]]\nname = \"skip_inner_frames\"\nrequired-features = [\"std\"]\n\n[[test]]\nname = \"long_fn_name\"\nrequired-features = [\"std\"]\n\n[[test]]\nedition = \"2018\"\nname = \"smoke\"\nrequired-features = [\"std\"]\n\n[[test]]\nedition = \"2018\"\nname = \"accuracy\"\nrequired-features = [\"std\", \"dbghelp\", \"libbacktrace\", \"libunwind\"]\n\n[[test]]\nharness = false\nname = \"concurrent-panics\"\nrequired-features = [\"std\"]\n\n[package]\nauthors = [\"The Rust Project Developers\"]\nautoexamples = true\nautotests = true\ndescription = \"A library to acquire a stack trace (backtrace) at runtime in a Rust program.\\n\"\ndocumentation = \"https://docs.rs/backtrace\"\nedition = \"2018\"\nhomepage = \"https://github.com/rust-lang/backtrace-rs\"\nlicense = \"MIT/Apache-2.0\"\nname = \"backtrace\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-lang/backtrace-rs\"\nversion = \"0.3.40\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.32" = mkRustCrate {
@@ -182,7 +176,6 @@ in
     buildDependencies = {
       cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\nbuild = \"build.rs\"\ndescription = \"Bindings to the libbacktrace gcc library\\n\"\ndocumentation = \"http://alexcrichton.com/backtrace-rs\"\nhomepage = \"https://github.com/alexcrichton/backtrace-rs\"\nlicense = \"MIT/Apache-2.0\"\nname = \"backtrace-sys\"\nrepository = \"https://github.com/alexcrichton/backtrace-rs\"\nversion = \"0.1.32\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" = mkRustCrate {
@@ -204,7 +197,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rust Project Developers\"]\nbuild = \"build.rs\"\ncategories = [\"no-std\"]\ndescription = \"A macro to generate structures which behave like bitflags.\\n\"\ndocumentation = \"https://docs.rs/bitflags\"\nexclude = [\".travis.yml\", \"appveyor.yml\", \"bors.toml\"]\nhomepage = \"https://github.com/bitflags/bitflags\"\nkeywords = [\"bit\", \"bitmask\", \"bitflags\", \"flags\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"bitflags\"\nreadme = \"README.md\"\nrepository = \"https://github.com/bitflags/bitflags\"\nversion = \"1.2.1\"\n[package.metadata.docs.rs]\nfeatures = [\"example_generated\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".bstr."0.2.8" = mkRustCrate {
@@ -227,7 +219,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ncategories = [\"text-processing\", \"encoding\"]\ndescription = \"A string type that is not required to be valid UTF-8.\"\ndocumentation = \"https://docs.rs/bstr\"\nexclude = [\"/ci/*\", \"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/BurntSushi/bstr\"\nkeywords = [\"string\", \"str\", \"byte\", \"bytes\", \"text\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"bstr\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/bstr\"\nversion = \"0.2.8\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" = mkRustCrate {
@@ -250,7 +241,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\nname = \"byteorder\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\nbuild = \"build.rs\"\ncategories = [\"encoding\", \"parsing\"]\ndescription = \"Library for reading/writing numbers in big-endian and little-endian.\"\ndocumentation = \"https://docs.rs/byteorder\"\nexclude = [\"/ci/*\"]\nhomepage = \"https://github.com/BurntSushi/byteorder\"\nkeywords = [\"byte\", \"endian\", \"big-endian\", \"little-endian\", \"binary\"]\nlicense = \"Unlicense OR MIT\"\nname = \"byteorder\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/byteorder\"\nversion = \"1.3.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".bytes."0.4.12" = mkRustCrate {
@@ -273,7 +263,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Carl Lerche <me@carllerche.com>\"]\ncategories = [\"network-programming\", \"data-structures\"]\ndescription = \"Types and traits for working with bytes\"\ndocumentation = \"https://docs.rs/bytes/0.4.12/bytes\"\nexclude = [\".gitignore\", \".travis.yml\", \"deploy.sh\", \"bench/**/*\", \"test/**/*\"]\nhomepage = \"https://github.com/carllerche/bytes\"\nkeywords = [\"buffers\", \"zero-copy\", \"io\"]\nlicense = \"MIT\"\nname = \"bytes\"\nreadme = \"README.md\"\nrepository = \"https://github.com/carllerche/bytes\"\nversion = \"0.4.12\"\n[package.metadata.docs.rs]\nfeatures = [\"i128\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".bytesize."1.0.0" = mkRustCrate {
@@ -294,7 +283,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Hyunsik Choi <hyunsik.choi@gmail.com>\"]\ndescription = \"an utility for human-readable bytes representations\"\ndocumentation = \"https://docs.rs/bytesize/\"\nhomepage = \"https://github.com/hyunsik/bytesize/\"\nkeywords = [\"byte\", \"byte-size\", \"utility\", \"human-readable\", \"format\"]\nlicense = \"Apache-2.0\"\nname = \"bytesize\"\nreadme = \"README.md\"\nrepository = \"https://github.com/hyunsik/bytesize/\"\nversion = \"1.0.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".c2-chacha."0.2.3" = mkRustCrate {
@@ -318,7 +306,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The CryptoCorrosion Contributors\"]\ncategories = [\"cryptography\", \"no-std\"]\ndescription = \"The ChaCha family of stream ciphers\"\ndocumentation = \"https://docs.rs/c2-chacha\"\nedition = \"2018\"\nkeywords = [\"chacha\", \"chacha20\", \"xchacha20\", \"cipher\", \"crypto\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"c2-chacha\"\nreadme = \"README.md\"\nrepository = \"https://github.com/cryptocorrosion/cryptocorrosion\"\nversion = \"0.2.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".cargo."0.39.0" = mkRustCrate {
@@ -390,7 +377,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[bin]]\ndoc = false\nname = \"cargo\"\ntest = false\n\n[lib]\nname = \"cargo\"\npath = \"src/cargo/lib.rs\"\n\n[package]\nauthors = [\"Yehuda Katz <wycats@gmail.com>\", \"Carl Lerche <me@carllerche.com>\", \"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Cargo, a package manager for Rust.\\n\"\ndocumentation = \"https://docs.rs/cargo\"\nedition = \"2018\"\nhomepage = \"https://crates.io\"\nlicense = \"MIT OR Apache-2.0\"\nname = \"cargo\"\nrepository = \"https://github.com/rust-lang/cargo\"\nversion = \"0.39.0\"\n";
   };
   
   "unknown".cargo2nix."0.4.0" = mkRustCrate {
@@ -414,7 +400,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nedition = \"2018\"\nlicense = \"MIT\"\nname = \"cargo2nix\"\nversion = \"0.4.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" = mkRustCrate {
@@ -435,7 +420,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ncategories = [\"development-tools::build-utils\"]\ndescription = \"A build-time dependency for Cargo build scripts to assist in invoking the native\\nC compiler to compile native C code into a static archive to be linked into Rust\\ncode.\\n\"\ndocumentation = \"https://docs.rs/cc\"\nedition = \"2018\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/alexcrichton/cc-rs\"\nkeywords = [\"build-dependencies\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"cc\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/cc-rs\"\nversion = \"1.0.46\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" = mkRustCrate {
@@ -456,7 +440,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"A macro to ergonomically define an item depending on a large number of #[cfg]\\nparameters. Structured like an if-else chain, the first matching branch is the\\nitem that gets emitted.\\n\"\ndocumentation = \"https://docs.rs/cfg-if\"\nedition = \"2018\"\nhomepage = \"https://github.com/alexcrichton/cfg-if\"\nlicense = \"MIT/Apache-2.0\"\nname = \"cfg-if\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/cfg-if\"\nversion = \"0.1.10\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".clap."2.33.0" = mkRustCrate {
@@ -491,7 +474,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Kevin K. <kbknapp@gmail.com>\"]\ncategories = [\"command-line-interface\"]\ndescription = \"A simple to use, efficient, and full-featured Command Line Argument Parser\\n\"\ndocumentation = \"https://docs.rs/clap/\"\nexclude = [\"examples/*\", \"clap-test/*\", \"tests/*\", \"benches/*\", \"*.png\", \"clap-perf/*\", \"*.dot\"]\nhomepage = \"https://clap.rs/\"\nkeywords = [\"argument\", \"cli\", \"arg\", \"parser\", \"parse\"]\nlicense = \"MIT\"\nname = \"clap\"\nreadme = \"README.md\"\nrepository = \"https://github.com/clap-rs/clap\"\nversion = \"2.33.0\"\n[package.metadata.docs.rs]\nfeatures = [\"doc\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".commoncrypto."0.2.0" = mkRustCrate {
@@ -513,7 +495,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Mark Lee\"]\ndescription = \"Idiomatic Rust wrappers for Mac OS X\'s CommonCrypto library\"\ndocumentation = \"https://docs.rs/commoncrypto\"\nkeywords = [\"crypto\", \"hash\", \"digest\", \"osx\", \"commoncrypto\"]\nlicense = \"MIT\"\nname = \"commoncrypto\"\nrepository = \"https://github.com/malept/rust-commoncrypto\"\nversion = \"0.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".commoncrypto-sys."0.2.0" = mkRustCrate {
@@ -535,7 +516,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Mark Lee\"]\ndescription = \"FFI bindings to Mac OS X\'s CommonCrypto library\"\ndocumentation = \"https://docs.rs/commoncrypto-sys\"\nkeywords = [\"crypto\", \"hash\", \"digest\", \"osx\", \"commoncrypto\"]\nlicense = \"MIT\"\nname = \"commoncrypto-sys\"\nrepository = \"https://github.com/malept/rust-commoncrypto\"\nversion = \"0.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".core-foundation."0.6.4" = mkRustCrate {
@@ -559,7 +539,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Servo Project Developers\"]\ncategories = [\"os::macos-apis\"]\ndescription = \"Bindings to Core Foundation for macOS\"\nhomepage = \"https://github.com/servo/core-foundation-rs\"\nkeywords = [\"macos\", \"framework\", \"objc\"]\nlicense = \"MIT / Apache-2.0\"\nname = \"core-foundation\"\nrepository = \"https://github.com/servo/core-foundation-rs\"\nversion = \"0.6.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".core-foundation-sys."0.6.2" = mkRustCrate {
@@ -581,7 +560,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Servo Project Developers\"]\nbuild = \"build.rs\"\ndescription = \"Bindings to Core Foundation for OS X\"\nhomepage = \"https://github.com/servo/core-foundation-rs\"\nlicense = \"MIT / Apache-2.0\"\nname = \"core-foundation-sys\"\nrepository = \"https://github.com/servo/core-foundation-rs\"\nversion = \"0.6.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".crates-io."0.27.0" = mkRustCrate {
@@ -609,7 +587,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"crates_io\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Helpers for interacting with crates.io\\n\"\nedition = \"2018\"\nlicense = \"MIT OR Apache-2.0\"\nname = \"crates-io\"\nrepository = \"https://github.com/rust-lang/cargo\"\nversion = \"0.27.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".crc32fast."1.2.0" = mkRustCrate {
@@ -633,7 +610,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[bench]]\nharness = false\nname = \"bench\"\n\n[package]\nauthors = [\"Sam Rijs <srijs@airpost.net>\", \"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Fast, SIMD-accelerated CRC32 (IEEE) checksum computation\"\nkeywords = [\"checksum\", \"crc\", \"crc32\", \"simd\", \"fast\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"crc32fast\"\nreadme = \"README.md\"\nrepository = \"https://github.com/srijs/rust-crc32fast\"\nversion = \"1.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.9" = mkRustCrate {
@@ -655,7 +631,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Crossbeam Project Developers\"]\ncategories = [\"algorithms\", \"concurrency\", \"data-structures\"]\ndescription = \"Multi-producer multi-consumer channels for message passing\"\ndocumentation = \"https://docs.rs/crossbeam-channel\"\nhomepage = \"https://github.com/crossbeam-rs/crossbeam/tree/master/crossbeam-channel\"\nkeywords = [\"channel\", \"mpmc\", \"select\", \"golang\", \"message\"]\nlicense = \"MIT/Apache-2.0 AND BSD-2-Clause\"\nname = \"crossbeam-channel\"\nreadme = \"README.md\"\nrepository = \"https://github.com/crossbeam-rs/crossbeam\"\nversion = \"0.3.9\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" = mkRustCrate {
@@ -681,7 +656,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Crossbeam Project Developers\"]\ncategories = [\"algorithms\", \"concurrency\", \"data-structures\", \"no-std\"]\ndescription = \"Utilities for concurrent programming\"\ndocumentation = \"https://docs.rs/crossbeam-utils\"\nhomepage = \"https://github.com/crossbeam-rs/crossbeam/tree/master/crossbeam-utils\"\nkeywords = [\"scoped\", \"thread\", \"atomic\", \"cache\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"crossbeam-utils\"\nreadme = \"README.md\"\nrepository = \"https://github.com/crossbeam-rs/crossbeam\"\nversion = \"0.6.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.4" = mkRustCrate {
@@ -706,7 +680,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Mark Lee\"]\ndescription = \"A wrapper for OS-level cryptographic hash functions\"\ndocumentation = \"https://docs.rs/crypto-hash\"\nexclude = [\".*.yml\", \"ci/*\"]\nkeywords = [\"crypto\", \"hash\", \"digest\"]\nlicense = \"MIT\"\nname = \"crypto-hash\"\nreadme = \"README.md\"\nrepository = \"https://github.com/malept/crypto-hash\"\nversion = \"0.3.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" = mkRustCrate {
@@ -739,7 +712,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"atexit\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\nautotests = true\ncategories = [\"api-bindings\", \"web-programming::http-client\"]\ndescription = \"Rust bindings to libcurl for making HTTP requests\"\ndocumentation = \"https://docs.rs/curl\"\nhomepage = \"https://github.com/alexcrichton/curl-rust\"\nlicense = \"MIT\"\nname = \"curl\"\nrepository = \"https://github.com/alexcrichton/curl-rust\"\nversion = \"0.4.25\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" = mkRustCrate {
@@ -773,7 +745,6 @@ in
       pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
       ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"curl_sys\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\nbuild = \"build.rs\"\ncategories = [\"external-ffi-bindings\"]\ndescription = \"Native bindings to the libcurl library\"\ndocumentation = \"https://docs.rs/curl-sys\"\nlicense = \"MIT\"\nlinks = \"curl\"\nname = \"curl-sys\"\nrepository = \"https://github.com/alexcrichton/curl-rust\"\nversion = \"0.4.23\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".env_logger."0.6.2" = mkRustCrate {
@@ -804,7 +775,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"regexp_filter\"\n\n[[test]]\nharness = false\nname = \"log-in-log\"\n\n[[test]]\nharness = false\nname = \"init-twice-retains-filter\"\n\n[package]\nauthors = [\"The Rust Project Developers\"]\ncategories = [\"development-tools::debugging\"]\ndescription = \"A logging implementation for `log` which is configured via an environment\\nvariable.\\n\"\ndocumentation = \"https://docs.rs/env_logger\"\nkeywords = [\"logging\", \"log\", \"logger\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"env_logger\"\nreadme = \"README.md\"\nrepository = \"https://github.com/sebasmagri/env_logger/\"\nversion = \"0.6.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" = mkRustCrate {
@@ -832,7 +802,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Without Boats <boats@mozilla.com>\"]\ndescription = \"Experimental error handling abstraction.\"\ndocumentation = \"https://docs.rs/failure\"\nhomepage = \"https://rust-lang-nursery.github.io/failure/\"\nlicense = \"MIT OR Apache-2.0\"\nname = \"failure\"\nrepository = \"https://github.com/rust-lang-nursery/failure\"\nversion = \"0.1.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".failure_derive."0.1.6" = mkRustCrate {
@@ -857,7 +826,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nproc-macro = true\n\n[package]\nauthors = [\"Without Boats <woboats@gmail.com>\"]\nbuild = \"build.rs\"\ndescription = \"derives for the failure crate\"\ndocumentation = \"https://docs.rs/failure\"\nhomepage = \"https://rust-lang-nursery.github.io/failure/\"\nlicense = \"MIT OR Apache-2.0\"\nname = \"failure_derive\"\nrepository = \"https://github.com/withoutboats/failure_derive\"\nversion = \"0.1.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" = mkRustCrate {
@@ -882,7 +850,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Platform-agnostic accessors of timestamps in File metadata\\n\"\ndocumentation = \"https://docs.rs/filetime\"\nedition = \"2018\"\nhomepage = \"https://github.com/alexcrichton/filetime\"\nkeywords = [\"timestamp\", \"mtime\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"filetime\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/filetime\"\nversion = \"0.2.7\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.12" = mkRustCrate {
@@ -913,7 +880,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ncategories = [\"compression\", \"api-bindings\"]\ndescription = \"Bindings to miniz.c for DEFLATE compression and decompression exposed as\\nReader/Writer streams. Contains bindings for zlib, deflate, and gzip-based\\nstreams.\\n\"\ndocumentation = \"https://docs.rs/flate2\"\nedition = \"2018\"\nhomepage = \"https://github.com/alexcrichton/flate2-rs\"\nkeywords = [\"gzip\", \"flate\", \"zlib\", \"encoding\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"flate2\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/flate2-rs\"\nversion = \"1.0.12\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" = mkRustCrate {
@@ -934,7 +900,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"fnv\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Fowler–Noll–Vo hash function\"\ndocumentation = \"https://doc.servo.org/fnv/\"\nlicense = \"Apache-2.0 / MIT\"\nname = \"fnv\"\nreadme = \"README.md\"\nrepository = \"https://github.com/servo/rust-fnv\"\nversion = \"1.0.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".foreign-types."0.3.2" = mkRustCrate {
@@ -956,7 +921,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steven Fackler <sfackler@gmail.com>\"]\ndescription = \"A framework for Rust wrappers over C APIs\"\nlicense = \"MIT/Apache-2.0\"\nname = \"foreign-types\"\nreadme = \"README.md\"\nrepository = \"https://github.com/sfackler/foreign-types\"\nversion = \"0.3.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".foreign-types-shared."0.1.1" = mkRustCrate {
@@ -977,7 +941,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steven Fackler <sfackler@gmail.com>\"]\ndescription = \"An internal crate used by foreign-types\"\nlicense = \"MIT/Apache-2.0\"\nname = \"foreign-types-shared\"\nrepository = \"https://github.com/sfackler/foreign-types\"\nversion = \"0.1.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".fs2."0.4.3" = mkRustCrate {
@@ -1000,7 +963,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Dan Burkert <dan@danburkert.com>\"]\ndescription = \"Cross-platform file locks and file duplication.\"\ndocumentation = \"https://docs.rs/fs2\"\nkeywords = [\"file\", \"file-system\", \"lock\", \"duplicate\", \"flock\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"fs2\"\nrepository = \"https://github.com/danburkert/fs2-rs\"\nversion = \"0.4.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".fwdansi."1.0.1" = mkRustCrate {
@@ -1023,7 +985,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"kennytm <kennytm@gmail.com>\"]\ncategories = [\"command-line-interface\"]\ndescription = \"Forwards a byte string with ANSI escape code to a termcolor terminal\"\nkeywords = [\"ansi\", \"windows\", \"console\", \"terminal\", \"color\"]\nlicense = \"MIT\"\nname = \"fwdansi\"\nrepository = \"https://github.com/kennytm/fwdansi\"\nversion = \"1.0.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" = mkRustCrate {
@@ -1048,7 +1009,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rand Project Developers\"]\ncategories = [\"os\", \"no-std\"]\ndescription = \"A small cross-platform library for retrieving random data from system source\"\ndocumentation = \"https://docs.rs/getrandom\"\nedition = \"2018\"\nexclude = [\"utils/*\", \".*\", \"appveyor.yml\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"getrandom\"\nrepository = \"https://github.com/rust-random/getrandom\"\nversion = \"0.1.12\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" = mkRustCrate {
@@ -1082,7 +1042,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Josh Triplett <josh@joshtriplett.org>\", \"Alex Crichton <alex@alexcrichton.com>\"]\ncategories = [\"api-bindings\"]\ndescription = \"Bindings to libgit2 for interoperating with git repositories. This library is\\nboth threadsafe and memory safe and allows both reading and writing git\\nrepositories.\\n\"\ndocumentation = \"https://docs.rs/git2\"\nedition = \"2018\"\nkeywords = [\"git\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"git2\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-lang/git2-rs\"\nversion = \"0.9.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".git2-curl."0.10.1" = mkRustCrate {
@@ -1107,7 +1066,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"all\"\n\n[package]\nauthors = [\"Josh Triplett <josh@joshtriplett.org>\", \"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Backend for an HTTP transport in libgit2 powered by libcurl.\\n\\nIntended to be used with the git2 crate.\\n\"\ndocumentation = \"https://docs.rs/git2-curl\"\nedition = \"2018\"\nlicense = \"MIT/Apache-2.0\"\nname = \"git2-curl\"\nrepository = \"https://github.com/rust-lang/git2-rs\"\nversion = \"0.10.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".glob."0.3.0" = mkRustCrate {
@@ -1128,7 +1086,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rust Project Developers\"]\ncategories = [\"filesystem\"]\ndescription = \"Support for matching file paths against Unix shell style patterns.\\n\"\ndocumentation = \"https://docs.rs/glob/0.3.0\"\nhomepage = \"https://github.com/rust-lang/glob\"\nlicense = \"MIT/Apache-2.0\"\nname = \"glob\"\nrepository = \"https://github.com/rust-lang/glob\"\nversion = \"0.3.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".globset."0.4.4" = mkRustCrate {
@@ -1154,7 +1111,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\nname = \"globset\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ndescription = \"Cross platform single glob and glob set matching. Glob set matching is the\\nprocess of matching one or more glob patterns against a single candidate path\\nsimultaneously, and returning all of the globs that matched.\\n\"\ndocumentation = \"https://docs.rs/globset\"\nhomepage = \"https://github.com/BurntSushi/ripgrep/tree/master/globset\"\nkeywords = [\"regex\", \"glob\", \"multiple\", \"set\", \"pattern\"]\nlicense = \"Unlicense/MIT\"\nname = \"globset\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/ripgrep/tree/master/globset\"\nversion = \"0.4.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" = mkRustCrate {
@@ -1175,7 +1131,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"KokaKiwi <kokakiwi@kokakiwi.net>\"]\ndescription = \"Encoding and decoding data into/from hexadecimal representation.\"\ndocumentation = \"https://docs.rs/hex/\"\nlicense = \"MIT OR Apache-2.0\"\nname = \"hex\"\nrepository = \"https://github.com/KokaKiwi/rust-hex\"\nversion = \"0.3.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".home."0.3.4" = mkRustCrate {
@@ -1198,7 +1153,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Brian Anderson <andersrb@gmail.com>\"]\ndescription = \"Shared definitions of home directories\"\ndocumentation = \"https://docs.rs/home\"\nlicense = \"MIT/Apache-2.0\"\nname = \"home\"\nrepository = \"https://github.com/brson/home\"\nversion = \"0.3.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".http."0.1.19" = mkRustCrate {
@@ -1222,7 +1176,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[bench]]\nname = \"header_map\"\npath = \"benches/header_map/mod.rs\"\n\n[[bench]]\nname = \"header_name\"\npath = \"benches/header_name.rs\"\n\n[[bench]]\nname = \"header_value\"\npath = \"benches/header_value.rs\"\n\n[[bench]]\nname = \"uri\"\npath = \"benches/uri.rs\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\", \"Carl Lerche <me@carllerche.com>\", \"Sean McArthur <sean@seanmonstar.com>\"]\ncategories = [\"web-programming\"]\ndescription = \"A set of types for representing HTTP requests and responses.\\n\"\ndocumentation = \"https://docs.rs/http\"\nkeywords = [\"http\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"http\"\nreadme = \"README.md\"\nrepository = \"https://github.com/hyperium/http\"\nversion = \"0.1.19\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".humantime."1.3.0" = mkRustCrate {
@@ -1244,7 +1197,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"humantime\"\npath = \"src/lib.rs\"\n\n[package]\nauthors = [\"Paul Colomiets <paul@colomiets.name>\"]\ncategories = [\"date-and-time\"]\ndescription = \"    A parser and formatter for std::time::{Duration, SystemTime}\\n\"\ndocumentation = \"https://docs.rs/humantime\"\nhomepage = \"https://github.com/tailhook/humantime\"\nkeywords = [\"time\", \"human\", \"human-friendly\", \"parser\", \"duration\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"humantime\"\nreadme = \"README.md\"\nversion = \"1.3.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".idna."0.1.5" = mkRustCrate {
@@ -1268,7 +1220,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"tests\"\n\n[[test]]\nname = \"unit\"\n\n[lib]\ndoctest = false\ntest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\ndescription = \"IDNA (Internationalizing Domain Names in Applications) and Punycode.\"\nlicense = \"MIT/Apache-2.0\"\nname = \"idna\"\nrepository = \"https://github.com/servo/rust-url/\"\nversion = \"0.1.5\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".idna."0.2.0" = mkRustCrate {
@@ -1292,7 +1243,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"tests\"\n\n[[test]]\nname = \"unit\"\n\n[lib]\ndoctest = false\ntest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\nautotests = false\ndescription = \"IDNA (Internationalizing Domain Names in Applications) and Punycode.\"\nlicense = \"MIT/Apache-2.0\"\nname = \"idna\"\nrepository = \"https://github.com/servo/rust-url/\"\nversion = \"0.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.10" = mkRustCrate {
@@ -1323,7 +1273,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\nname = \"ignore\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ndescription = \"A fast library for efficiently matching ignore files such as `.gitignore`\\nagainst file paths.\\n\"\ndocumentation = \"https://docs.rs/ignore\"\nhomepage = \"https://github.com/BurntSushi/ripgrep/tree/master/ignore\"\nkeywords = [\"glob\", \"ignore\", \"gitignore\", \"pattern\", \"file\"]\nlicense = \"Unlicense/MIT\"\nname = \"ignore\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/ripgrep/tree/master/ignore\"\nversion = \"0.4.10\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".im-rc."13.0.0" = mkRustCrate {
@@ -1347,7 +1296,6 @@ in
     buildDependencies = {
       rustc_version = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" { };
     };
-    manifest = builtins.fromTOML "[lib]\npath = \"./src/lib.rs\"\n\n[package]\nauthors = [\"Bodil Stokke <bodil@bodil.org>\"]\nbuild = \"./build.rs\"\ncategories = [\"data-structures\"]\ndescription = \"Immutable collection datatypes (the fast but not thread safe version)\"\ndocumentation = \"http://immutable.rs/\"\nedition = \"2018\"\nhomepage = \"http://immutable.rs/\"\nkeywords = [\"immutable\", \"persistent\", \"hamt\", \"b-tree\", \"rrb-tree\"]\nlicense = \"MPL-2.0+\"\nname = \"im-rc\"\nreadme = \"../../README.md\"\nrepository = \"https://github.com/bodil/im-rs\"\nversion = \"13.0.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".iovec."0.1.4" = mkRustCrate {
@@ -1369,7 +1317,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Carl Lerche <me@carllerche.com>\"]\ncategories = [\"network-programming\", \"api-bindings\"]\ndescription = \"Portable buffer type for scatter/gather I/O operations\\n\"\ndocumentation = \"https://docs.rs/iovec\"\nhomepage = \"https://github.com/carllerche/iovec\"\nkeywords = [\"scatter\", \"gather\", \"vectored\", \"io\", \"networking\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"iovec\"\nreadme = \"README.md\"\nrepository = \"https://github.com/carllerche/iovec\"\nversion = \"0.1.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" = mkRustCrate {
@@ -1392,7 +1339,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"David Tolnay <dtolnay@gmail.com>\"]\ncategories = [\"value-formatting\"]\ndescription = \"Fast functions for printing integer primitives to an io::Write\"\ndocumentation = \"https://github.com/dtolnay/itoa\"\nexclude = [\"performance.png\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"itoa\"\nreadme = \"README.md\"\nrepository = \"https://github.com/dtolnay/itoa\"\nversion = \"0.4.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.17" = mkRustCrate {
@@ -1416,7 +1362,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"client\"\npath = \"tests/client.rs\"\n\n[[test]]\nname = \"server\"\npath = \"tests/server.rs\"\n\n[[test]]\nharness = false\nname = \"client-of-myself\"\npath = \"tests/client-of-myself.rs\"\n\n[[test]]\nharness = false\nname = \"make-as-a-client\"\npath = \"tests/make-as-a-client.rs\"\n\n[[test]]\nname = \"helper\"\npath = \"tests/helper.rs\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"An implementation of the GNU make jobserver for Rust\\n\"\ndocumentation = \"https://docs.rs/jobserver\"\nhomepage = \"https://github.com/alexcrichton/jobserver-rs\"\nlicense = \"MIT/Apache-2.0\"\nname = \"jobserver\"\nrepository = \"https://github.com/alexcrichton/jobserver-rs\"\nversion = \"0.1.17\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" = mkRustCrate {
@@ -1437,7 +1382,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Marvin Löbel <loebel.marvin@gmail.com>\"]\ncategories = [\"no-std\", \"rust-patterns\", \"memory-management\"]\ndescription = \"A macro for declaring lazily evaluated statics in Rust.\"\ndocumentation = \"https://docs.rs/lazy_static\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\"]\nkeywords = [\"macro\", \"lazy\", \"static\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"lazy_static\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-lang-nursery/lazy-static.rs\"\nversion = \"1.4.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".lazycell."1.2.1" = mkRustCrate {
@@ -1458,7 +1402,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\", \"Nikita Pekin <contact@nikitapek.in>\"]\ndescription = \"A library providing a lazily filled Cell struct\"\ndocumentation = \"http://indiv0.github.io/lazycell/lazycell/\"\ninclude = [\"CHANGELOG.md\", \"Cargo.toml\", \"LICENSE-MIT\", \"LICENSE-APACHE\", \"README.md\", \"src/**/*.rs\"]\nkeywords = [\"lazycell\", \"lazy\", \"cell\", \"library\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"lazycell\"\nreadme = \"README.md\"\nrepository = \"https://github.com/indiv0/lazycell\"\nversion = \"1.2.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" = mkRustCrate {
@@ -1481,7 +1424,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rust Project Developers\"]\nbuild = \"build.rs\"\ncategories = [\"external-ffi-bindings\", \"no-std\", \"os\"]\ndescription = \"Raw FFI bindings to platform libraries like libc.\\n\"\ndocumentation = \"http://doc.rust-lang.org/libc\"\nexclude = [\"/ci/*\", \"/azure-pipelines.yml\"]\nhomepage = \"https://github.com/rust-lang/libc\"\nkeywords = [\"libc\", \"ffi\", \"bindings\", \"operating\", \"system\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"libc\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-lang/libc\"\nversion = \"0.2.65\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" = mkRustCrate {
@@ -1513,7 +1455,6 @@ in
       cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
       pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"libgit2_sys\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Josh Triplett <josh@joshtriplett.org>\", \"Alex Crichton <alex@alexcrichton.com>\"]\nbuild = \"build.rs\"\ndescription = \"Native bindings to the libgit2 library\"\nedition = \"2018\"\nexclude = [\"libgit2/tests/*\"]\nlicense = \"MIT/Apache-2.0\"\nlinks = \"git2\"\nname = \"libgit2-sys\"\nrepository = \"https://github.com/rust-lang/git2-rs\"\nversion = \"0.8.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.2" = mkRustCrate {
@@ -1536,7 +1477,6 @@ in
     buildDependencies = {
       cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
     };
-    manifest = builtins.fromTOML "[lib]\ndoctest = false\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"FFI bindings for libnghttp2 (nghttp2)\\n\"\nhomepage = \"https://github.com/alexcrichton/nghttp2-rs\"\nlicense = \"MIT/Apache-2.0\"\nlinks = \"nghttp2\"\nname = \"libnghttp2-sys\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/nghttp2-rs\"\nversion = \"0.1.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".libssh2-sys."0.2.13" = mkRustCrate {
@@ -1563,7 +1503,6 @@ in
       pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
       ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"libssh2_sys\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\", \"Wez Furlong <wez@wezfurlong.org>\"]\nbuild = \"build.rs\"\ndescription = \"Native bindings to the libssh2 library\"\nlicense = \"MIT/Apache-2.0\"\nlinks = \"ssh2\"\nname = \"libssh2-sys\"\nrepository = \"https://github.com/alexcrichton/ssh2-rs\"\nversion = \"0.2.13\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" = mkRustCrate {
@@ -1588,7 +1527,6 @@ in
       pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
       ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\nbuild = \"build.rs\"\ncategories = [\"external-ffi-bindings\"]\ndescription = \"Bindings to the system libz library (also known as zlib).\\n\"\ndocumentation = \"https://docs.rs/libz-sys\"\nlicense = \"MIT/Apache-2.0\"\nlinks = \"z\"\nname = \"libz-sys\"\nrepository = \"https://github.com/alexcrichton/libz-sys\"\nversion = \"1.0.25\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" = mkRustCrate {
@@ -1611,7 +1549,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nharness = false\nname = \"filters\"\n\n[package]\nauthors = [\"The Rust Project Developers\"]\nbuild = \"build.rs\"\ncategories = [\"development-tools::debugging\"]\ndescription = \"A lightweight logging facade for Rust\\n\"\ndocumentation = \"https://docs.rs/log\"\nexclude = [\"rfcs/**/*\", \"/.travis.yml\", \"/appveyor.yml\"]\nkeywords = [\"logging\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"log\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-lang/log\"\nversion = \"0.4.8\"\n[package.metadata.docs.rs]\nfeatures = [\"std\", \"serde\", \"kv_unstable_sval\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" = mkRustCrate {
@@ -1632,7 +1569,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"matches\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Simon Sapin <simon.sapin@exyr.org>\"]\ndescription = \"A macro to evaluate, as a boolean, whether an expression matches a pattern.\"\ndocumentation = \"https://docs.rs/matches/\"\nlicense = \"MIT\"\nname = \"matches\"\nrepository = \"https://github.com/SimonSapin/rust-std-candidates\"\nversion = \"0.1.8\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" = mkRustCrate {
@@ -1655,7 +1591,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\nname = \"memchr\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\", \"bluss\"]\ndescription = \"Safe interface to memchr.\"\ndocumentation = \"https://docs.rs/memchr/\"\nexclude = [\"/ci/*\", \"/.travis.yml\", \"/Makefile\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/BurntSushi/rust-memchr\"\nkeywords = [\"memchr\", \"char\", \"scan\", \"strchr\", \"string\"]\nlicense = \"Unlicense/MIT\"\nname = \"memchr\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/rust-memchr\"\nversion = \"2.2.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.3.3" = mkRustCrate {
@@ -1677,7 +1612,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"miniz_oxide\"\n\n[package]\nauthors = [\"Frommi <daniil.liferenko@gmail.com>\", \"oyvindln <oyvindln@users.noreply.github.com>\"]\ncategories = [\"compression\"]\ndescription = \"DEFLATE compression and decompression library rewritten in Rust based on miniz\"\ndocumentation = \"https://docs.rs/miniz_oxide\"\nedition = \"2018\"\nhomepage = \"https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide\"\nkeywords = [\"zlib\", \"miniz\", \"deflate\", \"encoding\"]\nlicense = \"MIT\"\nname = \"miniz_oxide\"\nreadme = \"Readme.md\"\nrepository = \"https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide\"\nversion = \"0.3.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".miow."0.3.3" = mkRustCrate {
@@ -1700,7 +1634,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"A zero overhead I/O library for Windows, focusing on IOCP and Async I/O\\nabstractions.\\n\"\ndocumentation = \"https://docs.rs/miow/0.3/x86_64-pc-windows-msvc/miow/\"\nhomepage = \"https://github.com/alexcrichton/miow\"\nkeywords = [\"iocp\", \"windows\", \"io\", \"overlapped\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"miow\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/miow\"\nversion = \"0.3.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".num_cpus."1.10.1" = mkRustCrate {
@@ -1722,7 +1655,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Sean McArthur <sean@seanmonstar.com>\"]\ncategories = [\"hardware-support\"]\ndescription = \"Get the number of CPUs on a machine.\"\ndocumentation = \"https://docs.rs/num_cpus\"\nkeywords = [\"cpu\", \"cpus\", \"cores\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"num_cpus\"\nreadme = \"README.md\"\nrepository = \"https://github.com/seanmonstar/num_cpus\"\nversion = \"1.10.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".once_cell."1.2.0" = mkRustCrate {
@@ -1745,7 +1677,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[example]]\nname = \"reentrant_init_deadlocks\"\nrequired-features = [\"std\"]\n\n[[example]]\nname = \"bench\"\nrequired-features = [\"std\"]\n\n[[example]]\nname = \"bench_vs_lazy_static\"\nrequired-features = [\"std\"]\n\n[[example]]\nname = \"lazy_static\"\nrequired-features = [\"std\"]\n\n[[example]]\nname = \"regex\"\nrequired-features = [\"std\"]\n\n[package]\nauthors = [\"Aleksey Kladov <aleksey.kladov@gmail.com>\"]\ncategories = [\"rust-patterns\", \"memory-management\"]\ndescription = \"Single assignment cells and lazy values.\"\ndocumentation = \"https://docs.rs/once_cell\"\nedition = \"2018\"\nexclude = [\"*.png\", \"*.svg\", \"/Cargo.lock.min\", \"/.travis.yml\", \"/run-miri-tests.sh\", \"rustfmt.toml\"]\nkeywords = [\"lazy\", \"static\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"once_cell\"\nreadme = \"README.md\"\nrepository = \"https://github.com/matklad/once_cell\"\nversion = \"1.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".opener."0.4.1" = mkRustCrate {
@@ -1767,7 +1698,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Brian Bowman <seeker14491@gmail.com>\"]\ndescription = \"Open a file or link using the system default program.\"\nedition = \"2018\"\nkeywords = [\"open\", \"default\", \"launcher\", \"browser\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"opener\"\nreadme = \"../README.md\"\nrepository = \"https://github.com/Seeker14491/opener\"\nversion = \"0.4.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.25" = mkRustCrate {
@@ -1794,7 +1724,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steven Fackler <sfackler@gmail.com>\"]\ncategories = [\"cryptography\", \"api-bindings\"]\ndescription = \"OpenSSL bindings\"\nkeywords = [\"crypto\", \"tls\", \"ssl\", \"dtls\"]\nlicense = \"Apache-2.0\"\nname = \"openssl\"\nreadme = \"README.md\"\nrepository = \"https://github.com/sfackler/rust-openssl\"\nversion = \"0.10.25\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" = mkRustCrate {
@@ -1815,7 +1744,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Tool for helping to find SSL certificate locations on the system for OpenSSL\\n\"\nhomepage = \"https://github.com/alexcrichton/openssl-probe\"\nlicense = \"MIT/Apache-2.0\"\nname = \"openssl-probe\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/openssl-probe\"\nversion = \"0.1.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" = mkRustCrate {
@@ -1841,7 +1769,6 @@ in
       pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
       ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\", \"Steven Fackler <sfackler@gmail.com>\"]\nbuild = \"build/main.rs\"\ncategories = [\"cryptography\", \"external-ffi-bindings\"]\ndescription = \"FFI bindings to OpenSSL\"\nlicense = \"MIT\"\nlinks = \"openssl\"\nname = \"openssl-sys\"\nreadme = \"README.md\"\nrepository = \"https://github.com/sfackler/rust-openssl\"\nversion = \"0.9.52\"\n[package.metadata.pkg-config]\nopenssl = \"1.0.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" = mkRustCrate {
@@ -1862,7 +1789,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Manish Goregaokar <manishsmail@gmail.com>\"]\ndescription = \"Library for diffing paths to obtain relative paths\"\ndocumentation = \"https://docs.rs/pathdiff/\"\nkeywords = [\"path\", \"relative\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"pathdiff\"\nrepository = \"https://github.com/Manishearth/pathdiff\"\nversion = \"0.1.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".percent-encoding."1.0.1" = mkRustCrate {
@@ -1883,7 +1809,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\ndoctest = false\npath = \"lib.rs\"\ntest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\ndescription = \"Percent encoding and decoding\"\nlicense = \"MIT/Apache-2.0\"\nname = \"percent-encoding\"\nrepository = \"https://github.com/servo/rust-url/\"\nversion = \"1.0.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".percent-encoding."2.1.0" = mkRustCrate {
@@ -1904,7 +1829,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\npath = \"lib.rs\"\ntest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\ndescription = \"Percent encoding and decoding\"\nlicense = \"MIT/Apache-2.0\"\nname = \"percent-encoding\"\nrepository = \"https://github.com/servo/rust-url/\"\nversion = \"2.1.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" = mkRustCrate {
@@ -1925,7 +1849,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"A library to run the pkg-config system tool at build time in order to be used in\\nCargo build scripts.\\n\"\ndocumentation = \"https://docs.rs/pkg-config\"\nkeywords = [\"build-dependencies\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"pkg-config\"\nrepository = \"https://github.com/rust-lang/pkg-config-rs\"\nversion = \"0.3.16\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".ppv-lite86."0.2.6" = mkRustCrate {
@@ -1948,7 +1871,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The CryptoCorrosion Contributors\"]\ncategories = [\"cryptography\", \"no-std\"]\ndescription = \"Implementation of the crypto-simd API for x86\"\nedition = \"2018\"\nkeywords = [\"crypto\", \"simd\", \"x86\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"ppv-lite86\"\nrepository = \"https://github.com/cryptocorrosion/cryptocorrosion\"\nversion = \"0.2.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" = mkRustCrate {
@@ -1972,7 +1894,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"proc_macro2\"\n\n[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"A stable implementation of the upcoming new `proc_macro` API. Comes with an\\noption, off by default, to also reimplement itself in terms of the upstream\\nunstable API.\\n\"\ndocumentation = \"https://docs.rs/proc-macro2\"\nedition = \"2018\"\nhomepage = \"https://github.com/alexcrichton/proc-macro2\"\nkeywords = [\"macros\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"proc-macro2\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/proc-macro2\"\nversion = \"1.0.5\"\n[package.metadata.docs.rs]\nrustc-args = [\"--cfg\", \"procmacro2_semver_exempt\"]\nrustdoc-args = [\"--cfg\", \"procmacro2_semver_exempt\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".quick-error."1.2.2" = mkRustCrate {
@@ -1993,7 +1914,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Paul Colomiets <paul@colomiets.name>\", \"Colin Kiegel <kiegel@gmx.de>\"]\ncategories = [\"rust-patterns\"]\ndescription = \"    A macro which makes error types pleasant to write.\\n\"\ndocumentation = \"http://docs.rs/quick-error\"\nhomepage = \"http://github.com/tailhook/quick-error\"\nkeywords = [\"macro\", \"error\", \"type\", \"enum\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"quick-error\"\nrepository = \"http://github.com/tailhook/quick-error\"\nversion = \"1.2.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" = mkRustCrate {
@@ -2017,7 +1937,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"quote\"\n\n[package]\nauthors = [\"David Tolnay <dtolnay@gmail.com>\"]\ncategories = [\"development-tools::procedural-macro-helpers\"]\ndescription = \"Quasi-quoting macro quote!(...)\"\ndocumentation = \"https://docs.rs/quote/\"\nedition = \"2018\"\ninclude = [\"Cargo.toml\", \"src/**/*.rs\", \"tests/**/*.rs\", \"README.md\", \"LICENSE-APACHE\", \"LICENSE-MIT\"]\nkeywords = [\"syn\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"quote\"\nreadme = \"README.md\"\nrepository = \"https://github.com/dtolnay/quote\"\nversion = \"1.0.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rand."0.7.2" = mkRustCrate {
@@ -2048,7 +1967,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rand Project Developers\", \"The Rust Project Developers\"]\nautobenches = true\ncategories = [\"algorithms\", \"no-std\"]\ndescription = \"Random number generators and other randomness functionality.\\n\"\ndocumentation = \"https://rust-random.github.io/rand/\"\nedition = \"2018\"\nexclude = [\"/utils/*\", \"/.travis.yml\", \"/appveyor.yml\", \".gitignore\"]\nhomepage = \"https://crates.io/crates/rand\"\nkeywords = [\"random\", \"rng\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"rand\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-random/rand\"\nversion = \"0.7.2\"\n[package.metadata.docs.rs]\nall-features = true\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.2.1" = mkRustCrate {
@@ -2072,7 +1990,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rand Project Developers\", \"The Rust Project Developers\", \"The CryptoCorrosion Contributors\"]\ncategories = [\"algorithms\", \"no-std\"]\ndescription = \"ChaCha random number generator\\n\"\ndocumentation = \"https://rust-random.github.io/rand/rand_chacha/\"\nedition = \"2018\"\nhomepage = \"https://crates.io/crates/rand_chacha\"\nkeywords = [\"random\", \"rng\", \"chacha\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"rand_chacha\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-random/rand\"\nversion = \"0.2.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" = mkRustCrate {
@@ -2097,7 +2014,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rand Project Developers\", \"The Rust Project Developers\"]\ncategories = [\"algorithms\", \"no-std\"]\ndescription = \"Core random number generator traits and tools for implementation.\\n\"\ndocumentation = \"https://rust-random.github.io/rand/rand_core/\"\nedition = \"2018\"\nhomepage = \"https://crates.io/crates/rand_core\"\nkeywords = [\"random\", \"rng\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"rand_core\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-random/rand\"\nversion = \"0.5.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rand_hc."0.2.0" = mkRustCrate {
@@ -2119,7 +2035,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rand Project Developers\"]\ncategories = [\"algorithms\", \"no-std\"]\ndescription = \"HC128 random number generator\\n\"\ndocumentation = \"https://rust-random.github.io/rand/rand_hc/\"\nedition = \"2018\"\nhomepage = \"https://crates.io/crates/rand_hc\"\nkeywords = [\"random\", \"rng\", \"hc128\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"rand_hc\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-random/rand\"\nversion = \"0.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" = mkRustCrate {
@@ -2140,7 +2055,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"syscall\"\n\n[package]\nauthors = [\"Jeremy Soller <jackpot51@gmail.com>\"]\ndescription = \"A Rust library to access raw Redox system calls\"\ndocumentation = \"https://docs.rs/redox_syscall\"\nlicense = \"MIT\"\nname = \"redox_syscall\"\nrepository = \"https://gitlab.redox-os.org/redox-os/syscall\"\nversion = \"0.1.56\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" = mkRustCrate {
@@ -2183,7 +2097,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[test]]\nname = \"default\"\npath = \"tests/test_default.rs\"\n\n[[test]]\nname = \"default-bytes\"\npath = \"tests/test_default_bytes.rs\"\n\n[[test]]\nname = \"nfa\"\npath = \"tests/test_nfa.rs\"\n\n[[test]]\nname = \"nfa-utf8bytes\"\npath = \"tests/test_nfa_utf8bytes.rs\"\n\n[[test]]\nname = \"nfa-bytes\"\npath = \"tests/test_nfa_bytes.rs\"\n\n[[test]]\nname = \"backtrack\"\npath = \"tests/test_backtrack.rs\"\n\n[[test]]\nname = \"backtrack-utf8bytes\"\npath = \"tests/test_backtrack_utf8bytes.rs\"\n\n[[test]]\nname = \"backtrack-bytes\"\npath = \"tests/test_backtrack_bytes.rs\"\n\n[[test]]\nname = \"crates-regex\"\npath = \"tests/test_crates_regex.rs\"\n\n[lib]\nbench = false\ndoctest = false\n\n[package]\nauthors = [\"The Rust Project Developers\"]\nautotests = false\ncategories = [\"text-processing\"]\ndescription = \"An implementation of regular expressions for Rust. This implementation uses\\nfinite automata and guarantees linear time matching on all inputs.\\n\"\ndocumentation = \"https://docs.rs/regex\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\", \"/ci/*\", \"/scripts/*\"]\nhomepage = \"https://github.com/rust-lang/regex\"\nlicense = \"MIT/Apache-2.0\"\nname = \"regex\"\nreadme = \"README.md\"\nrepository = \"https://github.com/rust-lang/regex\"\nversion = \"1.3.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.12" = mkRustCrate {
@@ -2211,7 +2124,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Rust Project Developers\"]\ndescription = \"A regular expression parser.\"\ndocumentation = \"https://docs.rs/regex-syntax\"\nhomepage = \"https://github.com/rust-lang/regex\"\nlicense = \"MIT/Apache-2.0\"\nname = \"regex-syntax\"\nrepository = \"https://github.com/rust-lang/regex\"\nversion = \"0.6.12\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".remove_dir_all."0.5.2" = mkRustCrate {
@@ -2233,7 +2145,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Aaronepower <theaaronepower@gmail.com>\"]\ncategories = [\"filesystem\"]\ndescription = \"A safe, reliable implementation of remove_dir_all for Windows\"\ninclude = [\"Cargo.toml\", \"LICENCE-APACHE\", \"LICENCE-MIT\", \"src/**/*\"]\nkeywords = [\"utility\", \"filesystem\", \"remove_dir\", \"windows\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"remove_dir_all\"\nreadme = \"README.md\"\nrepository = \"https://github.com/XAMPPRocky/remove_dir_all.git\"\nversion = \"0.5.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.16" = mkRustCrate {
@@ -2254,7 +2165,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Rust compiler symbol demangling.\\n\"\ndocumentation = \"https://docs.rs/rustc-demangle\"\nhomepage = \"https://github.com/alexcrichton/rustc-demangle\"\nlicense = \"MIT/Apache-2.0\"\nname = \"rustc-demangle\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/rustc-demangle\"\nversion = \"0.1.16\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rustc-workspace-hack."1.0.0" = mkRustCrate {
@@ -2275,7 +2185,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Hack for the compiler\'s own build system\\n\"\nlicense = \"MIT/Apache-2.0\"\nname = \"rustc-workspace-hack\"\nversion = \"1.0.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" = mkRustCrate {
@@ -2297,7 +2206,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Marvin Löbel <loebel.marvin@gmail.com>\"]\ndescription = \"A library for querying the version of a installed rustc compiler\"\ndocumentation = \"https://docs.rs/rustc_version/\"\nkeywords = [\"version\", \"rustc\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"rustc_version\"\nreadme = \"README.md\"\nrepository = \"https://github.com/Kimundi/rustc-version-rs\"\nversion = \"0.2.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.6" = mkRustCrate {
@@ -2322,7 +2230,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Pascal Hertleif <killercup@gmail.com>\", \"Oliver Schneider <oli-obk@users.noreply.github.com>\"]\ndescription = \"Automatically apply the suggestions made by rustc\"\ndocumentation = \"https://docs.rs/rustfix\"\nedition = \"2018\"\nexclude = [\"etc/*\", \"examples/*\", \"tests/*\"]\nlicense = \"Apache-2.0/MIT\"\nname = \"rustfix\"\nreadme = \"Readme.md\"\nrepository = \"https://github.com/rust-lang-nursery/rustfix\"\nversion = \"0.4.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".ryu."1.0.2" = mkRustCrate {
@@ -2343,7 +2250,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"David Tolnay <dtolnay@gmail.com>\"]\nbuild = \"build.rs\"\ndescription = \"Fast floating point to string conversion\"\ndocumentation = \"https://docs.rs/ryu\"\nlicense = \"Apache-2.0 OR BSL-1.0\"\nname = \"ryu\"\nreadme = \"README.md\"\nrepository = \"https://github.com/dtolnay/ryu\"\nversion = \"1.0.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" = mkRustCrate {
@@ -2365,7 +2271,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ndescription = \"A simple crate for determining whether two file paths point to the same file.\\n\"\ndocumentation = \"https://docs.rs/same-file\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/BurntSushi/same-file\"\nkeywords = [\"same\", \"file\", \"equal\", \"inode\"]\nlicense = \"Unlicense/MIT\"\nname = \"same-file\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/same-file\"\nversion = \"1.0.5\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".schannel."0.1.16" = mkRustCrate {
@@ -2388,7 +2293,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steven Fackler <sfackler@gmail.com>\", \"Steffen Butzer <steffen.butzer@outlook.com>\"]\ndescription = \"Schannel bindings for rust, allowing SSL/TLS (e.g. https) without openssl\"\ndocumentation = \"https://docs.rs/schannel/0/x86_64-pc-windows-gnu/schannel/\"\nkeywords = [\"windows\", \"schannel\", \"tls\", \"ssl\", \"https\"]\nlicense = \"MIT\"\nname = \"schannel\"\nreadme = \"README.md\"\nrepository = \"https://github.com/steffengy/schannel-rs\"\nversion = \"0.1.16\"\n[package.metadata.docs.rs]\ndefault-target = \"x86_64-pc-windows-msvc\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".scopeguard."0.3.3" = mkRustCrate {
@@ -2411,7 +2315,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"bluss\"]\ncategories = [\"rust-patterns\"]\ndescription = \"A RAII scope guard that will run a given closure when it goes out of scope,\\neven if the code between panics (assuming unwinding panic).\\n\\nDefines the macros `defer!` and `defer_on_unwind!`; the latter only runs\\nif the scope is extited through unwinding on panic.\\n\"\ndocumentation = \"https://docs.rs/scopeguard/\"\nkeywords = [\"scope-guard\", \"defer\", \"panic\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"scopeguard\"\nrepository = \"https://github.com/bluss/scopeguard\"\nversion = \"0.3.3\"\n[package.metadata.release]\nno-dev-version = true\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" = mkRustCrate {
@@ -2436,7 +2339,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steve Klabnik <steve@steveklabnik.com>\", \"The Rust Project Developers\"]\ndescription = \"Semantic version parsing and comparison.\\n\"\ndocumentation = \"https://docs.rs/crate/semver/\"\nhomepage = \"https://docs.rs/crate/semver/\"\nlicense = \"MIT/Apache-2.0\"\nname = \"semver\"\nreadme = \"README.md\"\nrepository = \"https://github.com/steveklabnik/semver\"\nversion = \"0.9.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".semver-parser."0.7.0" = mkRustCrate {
@@ -2457,7 +2359,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steve Klabnik <steve@steveklabnik.com>\"]\ndescription = \"Parsing of the semver spec.\\n\"\ndocumentation = \"https://docs.rs/semver-parser\"\nhomepage = \"https://github.com/steveklabnik/semver-parser\"\nlicense = \"MIT/Apache-2.0\"\nname = \"semver-parser\"\nrepository = \"https://github.com/steveklabnik/semver-parser\"\nversion = \"0.7.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" = mkRustCrate {
@@ -2483,7 +2384,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Erick Tryzelaar <erick.tryzelaar@gmail.com>\", \"David Tolnay <dtolnay@gmail.com>\"]\nbuild = \"build.rs\"\ncategories = [\"encoding\"]\ndescription = \"A generic serialization/deserialization framework\"\ndocumentation = \"https://docs.serde.rs/serde/\"\nhomepage = \"https://serde.rs\"\ninclude = [\"Cargo.toml\", \"build.rs\", \"src/**/*.rs\", \"crates-io.md\", \"README.md\", \"LICENSE-APACHE\", \"LICENSE-MIT\"]\nkeywords = [\"serde\", \"serialization\", \"no_std\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"serde\"\nreadme = \"crates-io.md\"\nrepository = \"https://github.com/serde-rs/serde\"\nversion = \"1.0.101\"\n[package.metadata.playground]\nfeatures = [\"derive\", \"rc\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" = mkRustCrate {
@@ -2508,7 +2408,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"serde_derive\"\nproc-macro = true\n\n[package]\nauthors = [\"Erick Tryzelaar <erick.tryzelaar@gmail.com>\", \"David Tolnay <dtolnay@gmail.com>\"]\ndescription = \"Macros 1.1 implementation of #[derive(Serialize, Deserialize)]\"\ndocumentation = \"https://serde.rs/derive.html\"\nhomepage = \"https://serde.rs\"\ninclude = [\"Cargo.toml\", \"src/**/*.rs\", \"crates-io.md\", \"README.md\", \"LICENSE-APACHE\", \"LICENSE-MIT\"]\nkeywords = [\"serde\", \"serialization\", \"no_std\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"serde_derive\"\nreadme = \"crates-io.md\"\nrepository = \"https://github.com/serde-rs/serde\"\nversion = \"1.0.101\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".serde_ignored."0.0.4" = mkRustCrate {
@@ -2530,7 +2429,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"David Tolnay <dtolnay@gmail.com>\"]\ncategories = [\"encoding\"]\ndescription = \"Find out about keys that are ignored when deserializing data\"\nkeywords = [\"serde\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"serde_ignored\"\nrepository = \"https://github.com/dtolnay/serde-ignored\"\nversion = \"0.0.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" = mkRustCrate {
@@ -2556,7 +2454,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Erick Tryzelaar <erick.tryzelaar@gmail.com>\", \"David Tolnay <dtolnay@gmail.com>\"]\ncategories = [\"encoding\"]\ndescription = \"A JSON serialization file format\"\ndocumentation = \"http://docs.serde.rs/serde_json/\"\ninclude = [\"Cargo.toml\", \"src/**/*.rs\", \"README.md\", \"LICENSE-APACHE\", \"LICENSE-MIT\"]\nkeywords = [\"json\", \"serde\", \"serialization\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"serde_json\"\nreadme = \"README.md\"\nrepository = \"https://github.com/serde-rs/json\"\nversion = \"1.0.41\"\n[package.metadata.docs.rs]\nfeatures = [\"raw_value\", \"unbounded_depth\"]\n\n[package.metadata.playground]\nfeatures = [\"raw_value\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".shell-escape."0.1.4" = mkRustCrate {
@@ -2577,7 +2474,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steven Fackler <sfackler@gmail.com>\"]\ndescription = \"Escape characters that may have a special meaning in a shell\"\nlicense = \"MIT/Apache-2.0\"\nname = \"shell-escape\"\nrepository = \"https://github.com/sfackler/shell-escape\"\nversion = \"0.1.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".sized-chunks."0.3.1" = mkRustCrate {
@@ -2599,7 +2495,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Bodil Stokke <bodil@bodil.org>\"]\ncategories = [\"data-structures\"]\ndescription = \"Efficient sized chunk datatypes\"\ndocumentation = \"http://docs.rs/sized-chunks\"\nedition = \"2018\"\nexclude = [\"release.toml\", \"proptest-regressions/**\"]\nkeywords = [\"sparse-array\"]\nlicense = \"MPL-2.0+\"\nname = \"sized-chunks\"\nreadme = \"./README.md\"\nrepository = \"https://github.com/bodil/sized-chunks\"\nversion = \"0.3.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".smallvec."0.6.10" = mkRustCrate {
@@ -2622,7 +2517,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"smallvec\"\npath = \"lib.rs\"\n\n[package]\nauthors = [\"Simon Sapin <simon.sapin@exyr.org>\"]\ncategories = [\"data-structures\"]\ndescription = \"\'Small vector\' optimization: store up to a small number of items on the stack\"\ndocumentation = \"https://doc.servo.org/smallvec/\"\nkeywords = [\"small\", \"vec\", \"vector\", \"stack\", \"no_std\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"smallvec\"\nreadme = \"README.md\"\nrepository = \"https://github.com/servo/rust-smallvec\"\nversion = \"0.6.10\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" = mkRustCrate {
@@ -2647,7 +2541,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Utilities for handling networking sockets with a maximal amount of configuration\\npossible intended.\\n\"\nedition = \"2018\"\nhomepage = \"https://github.com/alexcrichton/socket2-rs\"\nlicense = \"MIT/Apache-2.0\"\nname = \"socket2\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/socket2-rs\"\nversion = \"0.3.11\"\n[package.metadata.docs.rs]\nall-features = true\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".strip-ansi-escapes."0.1.0" = mkRustCrate {
@@ -2669,7 +2562,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Ted Mielczarek <ted@mielczarek.org>\"]\ndescription = \"Strip ANSI escape sequences from byte streams.\"\ndocumentation = \"https://docs.rs/strip-ansi-escapes\"\nhomepage = \"https://github.com/luser/strip-ansi-escapes\"\nkeywords = [\"ansi\", \"escape\", \"terminal\"]\nlicense = \"Apache-2.0/MIT\"\nname = \"strip-ansi-escapes\"\nreadme = \"README.md\"\nrepository = \"https://github.com/luser/strip-ansi-escapes\"\nversion = \"0.1.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".strsim."0.8.0" = mkRustCrate {
@@ -2690,7 +2582,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Danny Guo <dannyguo91@gmail.com>\"]\ndescription = \"Implementations of string similarity metrics.\\nIncludes Hamming, Levenshtein, OSA, Damerau-Levenshtein, Jaro, and Jaro-Winkler.\\n\"\ndocumentation = \"https://docs.rs/strsim/\"\nhomepage = \"https://github.com/dguo/strsim-rs\"\nkeywords = [\"string\", \"similarity\", \"Hamming\", \"Levenshtein\", \"Jaro\"]\nlicense = \"MIT\"\nname = \"strsim\"\nreadme = \"README.md\"\nrepository = \"https://github.com/dguo/strsim-rs\"\nversion = \"0.8.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" = mkRustCrate {
@@ -2723,7 +2614,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[bench]]\nedition = \"2018\"\nharness = false\nname = \"rust\"\nrequired-features = [\"full\", \"parsing\"]\n\n[[bench]]\nedition = \"2018\"\nname = \"file\"\nrequired-features = [\"full\", \"parsing\"]\n\n[lib]\nname = \"syn\"\n\n[package]\nauthors = [\"David Tolnay <dtolnay@gmail.com>\"]\ncategories = [\"development-tools::procedural-macro-helpers\"]\ndescription = \"Parser for Rust source code\"\ndocumentation = \"https://docs.rs/syn\"\nedition = \"2018\"\ninclude = [\"/benches/**\", \"/build.rs\", \"/Cargo.toml\", \"/LICENSE-APACHE\", \"/LICENSE-MIT\", \"/README.md\", \"/src/**\", \"/tests/**\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"syn\"\nreadme = \"README.md\"\nrepository = \"https://github.com/dtolnay/syn\"\nversion = \"1.0.5\"\n[package.metadata.docs.rs]\nall-features = true\n\n[package.metadata.playground]\nall-features = true\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".synstructure."0.12.1" = mkRustCrate {
@@ -2748,7 +2638,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Nika Layzell <nika@thelayzells.com>\"]\ndescription = \"Helper methods and macros for custom derives\"\ndocumentation = \"https://docs.rs/synstructure\"\nedition = \"2018\"\ninclude = [\"src/**/*\", \"Cargo.toml\", \"README.md\", \"LICENSE\"]\nkeywords = [\"syn\", \"macros\", \"derive\", \"expand_substructure\", \"enum\"]\nlicense = \"MIT\"\nname = \"synstructure\"\nreadme = \"README.md\"\nrepository = \"https://github.com/mystor/synstructure\"\nversion = \"0.12.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".tar."0.4.26" = mkRustCrate {
@@ -2772,7 +2661,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"A Rust implementation of a TAR file reader and writer. This library does not\\ncurrently handle compression, but it is abstract over all I/O readers and\\nwriters. Additionally, great lengths are taken to ensure that the entire\\ncontents are never required to be entirely resident in memory all at once.\\n\"\ndocumentation = \"https://docs.rs/tar\"\nedition = \"2018\"\nexclude = [\"tests/archives/*\"]\nhomepage = \"https://github.com/alexcrichton/tar-rs\"\nkeywords = [\"tar\", \"tarfile\", \"encoding\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"tar\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/tar-rs\"\nversion = \"0.4.26\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" = mkRustCrate {
@@ -2799,7 +2687,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Steven Allen <steven@stebalien.com>\", \"The Rust Project Developers\", \"Ashley Mannix <ashleymannix@live.com.au>\", \"Jason White <jasonaw0@gmail.com>\"]\ndescription = \"A library for managing temporary files and directories.\"\ndocumentation = \"https://docs.rs/tempfile\"\nedition = \"2018\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"http://stebalien.com/projects/tempfile-rs\"\nkeywords = [\"tempfile\", \"tmpfile\", \"filesystem\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"tempfile\"\nrepository = \"https://github.com/Stebalien/tempfile\"\nversion = \"3.1.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" = mkRustCrate {
@@ -2821,7 +2708,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\nname = \"termcolor\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ndescription = \"A simple cross platform library for writing colored text to a terminal.\\n\"\ndocumentation = \"https://docs.rs/termcolor\"\nexclude = [\"/.travis.yml\", \"/appveyor.yml\", \"/ci/**\"]\nhomepage = \"https://github.com/BurntSushi/termcolor\"\nkeywords = [\"windows\", \"win\", \"color\", \"ansi\", \"console\"]\nlicense = \"Unlicense OR MIT\"\nname = \"termcolor\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/termcolor\"\nversion = \"1.0.5\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".textwrap."0.11.0" = mkRustCrate {
@@ -2843,7 +2729,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Martin Geisler <martin@geisler.net>\"]\ncategories = [\"text-processing\", \"command-line-interface\"]\ndescription = \"Textwrap is a small library for word wrapping, indenting, and\\ndedenting strings.\\n\\nYou can use it to format strings (such as help and error messages) for\\ndisplay in commandline applications. It is designed to be efficient\\nand handle Unicode characters correctly.\\n\"\ndocumentation = \"https://docs.rs/textwrap/\"\nexclude = [\".dir-locals.el\"]\nkeywords = [\"text\", \"formatting\", \"wrap\", \"typesetting\", \"hyphenation\"]\nlicense = \"MIT\"\nname = \"textwrap\"\nreadme = \"README.md\"\nrepository = \"https://github.com/mgeisler/textwrap\"\nversion = \"0.11.0\"\n[package.metadata.docs.rs]\nall-features = true\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" = mkRustCrate {
@@ -2865,7 +2750,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Amanieu d\'Antras <amanieu@gmail.com>\"]\ndescription = \"Per-object thread-local storage\"\ndocumentation = \"https://amanieu.github.io/thread_local-rs/thread_local/index.html\"\nkeywords = [\"thread_local\", \"concurrent\", \"thread\"]\nlicense = \"Apache-2.0/MIT\"\nname = \"thread_local\"\nreadme = \"README.md\"\nrepository = \"https://github.com/Amanieu/thread_local-rs\"\nversion = \"0.3.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" = mkRustCrate {
@@ -2888,7 +2772,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\"]\ncategories = [\"config\", \"encoding\", \"parser-implementations\"]\ndescription = \"A native Rust encoder and decoder of TOML-formatted files and streams. Provides\\nimplementations of the standard Serialize/Deserialize traits for TOML data to\\nfacilitate deserializing and serializing Rust structures.\\n\"\ndocumentation = \"https://docs.rs/toml\"\nedition = \"2018\"\nhomepage = \"https://github.com/alexcrichton/toml-rs\"\nkeywords = [\"encoding\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"toml\"\nreadme = \"README.md\"\nrepository = \"https://github.com/alexcrichton/toml-rs\"\nversion = \"0.5.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" = mkRustCrate {
@@ -2909,7 +2792,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"typenum\"\n\n[package]\nauthors = [\"Paho Lurie-Gregg <paho@paholg.com>\", \"Andre Bogus <bogusandre@gmail.com>\"]\nbuild = \"build/main.rs\"\ncategories = [\"no-std\"]\ndescription = \"Typenum is a Rust library for type-level numbers evaluated at compile time. It currently supports bits, unsigned integers, and signed integers. It also provides a type-level array of type-level numbers, but its implementation is incomplete.\"\ndocumentation = \"https://docs.rs/typenum\"\nlicense = \"MIT/Apache-2.0\"\nname = \"typenum\"\nreadme = \"README.md\"\nrepository = \"https://github.com/paholg/typenum\"\nversion = \"1.11.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" = mkRustCrate {
@@ -2932,7 +2814,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nname = \"unicode_bidi\"\n\n[package]\nauthors = [\"The Servo Project Developers\"]\ndescription = \"Implementation of the Unicode Bidirectional Algorithm\"\ndocumentation = \"http://doc.servo.org/unicode_bidi/\"\nexclude = [\"benches/**\", \"data/**\", \"examples/**\", \"tests/**\", \"tools/**\"]\nkeywords = [\"rtl\", \"unicode\", \"text\", \"layout\", \"bidi\"]\nlicense = \"MIT / Apache-2.0\"\nname = \"unicode-bidi\"\nrepository = \"https://github.com/servo/unicode-bidi\"\nversion = \"0.3.4\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" = mkRustCrate {
@@ -2954,7 +2835,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"kwantam <kwantam@gmail.com>\"]\ndescription = \"This crate provides functions for normalization of\\nUnicode strings, including Canonical and Compatible\\nDecomposition and Recomposition, as described in\\nUnicode Standard Annex #15.\\n\"\ndocumentation = \"https://docs.rs/unicode-normalization/\"\nexclude = [\"target/*\", \"Cargo.lock\", \"scripts/tmp\", \"*.txt\", \"src/normalization_tests.rs\", \"src/test.rs\"]\nhomepage = \"https://github.com/unicode-rs/unicode-normalization\"\nkeywords = [\"text\", \"unicode\", \"normalization\", \"decomposition\", \"recomposition\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"unicode-normalization\"\nreadme = \"README.md\"\nrepository = \"https://github.com/unicode-rs/unicode-normalization\"\nversion = \"0.1.8\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" = mkRustCrate {
@@ -2976,7 +2856,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"kwantam <kwantam@gmail.com>\"]\ndescription = \"Determine displayed width of `char` and `str` types\\naccording to Unicode Standard Annex #11 rules.\\n\"\ndocumentation = \"https://unicode-rs.github.io/unicode-width\"\nexclude = [\"target/*\", \"Cargo.lock\"]\nhomepage = \"https://github.com/unicode-rs/unicode-width\"\nkeywords = [\"text\", \"width\", \"unicode\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"unicode-width\"\nreadme = \"README.md\"\nrepository = \"https://github.com/unicode-rs/unicode-width\"\nversion = \"0.1.6\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" = mkRustCrate {
@@ -2998,7 +2877,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"erick.tryzelaar <erick.tryzelaar@gmail.com>\", \"kwantam <kwantam@gmail.com>\"]\ndescription = \"Determine whether characters have the XID_Start\\nor XID_Continue properties according to\\nUnicode Standard Annex #31.\\n\"\ndocumentation = \"https://unicode-rs.github.io/unicode-xid\"\nexclude = [\"/scripts/*\", \"/.travis.yml\"]\nhomepage = \"https://github.com/unicode-rs/unicode-xid\"\nkeywords = [\"text\", \"unicode\", \"xid\"]\nlicense = \"MIT OR Apache-2.0\"\nname = \"unicode-xid\"\nreadme = \"README.md\"\nrepository = \"https://github.com/unicode-rs/unicode-xid\"\nversion = \"0.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" = mkRustCrate {
@@ -3022,7 +2900,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[bench]]\nharness = false\nname = \"parse_url\"\n\n[[test]]\nname = \"unit\"\n\n[[test]]\nharness = false\nname = \"data\"\n\n[lib]\ntest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\ncategories = [\"parser-implementations\", \"web-programming\", \"encoding\"]\ndescription = \"URL library for Rust, based on the WHATWG URL Standard\"\ndocumentation = \"https://docs.rs/url\"\nkeywords = [\"url\", \"parser\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"url\"\nreadme = \"README.md\"\nrepository = \"https://github.com/servo/rust-url\"\nversion = \"1.7.2\"\n[package.metadata.docs.rs]\nfeatures = [\"query_encoding\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" = mkRustCrate {
@@ -3046,7 +2923,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[[bench]]\nharness = false\nname = \"parse_url\"\n\n[[test]]\nname = \"unit\"\n\n[[test]]\nharness = false\nname = \"data\"\n\n[lib]\ntest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\ncategories = [\"parser-implementations\", \"web-programming\", \"encoding\"]\ndescription = \"URL library for Rust, based on the WHATWG URL Standard\"\ndocumentation = \"https://docs.rs/url\"\nkeywords = [\"url\", \"parser\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"url\"\nreadme = \"README.md\"\nrepository = \"https://github.com/servo/rust-url\"\nversion = \"2.1.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".url_serde."0.2.0" = mkRustCrate {
@@ -3069,7 +2945,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\ndoctest = false\n\n[package]\nauthors = [\"The rust-url developers\"]\ndescription = \"Serde support for URL types\"\ndocumentation = \"https://docs.rs/url_serde/\"\nkeywords = [\"url\", \"serde\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"url_serde\"\nreadme = \"README.md\"\nrepository = \"https://github.com/servo/rust-url\"\nversion = \"0.2.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".utf8parse."0.1.1" = mkRustCrate {
@@ -3090,7 +2965,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Joe Wilm <joe@jwilm.com>\"]\ndescription = \"Table-driven UTF-8 parser\"\ndocumentation = \"https://docs.rs/utf8parse/\"\nkeywords = [\"utf8\", \"parse\", \"table\"]\nlicense = \"Apache-2.0 OR MIT\"\nname = \"utf8parse\"\nrepository = \"https://github.com/jwilm/vte\"\nversion = \"0.1.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" = mkRustCrate {
@@ -3111,7 +2985,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Jim McGrath <jimmc2@gmail.com>\"]\ncategories = [\"os::windows-apis\"]\ndescription = \"A library to find native dependencies in a vcpkg tree at build\\ntime in order to be used in Cargo build scripts.\\n\"\ndocumentation = \"https://docs.rs/vcpkg\"\nkeywords = [\"build-dependencies\", \"windows\", \"ffi\", \"win32\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"vcpkg\"\nreadme = \"../README.md\"\nrepository = \"https://github.com/mcgoo/vcpkg-rs\"\nversion = \"0.2.7\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".vec_map."0.8.1" = mkRustCrate {
@@ -3132,7 +3005,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Alex Crichton <alex@alexcrichton.com>\", \"Jorge Aparicio <japaricious@gmail.com>\", \"Alexis Beingessner <a.beingessner@gmail.com>\", \"Brian Anderson <>\", \"tbu- <>\", \"Manish Goregaokar <>\", \"Aaron Turon <aturon@mozilla.com>\", \"Adolfo Ochagavía <>\", \"Niko Matsakis <>\", \"Steven Fackler <>\", \"Chase Southwood <csouth3@illinois.edu>\", \"Eduard Burtescu <>\", \"Florian Wilkens <>\", \"Félix Raimundo <>\", \"Tibor Benke <>\", \"Markus Siemens <markus@m-siemens.de>\", \"Josh Branchaud <jbranchaud@gmail.com>\", \"Huon Wilson <dbau.pp@gmail.com>\", \"Corey Farwell <coref@rwell.org>\", \"Aaron Liblong <>\", \"Nick Cameron <nrc@ncameron.org>\", \"Patrick Walton <pcwalton@mimiga.net>\", \"Felix S Klock II <>\", \"Andrew Paseltiner <apaseltiner@gmail.com>\", \"Sean McArthur <sean.monstar@gmail.com>\", \"Vadim Petrochenkov <>\"]\ndescription = \"A simple map based on a vector for small integer keys\"\ndocumentation = \"https://contain-rs.github.io/vec-map/vec_map\"\nhomepage = \"https://github.com/contain-rs/vec-map\"\nkeywords = [\"data-structures\", \"collections\", \"vecmap\", \"vec_map\", \"contain-rs\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"vec_map\"\nreadme = \"README.md\"\nrepository = \"https://github.com/contain-rs/vec-map\"\nversion = \"0.8.1\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".vte."0.3.3" = mkRustCrate {
@@ -3154,7 +3026,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Joe Wilm <joe@jwilm.com>\"]\ndescription = \"Parser for implementing terminal emulators\"\ndocumentation = \"https://docs.rs/vte/\"\nkeywords = [\"ansi\", \"vte\", \"parser\", \"terminal\"]\nlicense = \"Apache-2.0 OR MIT\"\nname = \"vte\"\nreadme = \"README.md\"\nrepository = \"https://github.com/jwilm/vte\"\nversion = \"0.3.3\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" = mkRustCrate {
@@ -3178,7 +3049,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ncategories = [\"filesystem\"]\ndescription = \"Recursively walk a directory.\"\ndocumentation = \"https://docs.rs/walkdir/\"\nexclude = [\"/ci/*\", \"/.travis.yml\", \"/appveyor.yml\"]\nhomepage = \"https://github.com/BurntSushi/walkdir\"\nkeywords = [\"directory\", \"recursive\", \"walk\", \"iterator\"]\nlicense = \"Unlicense/MIT\"\nname = \"walkdir\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/walkdir\"\nversion = \"2.2.9\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".wasi."0.7.0" = mkRustCrate {
@@ -3201,7 +3071,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"The Cranelift Project Developers\"]\ncategories = [\"no-std\", \"wasm\"]\ndescription = \"Experimental WASI API bindings for Rust\"\ndocumentation = \"https://docs.rs/wasi\"\nedition = \"2018\"\nkeywords = [\"webassembly\", \"wasm\"]\nlicense = \"Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT\"\nname = \"wasi\"\nreadme = \"README.md\"\nrepository = \"https://github.com/CraneStation/rust-wasi\"\nversion = \"0.7.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" = mkRustCrate {
@@ -3262,7 +3131,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Peter Atashian <retep998@gmail.com>\"]\nbuild = \"build.rs\"\ncategories = [\"external-ffi-bindings\", \"no-std\", \"os::windows-apis\"]\ndescription = \"Raw FFI bindings for all of Windows API.\"\ndocumentation = \"https://docs.rs/winapi/*/x86_64-pc-windows-msvc/winapi/\"\ninclude = [\"/src/**/*\", \"/Cargo.toml\", \"/LICENSE-MIT\", \"/LICENSE-APACHE\", \"/build.rs\", \"/README.md\"]\nkeywords = [\"windows\", \"ffi\", \"win32\", \"com\", \"directx\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"winapi\"\nreadme = \"README.md\"\nrepository = \"https://github.com/retep998/winapi-rs\"\nversion = \"0.3.8\"\n[package.metadata.docs.rs]\ndefault-target = \"x86_64-pc-windows-msvc\"\nfeatures = [\"everything\", \"impl-debug\", \"impl-default\"]\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".winapi-i686-pc-windows-gnu."0.4.0" = mkRustCrate {
@@ -3283,7 +3151,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Peter Atashian <retep998@gmail.com>\"]\nbuild = \"build.rs\"\ndescription = \"Import libraries for the i686-pc-windows-gnu target. Please don\'t use this crate directly, depend on winapi instead.\"\ninclude = [\"src/*\", \"lib/*\", \"Cargo.toml\", \"build.rs\"]\nkeywords = [\"windows\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"winapi-i686-pc-windows-gnu\"\nrepository = \"https://github.com/retep998/winapi-rs\"\nversion = \"0.4.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" = mkRustCrate {
@@ -3305,7 +3172,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ncategories = [\"os::windows-apis\", \"external-ffi-bindings\"]\ndescription = \"A dumping ground for high level safe wrappers over winapi.\"\ndocumentation = \"https://docs.rs/winapi-util\"\nhomepage = \"https://github.com/BurntSushi/winapi-util\"\nkeywords = [\"windows\", \"winapi\", \"util\", \"win\"]\nlicense = \"Unlicense/MIT\"\nname = \"winapi-util\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/winapi-util\"\nversion = \"0.1.2\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".winapi-x86_64-pc-windows-gnu."0.4.0" = mkRustCrate {
@@ -3326,7 +3192,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Peter Atashian <retep998@gmail.com>\"]\nbuild = \"build.rs\"\ndescription = \"Import libraries for the x86_64-pc-windows-gnu target. Please don\'t use this crate directly, depend on winapi instead.\"\ninclude = [\"src/*\", \"lib/*\", \"Cargo.toml\", \"build.rs\"]\nkeywords = [\"windows\"]\nlicense = \"MIT/Apache-2.0\"\nname = \"winapi-x86_64-pc-windows-gnu\"\nrepository = \"https://github.com/retep998/winapi-rs\"\nversion = \"0.4.0\"\n";
   };
   
   "registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.2" = mkRustCrate {
@@ -3349,7 +3214,6 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[lib]\nbench = false\nname = \"wincolor\"\n\n[package]\nauthors = [\"Andrew Gallant <jamslam@gmail.com>\"]\ndescription = \"A simple Windows specific API for controlling text color in a Windows console.\\n\"\ndocumentation = \"https://docs.rs/wincolor\"\nhomepage = \"https://github.com/BurntSushi/termcolor/tree/master/wincolor\"\nkeywords = [\"windows\", \"win\", \"color\", \"ansi\", \"console\"]\nlicense = \"Unlicense OR MIT\"\nname = \"wincolor\"\nreadme = \"README.md\"\nrepository = \"https://github.com/BurntSushi/termcolor/tree/master/wincolor\"\nversion = \"1.0.2\"\n";
   };
   
 }
