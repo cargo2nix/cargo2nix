@@ -1,9 +1,21 @@
 { buildPackages, lib }:
+let
+  unpackSrc = { name, src }: buildPackages.stdenvNoCC.mkDerivation {
+    inherit name src;
+    preferLocalBuild = true;
+    allowSubstitutes = false;
+    phases = "unpackPhase installPhase";
+    installPhase = "cp -R ./ $out";
+  };
+in
 {
-  fetchCratesIo = { name, version, sha256 }: buildPackages.fetchurl {
-    name = "${name}-${version}.tar.gz";
-    url = "https://crates.io/api/v1/crates/${name}/${version}/download";
-    inherit sha256;
+  fetchCratesIo = { name, version, sha256 }: unpackSrc {
+    name = "${name}-${version}-unpacked";
+    src = buildPackages.fetchurl {
+      name = "${name}-${version}.tar.gz";
+      url = "https://crates.io/api/v1/crates/${name}/${version}/download";
+      inherit sha256;
+    };
   };
 
   fetchCrateGit = { url, name, version, rev, sha256 }:

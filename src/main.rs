@@ -471,14 +471,6 @@ impl<'a> ResolvedPackage<'a> {
                 }
                 writeln!(f, "}};")?;
             }
-
-            let basic_manifest =
-                manifest::extract_basic(&std::fs::read(&self.pkg.manifest_path()).unwrap());
-            writeln!(
-                f,
-                "manifest = builtins.fromTOML {:?};",
-                toml::to_string(&basic_manifest).unwrap()
-            )?;
         }
         writeln!(f, "}};")
     }

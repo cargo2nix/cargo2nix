@@ -20,7 +20,6 @@
   dependencies,
   devDependencies,
   buildDependencies,
-  manifest,
 }:
 { # The third argument is customizable by user.
   compileMode ? "build", # build, test, or bench.
@@ -55,6 +54,8 @@ let
     in
       concatStringsSep "\n" (mapAttrsToList mapToEnv environment);
 
+  manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
+
   isProcMacro = manifest.lib.proc-macro or manifest.lib.proc_macro or false;
 
   patchedManifest =
@@ -63,13 +64,16 @@ let
       profile = profiles.${profileName} or { };
       patchedProfile = if isProcMacro && profile ? panic then profile // { panic = "unwind"; } else profile;
     in
-      manifest // {
+      {
+        ${ if manifest ? package then "package" else null } = manifest.package;
+        ${ if manifest ? lib then "lib" else null } = manifest.lib;
+        ${ if manifest ? bin then "bin" else null } = manifest.bin;
+        ${ if manifest ? bench then "bench" else null } = manifest.bench;
+        ${ if manifest ? test then "test" else null } = manifest.test;
+        ${ if manifest ? example then "example" else null } = manifest.example;
         features = genAttrs features (_: [ ]);
         profile.${profileName} = patchedProfile;
       };
-
-  force = x: builtins.deepSeq x x;
-  ftraceWith = a: x: builtins.trace (force [a x]) x;
 
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
     #!${stdenv.shell}
