@@ -20,7 +20,7 @@ let
   inherit (pkgs) lib buildPackages;
 
   rustChannel = buildPackages.rustChannelOf {
-    channel = "1.38.0";
+    channel = "1.37.0";
   };
   inherit (rustChannel) cargo;
   rustc = rustChannel.rust.override {
@@ -30,7 +30,7 @@ let
     extensions = [ "rust-std" ];
   };
 
-  packageFun = import ./Cargo.nix { };
+  packageFun = import ./Cargo.nix;
   rustPackageConfig =
     let
       darwinFrameworks = lib.optionals pkgs.hostPlatform.isDarwin
@@ -47,7 +47,7 @@ let
         buildInputs = {
           "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."*" = [ pkgs.libiconv ];
           "registry+https://github.com/rust-lang/crates.io-index".cargo."*" = [ pkgs.libiconv ] ++ darwinFrameworks;
-          unknown.cargo2nix2."*" = [ pkgs.libiconv ] ++ darwinFrameworks;
+          unknown.cargo2nix."*" = [ pkgs.libiconv ] ++ darwinFrameworks;
         };
         environment = {
           "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."*" =
@@ -85,7 +85,7 @@ let
     };
   };
 in
-  rustPkgs."cargo2nix2 0.1.0 unknown" { compileMode = "test"; }
+  rustPkgs."cargo2nix 0.4.0 unknown" { compileMode = "test"; }
   # rustPkgs."bytes 0.4.12 registry+https://github.com/rust-lang/crates.io-index" { }
   # rustPkgs."libc 0.2.65 registry+https://github.com/rust-lang/crates.io-index" { }
   # (rustPkgs."cargo 0.39.0 registry+https://github.com/rust-lang/crates.io-index" { }).dependencies

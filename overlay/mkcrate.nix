@@ -1,4 +1,4 @@
-{
+{ # The first argument is provided by `callPackage`.
   cargo,
   rustc,
 
@@ -9,22 +9,23 @@
   rustLib,
   stdenv,
 }:
-{
-  release ? true, # Compiling in release profile?
-  compileMode ? "build", # build, test, or bench.
+{ # The second argument is provided by code generation.
+  release, # Compiling in release profile?
   packageId,
   name,
   version,
   registry,
   profiles,
   src,
-  features ? [ ],
+  features,
   dependencies,
   devDependencies,
   buildDependencies,
   manifest,
+}:
+{ # The third argument is customizable by user.
+  compileMode ? "build", # build, test, or bench.
   meta ? { },
-  ...
 }:
 with builtins; with lib;
 let
@@ -124,7 +125,7 @@ let
       '';
 
   drvAttrs = {
-    name = "crate-${name}-${version}";
+    name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
     inherit src version meta;
     crateName = manifest.lib.name or (replaceChars ["-"] ["_"] name);
     buildInputs = sort (a: b: "${a}" < "${b}") (accessConfig "buildInputs" [ ]);

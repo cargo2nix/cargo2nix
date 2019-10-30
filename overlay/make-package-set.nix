@@ -10,6 +10,7 @@ args@{
   mkRustCrate,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
+  ...
 }:
 lib.fix' (self:
   let
@@ -33,20 +34,15 @@ lib.fix' (self:
     defaultScope = mkScope self;
     callPackage = lib.callPackageWith defaultScope;
 
-    mkRustCrate_ =
-      lib.makeOverridable
-        (callPackage mkRustCrate {
-          inherit rustLib;
-          config = rustPackageConfig;
-        });
+    mkRustCrate = callPackage args.mkRustCrate { inherit rustLib; config = rustPackageConfig; };
   in packageFun {
-    inherit rustPackages buildRustPackages lib;
-    inherit (stdenv) hostPlatform buildPlatform;
-    mkRustCrate = mkRustCrate_;
+    inherit rustPackages buildRustPackages lib mkRustCrate;
+    inherit (stdenv) hostPlatform;
     rustLib = rustLib // { fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath; };
+    ${ if args ? release then "release" else null } = args.release;
+    ${ if args ? rootFeatures then "rootFeatures" else null } = args.rootFeatures;
   } // {
-    inherit rustPackages buildRustPackages callPackage cargo rustc pkgs;
+    inherit rustPackages buildRustPackages callPackage cargo rustc pkgs mkRustCrate;
     config = rustPackageConfig;
-    mkRustCrate = mkRustCrate_;
     __splicedPackages = defaultScope;
   })

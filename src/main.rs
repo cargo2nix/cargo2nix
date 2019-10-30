@@ -101,15 +101,16 @@ fn main() {
             writeln!(
                 f,
                 "rootFeatures ? {},",
-                display_default_features_nix(|| root_pkgs.iter().map(|&p| p))
+                display_default_features_nix(&root_pkgs)
             )?;
+            writeln!(f, "{},", scope.crates)?;
+            writeln!(f, "{},", scope.build_crates)?;
+            writeln!(f, "{},", scope.mk_rust_crate)?;
+            writeln!(f, "{},", scope.host_platform)?;
+            writeln!(f, "rustLib,")?;
+            writeln!(f, "lib,")?;
         }
         writeln!(f, "}}:")?;
-        writeln!(
-            f,
-            "{{ {}, {}, {}, {}, hostPlatform, rustLib, lib }}:",
-            scope.crates, scope.build_crates, scope.mk_rust_crate, scope.build_platform
-        )?;
         writeln!(f, "let")?;
         {
             let mut f = f.indent(2);
@@ -126,7 +127,6 @@ fn main() {
                 "{} = {} args.rootFeatures;",
                 scope.root_features, scope.expand_features
             )?;
-            writeln!(f, "{} = hostPlatform;", scope.host_platform)?;
         }
         writeln!(f, "in")?;
         writeln!(f, "{{")?;
@@ -348,11 +348,7 @@ impl<'a> ResolvedPackage<'a> {
 
         let mut f = Indented::new(f);
         let pkg_id_string = display_pkg_id(self.pkg.package_id()).to_string();
-        writeln!(
-            f,
-            "{:?} = args@{{ hostPlatform ? {}, ... }}: {} (args // {{",
-            pkg_id_string, outer.host_platform, outer.mk_rust_crate
-        )?;
+        writeln!(f, "{:?} = {} {{", pkg_id_string, outer.mk_rust_crate)?;
         {
             let mut f = f.indent(2);
             writeln!(f, "inherit {} {};", outer.release, outer.profiles)?;
@@ -408,34 +404,27 @@ impl<'a> ResolvedPackage<'a> {
                         .and(
                             dep.dep
                                 .platform()
-                                .map(|p| platform::to_expr(p, "hostPlatform"))
+                                .map(|p| platform::to_expr(p, outer.host_platform))
                                 .unwrap_or(True),
                         )
                         .simplify()
                     {
                         True => write!(
                             f,
-                            "{} = {}.{:?} ",
+                            "{} = {}.{:?} {{ }}",
                             dep.extern_name,
                             crate_set,
                             display_pkg_id(dep_id.clone()).to_string(),
                         )?,
                         expr => write!(
                             f,
-                            "${{ if {} then {:?} else null }} = {}.{:?} ",
+                            "${{ if {} then {:?} else null }} = {}.{:?} {{ }}",
                             expr.to_nix(),
                             dep.extern_name,
                             crate_set,
                             display_pkg_id(dep_id.clone()).to_string()
                         )?,
                     }
-
-                    if should_run_on_build_platform {
-                        write!(f, "{{ hostPlatform = {}; }}", outer.build_platform)?;
-                    } else {
-                        write!(f, "{{ inherit hostPlatform; }}")?;
-                    };
-
                     writeln!(f, ";")?;
                 }
                 writeln!(f, "}};")?;
@@ -449,7 +438,7 @@ impl<'a> ResolvedPackage<'a> {
                 toml::to_string(&basic_manifest).unwrap()
             )?;
         }
-        writeln!(f, "}});")
+        writeln!(f, "}};")
     }
 }
 
@@ -467,7 +456,6 @@ struct Scope<'a> {
     fetch_crate_local: &'a str,
     optional: &'a str,
     host_platform: &'a str,
-    build_platform: &'a str,
 }
 
 impl Default for Scope<'static> {
@@ -484,8 +472,7 @@ impl Default for Scope<'static> {
             fetch_crate_git: "fetchCrateGit",
             fetch_crate_local: "fetchCrateLocal",
             optional: "lib.optional",
-            host_platform: "outerHostPlatform",
-            build_platform: "buildPlatform",
+            host_platform: "hostPlatform",
         }
     }
 }
@@ -649,16 +636,11 @@ fn display_profiles_nix(profiles: &toml::value::Table) -> impl '_ + fmt::Display
     })
 }
 
-fn display_default_features_nix<'a, 'b, F, I>(pkgs: F) -> impl 'b + fmt::Display
-where
-    F: 'b + Fn() -> I,
-    I: Iterator<Item = &'a Package>,
-    'a: 'b,
-{
+fn display_default_features_nix<'a>(pkgs: &'a [&Package]) -> impl 'a + fmt::Display {
     DisplayFn(move |f: &mut fmt::Formatter| {
         let mut f = Indented::new(f);
         writeln!(f, "{{ ")?;
-        for pkg in pkgs() {
+        for pkg in pkgs.iter() {
             writeln!(
                 f.indent(2),
                 "{:?} = {{ }};",
