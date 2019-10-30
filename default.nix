@@ -1,11 +1,14 @@
 {
-  nixpkgs ? <nixpkgs>,
+  nixpkgs ? fetchGit {
+    url = https://github.com/NixOS/nixpkgs;
+    rev = "63cdd9bd317e15e4a4f42dde455c73383ded1b41";
+  },
   nixpkgsMozilla ? fetchGit {
     url = https://github.com/mozilla/nixpkgs-mozilla;
     rev = "50bae918794d3c283aeb335b209efd71e75e3954";
   },
   system ? builtins.currentSystem,
-  crossSystem ? (import nixpkgs {}).lib.systems.examples.musl64
+  crossSystem ? (import nixpkgs {}).lib.systems.examples.musl64,
 }:
 let
   pkgs = import nixpkgs {
@@ -27,7 +30,6 @@ let
     targets = [
       (pkgs.rustBuilder.rustLib.realHostTriple pkgs.stdenv.targetPlatform)
     ];
-    extensions = [ "rust-std" ];
   };
 
   packageFun = import ./Cargo.nix;
@@ -86,7 +88,3 @@ let
   };
 in
   rustPkgs."cargo2nix 0.4.0 unknown" { compileMode = "test"; }
-  # rustPkgs."bytes 0.4.12 registry+https://github.com/rust-lang/crates.io-index" { }
-  # rustPkgs."libc 0.2.65 registry+https://github.com/rust-lang/crates.io-index" { }
-  # (rustPkgs."cargo 0.39.0 registry+https://github.com/rust-lang/crates.io-index" { }).dependencies
-  # rustPkgs."curl-sys 0.4.23 registry+https://github.com/rust-lang/crates.io-index" { }
