@@ -5,7 +5,7 @@ in
 args@{
   release ? true,
   rootFeatures ? { 
-    "cargo2nix2/default" = { };
+    "cargo2nix/default" = { };
   },
 }:
 { rustPackages, buildRustPackages, mkRustCrate, buildPlatform, hostPlatform, rustLib, lib }:
@@ -403,11 +403,11 @@ in
     manifest = builtins.fromTOML "[[bin]]\ndoc = false\nname = \"cargo\"\ntest = false\n\n[lib]\nname = \"cargo\"\npath = \"src/cargo/lib.rs\"\n\n[package]\nauthors = [\"Yehuda Katz <wycats@gmail.com>\", \"Carl Lerche <me@carllerche.com>\", \"Alex Crichton <alex@alexcrichton.com>\"]\ndescription = \"Cargo, a package manager for Rust.\\n\"\ndocumentation = \"https://docs.rs/cargo\"\nedition = \"2018\"\nhomepage = \"https://crates.io\"\nlicense = \"MIT OR Apache-2.0\"\nname = \"cargo\"\nrepository = \"https://github.com/rust-lang/cargo\"\nversion = \"0.39.0\"\n";
   });
   
-  "cargo2nix2 0.1.0 unknown" = args@{ hostPlatform ? outerHostPlatform, ... }: mkRustCrate (args // {
+  "cargo2nix 0.4.0 unknown" = args@{ hostPlatform ? outerHostPlatform, ... }: mkRustCrate (args // {
     inherit release profiles;
-    packageId = "cargo2nix2 0.1.0 unknown";
-    name = "cargo2nix2";
-    version = "0.1.0";
+    packageId = "cargo2nix 0.4.0 unknown";
+    name = "cargo2nix";
+    version = "0.4.0";
     registry = "unknown";
     src = fetchCrateLocal ./.;
     features = builtins.concatLists [
@@ -425,7 +425,7 @@ in
     };
     buildDependencies = {
     };
-    manifest = builtins.fromTOML "[package]\nauthors = [\"Trinh Hoang Anh <anh@tenx.tech>\"]\nedition = \"2018\"\nname = \"cargo2nix2\"\nversion = \"0.1.0\"\n";
+    manifest = builtins.fromTOML "[package]\nedition = \"2018\"\nlicense = \"MIT\"\nname = \"cargo2nix\"\nversion = \"0.4.0\"\n";
   });
   
   "cc 1.0.46 registry+https://github.com/rust-lang/crates.io-index" = args@{ hostPlatform ? outerHostPlatform, ... }: mkRustCrate (args // {

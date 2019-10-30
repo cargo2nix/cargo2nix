@@ -154,8 +154,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo2nix2"
-version = "0.1.0"
+name = "cargo2nix"
+version = "0.4.0"
 dependencies = [
  "cargo 0.39.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
