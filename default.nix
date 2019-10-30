@@ -59,10 +59,9 @@ let
               envize = s: builtins.replaceStrings ["-"] ["_"] (lib.toUpper s);
               envBuildPlatform = envize pkgs.buildPlatform.config;
               envHostPlatform = envize pkgs.hostPlatform.config;
-              staticOpenssl = pkgs: (pkgs.openssl.override {
+              patchOpenssl = pkgs: (pkgs.openssl.override {
                 # `perl` is only used at build time, but the derivation incorrectly uses host `perl` as an input.
                 perl = pkgs.buildPackages.buildPackages.perl;
-                static = true;
               }).overrideAttrs (drv: {
                 installTargets = "install_sw";
                 outputs = [ "dev" "out" "bin" ];
@@ -75,9 +74,8 @@ let
             in
               # We don't use key literals here, as they might collide if `hostPlatform == buildPlatform`.
               builtins.listToAttrs [
-                { name = "${envBuildPlatform}_OPENSSL_DIR"; value = joinOpenssl (staticOpenssl buildPackages); }
-                { name = "${envHostPlatform}_OPENSSL_DIR"; value = joinOpenssl (staticOpenssl pkgs); }
-                { name = "OPENSSL_STATIC"; value = "1"; }
+                { name = "${envBuildPlatform}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl buildPackages); }
+                { name = "${envHostPlatform}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
               ];
         };
       };
