@@ -85,7 +85,7 @@ let
     };
   };
 in
-  rustPkgs."cargo2nix2 0.1.0 unknown" { }
+  rustPkgs."cargo2nix2 0.1.0 unknown" { compileMode = "test"; }
   # rustPkgs."bytes 0.4.12 registry+https://github.com/rust-lang/crates.io-index" { }
   # rustPkgs."libc 0.2.65 registry+https://github.com/rust-lang/crates.io-index" { }
   # (rustPkgs."cargo 0.39.0 registry+https://github.com/rust-lang/crates.io-index" { }).dependencies

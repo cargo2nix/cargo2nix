@@ -675,6 +675,7 @@ fn prefetch_git(url: &str, git_ref: &GitReference) -> Result<String, Box<dyn std
         stderr,
         status,
     } = std::process::Command::new("nix-prefetch-git")
+        .arg("--quiet")
         .args(&["--url", url])
         .args(&[
             "--rev",
@@ -687,7 +688,11 @@ fn prefetch_git(url: &str, git_ref: &GitReference) -> Result<String, Box<dyn std
         .output()?;
 
     if status.success() {
-        Ok(String::from_utf8(stdout)?)
+        Ok(serde_json::from_slice::<serde_json::Value>(&stdout)?
+            .get("sha256")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string())
+            .ok_or("unexpected JSON output")?)
     } else {
         Err(format!(
             "process failed with stderr {:?}",

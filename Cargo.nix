@@ -418,6 +418,7 @@ in
       pathdiff = rustPackages."pathdiff 0.1.0 registry+https://github.com/rust-lang/crates.io-index" { inherit hostPlatform; };
       regex = rustPackages."regex 1.3.1 registry+https://github.com/rust-lang/crates.io-index" { inherit hostPlatform; };
       serde = rustPackages."serde 1.0.101 registry+https://github.com/rust-lang/crates.io-index" { inherit hostPlatform; };
+      serde_json = rustPackages."serde_json 1.0.41 registry+https://github.com/rust-lang/crates.io-index" { inherit hostPlatform; };
       toml = rustPackages."toml 0.5.3 registry+https://github.com/rust-lang/crates.io-index" { inherit hostPlatform; };
     };
     devDependencies = {
