@@ -161,7 +161,16 @@ fn all_features<'a>(p: &'a Package) -> impl 'a + Iterator<Item = Feature<'a>> {
 }
 
 fn is_proc_macro(p: &Package) -> bool {
-    p.targets().iter().any(|t| t.proc_macro())
+    use cargo::core::{LibKind, TargetKind};
+
+    p.targets()
+        .iter()
+        .filter_map(|t| match t.kind() {
+            TargetKind::Lib(kinds) => Some(kinds.iter()),
+            _ => None,
+        })
+        .flatten()
+        .any(|k| *k == LibKind::ProcMacro)
 }
 
 /// Traverses the whole dependency graph starting at `pkg` and marks required packages and features.
@@ -451,7 +460,7 @@ impl<'a> ResolvedPackage<'a> {
                 for (dep_id, dep) in self.deps.iter().filter(|(_, dep)| dep.dep.kind() == *kind) {
                     let mut f = f.indent(2);
                     let should_run_on_build_platform =
-                        dep.dep.kind() == DependencyKind::Build || is_proc_macro(dep.pkg);
+                        *kind == DependencyKind::Build || is_proc_macro(dep.pkg);
                     let crate_set = if should_run_on_build_platform {
                         outer.build_crates
                     } else {
