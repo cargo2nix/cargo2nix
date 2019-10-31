@@ -20,10 +20,12 @@
   dependencies,
   devDependencies,
   buildDependencies,
+  panicStrategy,
 }:
 { # The third argument is customizable by user.
   compileMode ? "build", # build, test, or bench.
   meta ? { },
+  ...
 }:
 with builtins; with lib;
 let
@@ -62,7 +64,7 @@ let
     let
       profileName = if release then "release" else compileMode;
       profile = profiles.${profileName} or { };
-      patchedProfile = if isProcMacro && profile ? panic then profile // { panic = "unwind"; } else profile;
+      patchedProfile = if panicStrategy == null then profile else profile // { panic = panicStrategy; };
     in
       {
         ${ if manifest ? package then "package" else null } = manifest.package;
@@ -151,7 +153,8 @@ let
         dependencies
         devDependencies
         buildDependencies
-        features;
+        features
+        panicStrategy;
       shell = pkgs.mkShell (removeAttrs drvAttrs ["src"]);
     };
 

@@ -385,16 +385,28 @@ impl<'a> ResolvedPackage<'a> {
     {
         use self::BoolExpr::*;
 
+        let panic_unwind_if = |cond| {
+            DisplayFn(move |f: &mut fmt::Formatter| {
+                if cond {
+                    write!(f, r#"panicStrategy = "unwind";"#)
+                } else {
+                    write!(f, "inherit panicStrategy;")
+                }
+            })
+        };
+        let is_self_proc_macro = is_proc_macro(self.pkg);
+
         let mut f = Indented::new(f);
         writeln!(
             f,
-            "{} = {} {{",
+            "{} = args@{{ panicStrategy ? null, ... }}: {} {{",
             display_pkg_id_nix(self.pkg.package_id()),
             outer.mk_rust_crate
         )?;
         {
             let mut f = f.indent(2);
             writeln!(f, "inherit {} {};", outer.release, outer.profiles)?;
+            writeln!(f, "{}", panic_unwind_if(is_self_proc_macro))?;
             writeln!(f, "name = {:?};", self.pkg.name())?;
             writeln!(f, "version = {:?};", self.pkg.version().to_string())?;
             writeln!(
@@ -451,28 +463,27 @@ impl<'a> ResolvedPackage<'a> {
                         )
                         .simplify()
                     {
-                        True => write!(
-                            f,
-                            "{} = {}.{} {{ }}",
-                            dep.extern_name,
-                            crate_set,
-                            display_pkg_id_nix(dep_id.clone()),
-                        )?,
+                        True => write!(f, "{}", dep.extern_name,)?,
                         expr => write!(
                             f,
-                            "${{ if {} then {:?} else null }} = {}.{} {{ }}",
+                            "${{ if {} then {:?} else null }}",
                             expr.to_nix(),
                             dep.extern_name,
-                            crate_set,
-                            display_pkg_id_nix(dep_id.clone())
                         )?,
                     }
+                    write!(
+                        f,
+                        " = {}.{} {{ {} }}",
+                        crate_set,
+                        display_pkg_id_nix(dep_id.clone()),
+                        panic_unwind_if(*kind == DependencyKind::Build || is_self_proc_macro)
+                    )?;
                     writeln!(f, ";")?;
                 }
                 writeln!(f, "}};")?;
             }
         }
-        writeln!(f, "}};")
+        writeln!(f, "}} args;")
     }
 }
 
