@@ -2,7 +2,7 @@ let
   profiles = {
   };
 in
-args@{
+{
   release ? true,
   rootFeatures ? [
     "cargo2nix/default" 
@@ -16,11 +16,12 @@ args@{
 }:
 let
   inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit expandFeatures;
-  rootFeatures = expandFeatures args.rootFeatures;
+  rootFeatures' = expandFeatures rootFeatures;
 in
 {
-  "registry+https://github.com/rust-lang/crates.io-index".adler32."1.0.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".adler32."1.0.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "adler32";
     version = "1.0.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -37,10 +38,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "aho-corasick";
     version = "0.7.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -54,16 +56,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { };
+      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".ansi_term."0.11.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".ansi_term."0.11.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "ansi_term";
     version = "0.11.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -75,16 +78,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.parsed.kernel.name == "windows" then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.parsed.kernel.name == "windows" then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "atty";
     version = "0.2.13";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -96,17 +100,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.7" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.7" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "autocfg";
     version = "0.1.7";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -123,10 +128,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.40" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.40" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "backtrace";
     version = "0.3.40";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -145,19 +151,20 @@ in
       [ "std" ]
     ];
     dependencies = {
-      backtrace_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.32" { };
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      rustc_demangle = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.16" { };
+      backtrace_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.32" { inherit panicStrategy; };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      rustc_demangle = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.16" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.32" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".backtrace-sys."0.1.32" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "backtrace-sys";
     version = "0.1.32";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -169,17 +176,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "bitflags";
     version = "1.2.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -197,10 +205,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".bstr."0.2.8" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".bstr."0.2.8" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "bstr";
     version = "0.2.8";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -213,16 +222,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { };
+      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "byteorder";
     version = "1.3.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -241,10 +251,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".bytes."0.4.12" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".bytes."0.4.12" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "bytes";
     version = "0.4.12";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -256,17 +267,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      byteorder = rustPackages."registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" { };
-      iovec = rustPackages."registry+https://github.com/rust-lang/crates.io-index".iovec."0.1.4" { };
+      byteorder = rustPackages."registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" { inherit panicStrategy; };
+      iovec = rustPackages."registry+https://github.com/rust-lang/crates.io-index".iovec."0.1.4" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".bytesize."1.0.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".bytesize."1.0.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "bytesize";
     version = "1.0.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -283,10 +295,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".c2-chacha."0.2.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".c2-chacha."0.2.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "c2-chacha";
     version = "0.2.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -300,16 +313,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      ppv_lite86 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ppv-lite86."0.2.6" { };
+      ppv_lite86 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ppv-lite86."0.2.6" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".cargo."0.39.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".cargo."0.39.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "cargo";
     version = "0.39.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -321,66 +335,67 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      atty = rustPackages."registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" { };
-      byteorder = rustPackages."registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" { };
-      bytesize = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bytesize."1.0.0" { };
-      clap = rustPackages."registry+https://github.com/rust-lang/crates.io-index".clap."2.33.0" { };
-      ${ if hostPlatform.parsed.kernel.name == "darwin" then "core_foundation" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".core-foundation."0.6.4" { };
-      crates_io = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crates-io."0.27.0" { };
-      crossbeam_utils = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" { };
-      crypto_hash = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.4" { };
-      curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" { };
-      curl_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" { };
-      env_logger = rustPackages."registry+https://github.com/rust-lang/crates.io-index".env_logger."0.6.2" { };
-      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { };
-      filetime = rustPackages."registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" { };
-      flate2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.12" { };
-      fs2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fs2."0.4.3" { };
-      ${ if hostPlatform.isWindows then "fwdansi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fwdansi."1.0.1" { };
-      git2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" { };
-      git2_curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".git2-curl."0.10.1" { };
-      glob = rustPackages."registry+https://github.com/rust-lang/crates.io-index".glob."0.3.0" { };
-      hex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" { };
-      home = rustPackages."registry+https://github.com/rust-lang/crates.io-index".home."0.3.4" { };
-      ignore = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.10" { };
-      im_rc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".im-rc."13.0.0" { };
-      jobserver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.17" { };
-      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { };
-      lazycell = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazycell."1.2.1" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      libgit2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { };
-      ${ if hostPlatform.isWindows then "miow" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".miow."0.3.3" { };
-      num_cpus = rustPackages."registry+https://github.com/rust-lang/crates.io-index".num_cpus."1.10.1" { };
-      opener = rustPackages."registry+https://github.com/rust-lang/crates.io-index".opener."0.4.1" { };
-      rustc_workspace_hack = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc-workspace-hack."1.0.0" { };
-      rustfix = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.6" { };
-      same_file = rustPackages."registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" { };
-      semver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" { };
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
-      serde_ignored = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_ignored."0.0.4" { };
-      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { };
-      shell_escape = rustPackages."registry+https://github.com/rust-lang/crates.io-index".shell-escape."0.1.4" { };
-      strip_ansi_escapes = rustPackages."registry+https://github.com/rust-lang/crates.io-index".strip-ansi-escapes."0.1.0" { };
-      tar = rustPackages."registry+https://github.com/rust-lang/crates.io-index".tar."0.4.26" { };
-      tempfile = rustPackages."registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" { };
-      termcolor = rustPackages."registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" { };
-      toml = rustPackages."registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" { };
-      unicode_width = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" { };
-      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" { };
-      url_serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url_serde."0.2.0" { };
-      walkdir = rustPackages."registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      atty = rustPackages."registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" { inherit panicStrategy; };
+      byteorder = rustPackages."registry+https://github.com/rust-lang/crates.io-index".byteorder."1.3.2" { inherit panicStrategy; };
+      bytesize = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bytesize."1.0.0" { inherit panicStrategy; };
+      clap = rustPackages."registry+https://github.com/rust-lang/crates.io-index".clap."2.33.0" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "darwin" then "core_foundation" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".core-foundation."0.6.4" { inherit panicStrategy; };
+      crates_io = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crates-io."0.27.0" { inherit panicStrategy; };
+      crossbeam_utils = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" { inherit panicStrategy; };
+      crypto_hash = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.4" { inherit panicStrategy; };
+      curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" { inherit panicStrategy; };
+      curl_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" { inherit panicStrategy; };
+      env_logger = rustPackages."registry+https://github.com/rust-lang/crates.io-index".env_logger."0.6.2" { inherit panicStrategy; };
+      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { inherit panicStrategy; };
+      filetime = rustPackages."registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" { inherit panicStrategy; };
+      flate2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.12" { inherit panicStrategy; };
+      fs2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fs2."0.4.3" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "fwdansi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fwdansi."1.0.1" { inherit panicStrategy; };
+      git2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" { inherit panicStrategy; };
+      git2_curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".git2-curl."0.10.1" { inherit panicStrategy; };
+      glob = rustPackages."registry+https://github.com/rust-lang/crates.io-index".glob."0.3.0" { inherit panicStrategy; };
+      hex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" { inherit panicStrategy; };
+      home = rustPackages."registry+https://github.com/rust-lang/crates.io-index".home."0.3.4" { inherit panicStrategy; };
+      ignore = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.10" { inherit panicStrategy; };
+      im_rc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".im-rc."13.0.0" { inherit panicStrategy; };
+      jobserver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.17" { inherit panicStrategy; };
+      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { inherit panicStrategy; };
+      lazycell = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazycell."1.2.1" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      libgit2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "miow" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".miow."0.3.3" { inherit panicStrategy; };
+      num_cpus = rustPackages."registry+https://github.com/rust-lang/crates.io-index".num_cpus."1.10.1" { inherit panicStrategy; };
+      opener = rustPackages."registry+https://github.com/rust-lang/crates.io-index".opener."0.4.1" { inherit panicStrategy; };
+      rustc_workspace_hack = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc-workspace-hack."1.0.0" { inherit panicStrategy; };
+      rustfix = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.6" { inherit panicStrategy; };
+      same_file = rustPackages."registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" { inherit panicStrategy; };
+      semver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" { inherit panicStrategy; };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
+      serde_ignored = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_ignored."0.0.4" { inherit panicStrategy; };
+      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { inherit panicStrategy; };
+      shell_escape = rustPackages."registry+https://github.com/rust-lang/crates.io-index".shell-escape."0.1.4" { inherit panicStrategy; };
+      strip_ansi_escapes = rustPackages."registry+https://github.com/rust-lang/crates.io-index".strip-ansi-escapes."0.1.0" { inherit panicStrategy; };
+      tar = rustPackages."registry+https://github.com/rust-lang/crates.io-index".tar."0.4.26" { inherit panicStrategy; };
+      tempfile = rustPackages."registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" { inherit panicStrategy; };
+      termcolor = rustPackages."registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" { inherit panicStrategy; };
+      toml = rustPackages."registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" { inherit panicStrategy; };
+      unicode_width = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" { inherit panicStrategy; };
+      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" { inherit panicStrategy; };
+      url_serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url_serde."0.2.0" { inherit panicStrategy; };
+      walkdir = rustPackages."registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "unknown".cargo2nix."0.4.0" = mkRustCrate {
+  "unknown".cargo2nix."0.4.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "cargo2nix";
     version = "0.4.0";
     registry = "unknown";
@@ -388,22 +403,23 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      cargo = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cargo."0.39.0" { };
-      once_cell = rustPackages."registry+https://github.com/rust-lang/crates.io-index".once_cell."1.2.0" { };
-      pathdiff = rustPackages."registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" { };
-      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { };
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
-      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { };
-      toml = rustPackages."registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" { };
+      cargo = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cargo."0.39.0" { inherit panicStrategy; };
+      once_cell = rustPackages."registry+https://github.com/rust-lang/crates.io-index".once_cell."1.2.0" { inherit panicStrategy; };
+      pathdiff = rustPackages."registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" { inherit panicStrategy; };
+      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { inherit panicStrategy; };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
+      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { inherit panicStrategy; };
+      toml = rustPackages."registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "cc";
     version = "1.0.46";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -420,10 +436,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "cfg-if";
     version = "0.1.10";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -440,10 +457,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".clap."2.33.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".clap."2.33.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "clap";
     version = "2.33.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -462,22 +480,23 @@ in
       [ "vec_map" ]
     ];
     dependencies = {
-      ${ if !hostPlatform.isWindows then "ansi_term" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ansi_term."0.11.0" { };
-      atty = rustPackages."registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" { };
-      bitflags = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" { };
-      strsim = rustPackages."registry+https://github.com/rust-lang/crates.io-index".strsim."0.8.0" { };
-      textwrap = rustPackages."registry+https://github.com/rust-lang/crates.io-index".textwrap."0.11.0" { };
-      unicode_width = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" { };
-      vec_map = rustPackages."registry+https://github.com/rust-lang/crates.io-index".vec_map."0.8.1" { };
+      ${ if !hostPlatform.isWindows then "ansi_term" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ansi_term."0.11.0" { inherit panicStrategy; };
+      atty = rustPackages."registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" { inherit panicStrategy; };
+      bitflags = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" { inherit panicStrategy; };
+      strsim = rustPackages."registry+https://github.com/rust-lang/crates.io-index".strsim."0.8.0" { inherit panicStrategy; };
+      textwrap = rustPackages."registry+https://github.com/rust-lang/crates.io-index".textwrap."0.11.0" { inherit panicStrategy; };
+      unicode_width = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" { inherit panicStrategy; };
+      vec_map = rustPackages."registry+https://github.com/rust-lang/crates.io-index".vec_map."0.8.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".commoncrypto."0.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".commoncrypto."0.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "commoncrypto";
     version = "0.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -489,16 +508,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      commoncrypto_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".commoncrypto-sys."0.2.0" { };
+      commoncrypto_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".commoncrypto-sys."0.2.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".commoncrypto-sys."0.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".commoncrypto-sys."0.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "commoncrypto-sys";
     version = "0.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -510,16 +530,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".core-foundation."0.6.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".core-foundation."0.6.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "core-foundation";
     version = "0.6.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -532,17 +553,18 @@ in
       [ "mac_os_10_7_support" ]
     ];
     dependencies = {
-      core_foundation_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".core-foundation-sys."0.6.2" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      core_foundation_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".core-foundation-sys."0.6.2" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".core-foundation-sys."0.6.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".core-foundation-sys."0.6.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "core-foundation-sys";
     version = "0.6.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -560,10 +582,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".crates-io."0.27.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".crates-io."0.27.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "crates-io";
     version = "0.27.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -575,22 +598,23 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" { };
-      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { };
-      http = rustPackages."registry+https://github.com/rust-lang/crates.io-index".http."0.1.19" { };
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
-      serde_derive = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" { };
-      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { };
-      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" { };
+      curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" { inherit panicStrategy; };
+      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { inherit panicStrategy; };
+      http = rustPackages."registry+https://github.com/rust-lang/crates.io-index".http."0.1.19" { inherit panicStrategy; };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
+      serde_derive = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" { inherit panicStrategy; };
+      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { inherit panicStrategy; };
+      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".crc32fast."1.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".crc32fast."1.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "crc32fast";
     version = "1.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -604,16 +628,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.9" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.9" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "crossbeam-channel";
     version = "0.3.9";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -625,16 +650,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      crossbeam_utils = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" { };
+      crossbeam_utils = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".crossbeam-utils."0.6.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "crossbeam-utils";
     version = "0.6.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -649,17 +675,18 @@ in
       [ "std" ]
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".crypto-hash."0.3.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "crypto-hash";
     version = "0.3.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -671,19 +698,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.parsed.kernel.name == "darwin" || hostPlatform.parsed.kernel.name == "ios" then "commoncrypto" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".commoncrypto."0.2.0" { };
-      hex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" { };
-      ${ if !(hostPlatform.parsed.kernel.name == "windows" || hostPlatform.parsed.kernel.name == "darwin" || hostPlatform.parsed.kernel.name == "ios") then "openssl" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.25" { };
-      ${ if hostPlatform.parsed.kernel.name == "windows" then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.parsed.kernel.name == "darwin" || hostPlatform.parsed.kernel.name == "ios" then "commoncrypto" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".commoncrypto."0.2.0" { inherit panicStrategy; };
+      hex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" { inherit panicStrategy; };
+      ${ if !(hostPlatform.parsed.kernel.name == "windows" || hostPlatform.parsed.kernel.name == "darwin" || hostPlatform.parsed.kernel.name == "ios") then "openssl" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.25" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "windows" then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "curl";
     version = "0.4.25";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -700,22 +728,23 @@ in
       [ "ssl" ]
     ];
     dependencies = {
-      curl_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_probe" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" { };
-      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { };
-      ${ if hostPlatform.parsed.abi.name == "msvc" then "schannel" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".schannel."0.1.16" { };
-      socket2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" { };
-      ${ if hostPlatform.parsed.abi.name == "msvc" then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      curl_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_probe" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.abi.name == "msvc" then "schannel" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".schannel."0.1.16" { inherit panicStrategy; };
+      socket2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.abi.name == "msvc" then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".curl-sys."0.4.23" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "curl-sys";
     version = "0.4.23";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -732,23 +761,24 @@ in
       [ "ssl" ]
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      libnghttp2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.2" { };
-      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { };
-      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      libnghttp2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.2" { inherit panicStrategy; };
+      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") || hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows || hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
-      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
-      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
+      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { panicStrategy = "unwind"; };
+      ${ if hostPlatform.parsed.abi.name == "msvc" || hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".env_logger."0.6.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".env_logger."0.6.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "env_logger";
     version = "0.6.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -765,20 +795,21 @@ in
       [ "termcolor" ]
     ];
     dependencies = {
-      atty = rustPackages."registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" { };
-      humantime = rustPackages."registry+https://github.com/rust-lang/crates.io-index".humantime."1.3.0" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { };
-      termcolor = rustPackages."registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" { };
+      atty = rustPackages."registry+https://github.com/rust-lang/crates.io-index".atty."0.2.13" { inherit panicStrategy; };
+      humantime = rustPackages."registry+https://github.com/rust-lang/crates.io-index".humantime."1.3.0" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { inherit panicStrategy; };
+      termcolor = rustPackages."registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "failure";
     version = "0.1.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -795,17 +826,18 @@ in
       [ "std" ]
     ];
     dependencies = {
-      backtrace = rustPackages."registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.40" { };
-      failure_derive = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".failure_derive."0.1.6" { };
+      backtrace = rustPackages."registry+https://github.com/rust-lang/crates.io-index".backtrace."0.3.40" { inherit panicStrategy; };
+      failure_derive = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".failure_derive."0.1.6" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".failure_derive."0.1.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".failure_derive."0.1.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    panicStrategy = "unwind";
     name = "failure_derive";
     version = "0.1.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -817,19 +849,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { };
-      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { };
-      syn = rustPackages."registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" { };
-      synstructure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".synstructure."0.12.1" { };
+      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { panicStrategy = "unwind"; };
+      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { panicStrategy = "unwind"; };
+      syn = rustPackages."registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" { panicStrategy = "unwind"; };
+      synstructure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".synstructure."0.12.1" { panicStrategy = "unwind"; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "filetime";
     version = "0.2.7";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -841,19 +874,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.12" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.12" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "flate2";
     version = "1.0.12";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -870,20 +904,21 @@ in
       [ "zlib" ]
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      crc32fast = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crc32fast."1.2.0" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { };
-      miniz_oxide = rustPackages."registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.3.3" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      crc32fast = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crc32fast."1.2.0" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { inherit panicStrategy; };
+      miniz_oxide = rustPackages."registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.3.3" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "fnv";
     version = "1.0.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -900,10 +935,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".foreign-types."0.3.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".foreign-types."0.3.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "foreign-types";
     version = "0.3.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -915,16 +951,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      foreign_types_shared = rustPackages."registry+https://github.com/rust-lang/crates.io-index".foreign-types-shared."0.1.1" { };
+      foreign_types_shared = rustPackages."registry+https://github.com/rust-lang/crates.io-index".foreign-types-shared."0.1.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".foreign-types-shared."0.1.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".foreign-types-shared."0.1.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "foreign-types-shared";
     version = "0.1.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -941,10 +978,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".fs2."0.4.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".fs2."0.4.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "fs2";
     version = "0.4.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -956,17 +994,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".fwdansi."1.0.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".fwdansi."1.0.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "fwdansi";
     version = "1.0.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -978,17 +1017,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { };
-      termcolor = rustPackages."registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" { };
+      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { inherit panicStrategy; };
+      termcolor = rustPackages."registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "getrandom";
     version = "0.1.12";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1001,18 +1041,19 @@ in
       [ "std" ]
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      ${ if hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.parsed.kernel.name == "wasi" then "wasi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".wasi."0.7.0" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" || hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "wasi" || hostPlatform.parsed.kernel.name == "wasi" then "wasi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".wasi."0.7.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "git2";
     version = "0.9.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1030,22 +1071,23 @@ in
       [ "ssh_key_from_memory" ]
     ];
     dependencies = {
-      bitflags = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      libgit2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_probe" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" { };
-      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { };
-      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" { };
+      bitflags = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      libgit2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_probe" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix && !(hostPlatform.parsed.kernel.name == "darwin") then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { inherit panicStrategy; };
+      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".git2-curl."0.10.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".git2-curl."0.10.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "git2-curl";
     version = "0.10.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1057,19 +1099,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" { };
-      git2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" { };
+      curl = rustPackages."registry+https://github.com/rust-lang/crates.io-index".curl."0.4.25" { inherit panicStrategy; };
+      git2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".git2."0.9.2" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".glob."0.3.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".glob."0.3.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "glob";
     version = "0.3.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1086,10 +1129,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".globset."0.4.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".globset."0.4.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "globset";
     version = "0.4.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1101,20 +1145,21 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      aho_corasick = rustPackages."registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" { };
-      bstr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bstr."0.2.8" { };
-      fnv = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { };
+      aho_corasick = rustPackages."registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" { inherit panicStrategy; };
+      bstr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bstr."0.2.8" { inherit panicStrategy; };
+      fnv = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".hex."0.3.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "hex";
     version = "0.3.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1131,10 +1176,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".home."0.3.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".home."0.3.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "home";
     version = "0.3.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1146,17 +1192,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "scopeguard" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".scopeguard."0.3.3" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isWindows then "scopeguard" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".scopeguard."0.3.3" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".http."0.1.19" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".http."0.1.19" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "http";
     version = "0.1.19";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1168,18 +1215,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      bytes = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bytes."0.4.12" { };
-      fnv = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" { };
-      itoa = rustPackages."registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" { };
+      bytes = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bytes."0.4.12" { inherit panicStrategy; };
+      fnv = rustPackages."registry+https://github.com/rust-lang/crates.io-index".fnv."1.0.6" { inherit panicStrategy; };
+      itoa = rustPackages."registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".humantime."1.3.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".humantime."1.3.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "humantime";
     version = "1.3.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1191,16 +1239,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      quick_error = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quick-error."1.2.2" { };
+      quick_error = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quick-error."1.2.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".idna."0.1.5" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".idna."0.1.5" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "idna";
     version = "0.1.5";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1212,18 +1261,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { };
-      unicode_bidi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" { };
-      unicode_normalization = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" { };
+      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { inherit panicStrategy; };
+      unicode_bidi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" { inherit panicStrategy; };
+      unicode_normalization = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".idna."0.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".idna."0.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "idna";
     version = "0.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1235,18 +1285,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { };
-      unicode_bidi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" { };
-      unicode_normalization = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" { };
+      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { inherit panicStrategy; };
+      unicode_bidi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" { inherit panicStrategy; };
+      unicode_normalization = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.10" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".ignore."0.4.10" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "ignore";
     version = "0.4.10";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1258,25 +1309,26 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      crossbeam_channel = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.9" { };
-      globset = rustPackages."registry+https://github.com/rust-lang/crates.io-index".globset."0.4.4" { };
-      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { };
-      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { };
-      same_file = rustPackages."registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" { };
-      thread_local = rustPackages."registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" { };
-      walkdir = rustPackages."registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" { };
-      ${ if hostPlatform.isWindows then "winapi_util" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { };
+      crossbeam_channel = rustPackages."registry+https://github.com/rust-lang/crates.io-index".crossbeam-channel."0.3.9" { inherit panicStrategy; };
+      globset = rustPackages."registry+https://github.com/rust-lang/crates.io-index".globset."0.4.4" { inherit panicStrategy; };
+      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { inherit panicStrategy; };
+      regex = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" { inherit panicStrategy; };
+      same_file = rustPackages."registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" { inherit panicStrategy; };
+      thread_local = rustPackages."registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" { inherit panicStrategy; };
+      walkdir = rustPackages."registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi_util" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".im-rc."13.0.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".im-rc."13.0.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "im-rc";
     version = "13.0.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1288,18 +1340,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      sized_chunks = rustPackages."registry+https://github.com/rust-lang/crates.io-index".sized-chunks."0.3.1" { };
-      typenum = rustPackages."registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" { };
+      sized_chunks = rustPackages."registry+https://github.com/rust-lang/crates.io-index".sized-chunks."0.3.1" { inherit panicStrategy; };
+      typenum = rustPackages."registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      rustc_version = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" { };
+      rustc_version = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".iovec."0.1.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".iovec."0.1.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "iovec";
     version = "0.1.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1311,16 +1364,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "itoa";
     version = "0.4.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1339,10 +1393,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.17" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".jobserver."0.1.17" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "jobserver";
     version = "0.1.17";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1354,18 +1409,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "getrandom" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" { };
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
+      ${ if hostPlatform.isWindows then "getrandom" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "lazy_static";
     version = "1.4.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1382,10 +1438,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".lazycell."1.2.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".lazycell."1.2.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "lazycell";
     version = "1.2.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1402,10 +1459,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "libc";
     version = "0.2.65";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1424,10 +1482,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".libgit2-sys."0.8.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "libgit2-sys";
     version = "0.8.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1444,21 +1503,22 @@ in
       [ "ssh_key_from_memory" ]
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      libssh2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libssh2-sys."0.2.13" { };
-      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { };
-      ${ if hostPlatform.isUnix then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      libssh2_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libssh2-sys."0.2.13" { inherit panicStrategy; };
+      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
-      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
+      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".libnghttp2-sys."0.1.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "libnghttp2-sys";
     version = "0.1.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1470,17 +1530,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".libssh2-sys."0.2.13" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".libssh2-sys."0.2.13" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "libssh2-sys";
     version = "0.2.13";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1492,21 +1553,22 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { };
-      ${ if hostPlatform.isUnix then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      libz_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "openssl_sys" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
-      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
-      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
+      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { panicStrategy = "unwind"; };
+      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".libz-sys."1.0.25" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "libz-sys";
     version = "1.0.25";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1518,19 +1580,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
-      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
-      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
+      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { panicStrategy = "unwind"; };
+      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "log";
     version = "0.4.8";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1543,16 +1606,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "matches";
     version = "0.1.8";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1569,10 +1633,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "memchr";
     version = "2.2.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1591,10 +1656,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.3.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".miniz_oxide."0.3.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "miniz_oxide";
     version = "0.3.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1606,16 +1672,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      adler32 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".adler32."1.0.4" { };
+      adler32 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".adler32."1.0.4" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".miow."0.3.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".miow."0.3.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "miow";
     version = "0.3.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1627,17 +1694,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      socket2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" { };
-      winapi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      socket2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" { inherit panicStrategy; };
+      winapi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".num_cpus."1.10.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".num_cpus."1.10.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "num_cpus";
     version = "1.10.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1649,16 +1717,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".once_cell."1.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".once_cell."1.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "once_cell";
     version = "1.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1677,10 +1746,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".opener."0.4.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".opener."0.4.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "opener";
     version = "0.4.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1692,16 +1762,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.25" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.25" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "openssl";
     version = "0.10.25";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1713,21 +1784,22 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      bitflags = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" { };
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      foreign_types = rustPackages."registry+https://github.com/rust-lang/crates.io-index".foreign-types."0.3.2" { };
-      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { };
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      openssl_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { };
+      bitflags = rustPackages."registry+https://github.com/rust-lang/crates.io-index".bitflags."1.2.1" { inherit panicStrategy; };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      foreign_types = rustPackages."registry+https://github.com/rust-lang/crates.io-index".foreign-types."0.3.2" { inherit panicStrategy; };
+      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { inherit panicStrategy; };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      openssl_sys = rustPackages."registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".openssl-probe."0.1.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "openssl-probe";
     version = "0.1.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1744,10 +1816,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".openssl-sys."0.9.52" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "openssl-sys";
     version = "0.9.52";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1759,20 +1832,21 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
+      libc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
-      autocfg = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.7" { };
-      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { };
-      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { };
-      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { };
+      autocfg = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".autocfg."0.1.7" { panicStrategy = "unwind"; };
+      cc = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".cc."1.0.46" { panicStrategy = "unwind"; };
+      pkg_config = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" { panicStrategy = "unwind"; };
+      ${ if hostPlatform.parsed.abi.name == "msvc" then "vcpkg" else null } = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" { panicStrategy = "unwind"; };
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "pathdiff";
     version = "0.1.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1789,10 +1863,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".percent-encoding."1.0.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".percent-encoding."1.0.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "percent-encoding";
     version = "1.0.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1809,10 +1884,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".percent-encoding."2.1.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".percent-encoding."2.1.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "percent-encoding";
     version = "2.1.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1829,10 +1905,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".pkg-config."0.3.16" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "pkg-config";
     version = "0.3.16";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1849,10 +1926,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".ppv-lite86."0.2.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".ppv-lite86."0.2.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "ppv-lite86";
     version = "0.2.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1871,10 +1949,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "proc-macro2";
     version = "1.0.5";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1888,16 +1967,17 @@ in
       [ "proc-macro" ]
     ];
     dependencies = {
-      unicode_xid = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" { };
+      unicode_xid = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".quick-error."1.2.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".quick-error."1.2.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "quick-error";
     version = "1.2.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1914,10 +1994,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "quote";
     version = "1.0.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1931,16 +2012,17 @@ in
       [ "proc-macro" ]
     ];
     dependencies = {
-      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { };
+      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rand."0.7.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rand."0.7.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rand";
     version = "0.7.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1957,20 +2039,21 @@ in
       [ "std" ]
     ];
     dependencies = {
-      getrandom_package = rustPackages."registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" { };
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if !(hostPlatform.parsed.kernel.name == "emscripten") then "rand_chacha" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.2.1" { };
-      rand_core = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" { };
+      getrandom_package = rustPackages."registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if !(hostPlatform.parsed.kernel.name == "emscripten") then "rand_chacha" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.2.1" { inherit panicStrategy; };
+      rand_core = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "emscripten" then "rand_hc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_hc."0.2.0" { inherit panicStrategy; };
     };
     devDependencies = {
-      rand_hc = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_hc."0.2.0" { };
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.2.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rand_chacha."0.2.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rand_chacha";
     version = "0.2.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -1983,17 +2066,18 @@ in
       [ "std" ]
     ];
     dependencies = {
-      c2_chacha = rustPackages."registry+https://github.com/rust-lang/crates.io-index".c2-chacha."0.2.3" { };
-      rand_core = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" { };
+      c2_chacha = rustPackages."registry+https://github.com/rust-lang/crates.io-index".c2-chacha."0.2.3" { inherit panicStrategy; };
+      rand_core = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rand_core";
     version = "0.5.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2008,16 +2092,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      getrandom = rustPackages."registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" { };
+      getrandom = rustPackages."registry+https://github.com/rust-lang/crates.io-index".getrandom."0.1.12" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rand_hc."0.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rand_hc."0.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rand_hc";
     version = "0.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2029,16 +2114,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      rand_core = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" { };
+      rand_core = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand_core."0.5.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "redox_syscall";
     version = "0.1.56";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2055,10 +2141,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".regex."1.3.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "regex";
     version = "1.3.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2088,19 +2175,20 @@ in
       [ "unicode-segment" ]
     ];
     dependencies = {
-      aho_corasick = rustPackages."registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" { };
-      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { };
-      regex_syntax = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.12" { };
-      thread_local = rustPackages."registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" { };
+      aho_corasick = rustPackages."registry+https://github.com/rust-lang/crates.io-index".aho-corasick."0.7.6" { inherit panicStrategy; };
+      memchr = rustPackages."registry+https://github.com/rust-lang/crates.io-index".memchr."2.2.1" { inherit panicStrategy; };
+      regex_syntax = rustPackages."registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.12" { inherit panicStrategy; };
+      thread_local = rustPackages."registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.12" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".regex-syntax."0.6.12" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "regex-syntax";
     version = "0.6.12";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2124,10 +2212,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".remove_dir_all."0.5.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".remove_dir_all."0.5.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "remove_dir_all";
     version = "0.5.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2139,16 +2228,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.16" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rustc-demangle."0.1.16" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rustc-demangle";
     version = "0.1.16";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2165,10 +2255,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rustc-workspace-hack."1.0.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rustc-workspace-hack."1.0.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rustc-workspace-hack";
     version = "1.0.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2185,10 +2276,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rustc_version."0.2.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rustc_version";
     version = "0.2.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2200,16 +2292,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      semver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" { };
+      semver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".rustfix."0.4.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "rustfix";
     version = "0.4.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2221,19 +2314,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { };
-      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { };
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
-      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { };
+      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { inherit panicStrategy; };
+      log = rustPackages."registry+https://github.com/rust-lang/crates.io-index".log."0.4.8" { inherit panicStrategy; };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
+      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".ryu."1.0.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".ryu."1.0.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "ryu";
     version = "1.0.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2250,10 +2344,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "same-file";
     version = "1.0.5";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2265,16 +2360,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "winapi_util" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { };
+      ${ if hostPlatform.isWindows then "winapi_util" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".schannel."0.1.16" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".schannel."0.1.16" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "schannel";
     version = "0.1.16";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2286,17 +2382,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { };
-      winapi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { inherit panicStrategy; };
+      winapi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".scopeguard."0.3.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".scopeguard."0.3.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "scopeguard";
     version = "0.3.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2315,10 +2412,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "semver";
     version = "0.9.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2332,17 +2430,18 @@ in
       [ "serde" ]
     ];
     dependencies = {
-      semver_parser = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver-parser."0.7.0" { };
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
+      semver_parser = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver-parser."0.7.0" { inherit panicStrategy; };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".semver-parser."0.7.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".semver-parser."0.7.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "semver-parser";
     version = "0.7.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2359,10 +2458,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "serde";
     version = "1.0.101";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2378,16 +2478,17 @@ in
       [ "std" ]
     ];
     dependencies = {
-      serde_derive = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" { };
+      serde_derive = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".serde_derive."1.0.101" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    panicStrategy = "unwind";
     name = "serde_derive";
     version = "1.0.101";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2400,18 +2501,19 @@ in
       [ "default" ]
     ];
     dependencies = {
-      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { };
-      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { };
-      syn = rustPackages."registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" { };
+      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { panicStrategy = "unwind"; };
+      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { panicStrategy = "unwind"; };
+      syn = rustPackages."registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" { panicStrategy = "unwind"; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".serde_ignored."0.0.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".serde_ignored."0.0.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "serde_ignored";
     version = "0.0.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2423,16 +2525,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "serde_json";
     version = "1.0.41";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2446,18 +2549,19 @@ in
       [ "raw_value" ]
     ];
     dependencies = {
-      itoa = rustPackages."registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" { };
-      ryu = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ryu."1.0.2" { };
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
+      itoa = rustPackages."registry+https://github.com/rust-lang/crates.io-index".itoa."0.4.4" { inherit panicStrategy; };
+      ryu = rustPackages."registry+https://github.com/rust-lang/crates.io-index".ryu."1.0.2" { inherit panicStrategy; };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".shell-escape."0.1.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".shell-escape."0.1.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "shell-escape";
     version = "0.1.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2474,10 +2578,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".sized-chunks."0.3.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".sized-chunks."0.3.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "sized-chunks";
     version = "0.3.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2489,16 +2594,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      typenum = rustPackages."registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" { };
+      typenum = rustPackages."registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".smallvec."0.6.10" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".smallvec."0.6.10" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "smallvec";
     version = "0.6.10";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2517,10 +2623,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".socket2."0.3.11" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "socket2";
     version = "0.3.11";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2532,19 +2639,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" then "cfg_if" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      ${ if hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" then "cfg_if" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix || hostPlatform.parsed.kernel.name == "redox" then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".strip-ansi-escapes."0.1.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".strip-ansi-escapes."0.1.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "strip-ansi-escapes";
     version = "0.1.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2556,16 +2664,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      vte = rustPackages."registry+https://github.com/rust-lang/crates.io-index".vte."0.3.3" { };
+      vte = rustPackages."registry+https://github.com/rust-lang/crates.io-index".vte."0.3.3" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".strsim."0.8.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".strsim."0.8.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "strsim";
     version = "0.8.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2582,10 +2691,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "syn";
     version = "1.0.5";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2606,18 +2716,19 @@ in
       [ "visit" ]
     ];
     dependencies = {
-      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { };
-      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { };
-      unicode_xid = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" { };
+      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { inherit panicStrategy; };
+      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { inherit panicStrategy; };
+      unicode_xid = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".synstructure."0.12.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".synstructure."0.12.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "synstructure";
     version = "0.12.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2629,19 +2740,20 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { };
-      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { };
-      syn = rustPackages."registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" { };
-      unicode_xid = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" { };
+      proc_macro2 = rustPackages."registry+https://github.com/rust-lang/crates.io-index".proc-macro2."1.0.5" { inherit panicStrategy; };
+      quote = rustPackages."registry+https://github.com/rust-lang/crates.io-index".quote."1.0.2" { inherit panicStrategy; };
+      syn = rustPackages."registry+https://github.com/rust-lang/crates.io-index".syn."1.0.5" { inherit panicStrategy; };
+      unicode_xid = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".tar."0.4.26" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".tar."0.4.26" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "tar";
     version = "0.4.26";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2653,18 +2765,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      filetime = rustPackages."registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" { };
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { };
+      filetime = rustPackages."registry+https://github.com/rust-lang/crates.io-index".filetime."0.2.7" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "tempfile";
     version = "3.1.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2676,21 +2789,22 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { };
-      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { };
-      rand = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand."0.7.2" { };
-      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { };
-      remove_dir_all = rustPackages."registry+https://github.com/rust-lang/crates.io-index".remove_dir_all."0.5.2" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      cfg_if = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cfg-if."0.1.10" { inherit panicStrategy; };
+      ${ if hostPlatform.isUnix then "libc" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".libc."0.2.65" { inherit panicStrategy; };
+      rand = rustPackages."registry+https://github.com/rust-lang/crates.io-index".rand."0.7.2" { inherit panicStrategy; };
+      ${ if hostPlatform.parsed.kernel.name == "redox" then "syscall" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".redox_syscall."0.1.56" { inherit panicStrategy; };
+      remove_dir_all = rustPackages."registry+https://github.com/rust-lang/crates.io-index".remove_dir_all."0.5.2" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".termcolor."1.0.5" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "termcolor";
     version = "1.0.5";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2702,16 +2816,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "wincolor" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.2" { };
+      ${ if hostPlatform.isWindows then "wincolor" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".textwrap."0.11.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".textwrap."0.11.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "textwrap";
     version = "0.11.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2723,16 +2838,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      unicode_width = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" { };
+      unicode_width = rustPackages."registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".thread_local."0.3.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "thread_local";
     version = "0.3.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2744,16 +2860,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { };
+      lazy_static = rustPackages."registry+https://github.com/rust-lang/crates.io-index".lazy_static."1.4.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "toml";
     version = "0.5.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2766,16 +2883,17 @@ in
       [ "default" ]
     ];
     dependencies = {
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".typenum."1.11.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "typenum";
     version = "1.11.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2792,10 +2910,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".unicode-bidi."0.3.4" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "unicode-bidi";
     version = "0.3.4";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2808,16 +2927,17 @@ in
       [ "default" ]
     ];
     dependencies = {
-      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { };
+      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".unicode-normalization."0.1.8" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "unicode-normalization";
     version = "0.1.8";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2829,16 +2949,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      smallvec = rustPackages."registry+https://github.com/rust-lang/crates.io-index".smallvec."0.6.10" { };
+      smallvec = rustPackages."registry+https://github.com/rust-lang/crates.io-index".smallvec."0.6.10" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".unicode-width."0.1.6" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "unicode-width";
     version = "0.1.6";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2856,10 +2977,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".unicode-xid."0.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "unicode-xid";
     version = "0.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2877,10 +2999,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "url";
     version = "1.7.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2892,18 +3015,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      idna = rustPackages."registry+https://github.com/rust-lang/crates.io-index".idna."0.1.5" { };
-      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { };
-      percent_encoding = rustPackages."registry+https://github.com/rust-lang/crates.io-index".percent-encoding."1.0.1" { };
+      idna = rustPackages."registry+https://github.com/rust-lang/crates.io-index".idna."0.1.5" { inherit panicStrategy; };
+      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { inherit panicStrategy; };
+      percent_encoding = rustPackages."registry+https://github.com/rust-lang/crates.io-index".percent-encoding."1.0.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".url."2.1.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "url";
     version = "2.1.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2915,18 +3039,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      idna = rustPackages."registry+https://github.com/rust-lang/crates.io-index".idna."0.2.0" { };
-      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { };
-      percent_encoding = rustPackages."registry+https://github.com/rust-lang/crates.io-index".percent-encoding."2.1.0" { };
+      idna = rustPackages."registry+https://github.com/rust-lang/crates.io-index".idna."0.2.0" { inherit panicStrategy; };
+      matches = rustPackages."registry+https://github.com/rust-lang/crates.io-index".matches."0.1.8" { inherit panicStrategy; };
+      percent_encoding = rustPackages."registry+https://github.com/rust-lang/crates.io-index".percent-encoding."2.1.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".url_serde."0.2.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".url_serde."0.2.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "url_serde";
     version = "0.2.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2938,17 +3063,18 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { };
-      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" { };
+      serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.101" { inherit panicStrategy; };
+      url = rustPackages."registry+https://github.com/rust-lang/crates.io-index".url."1.7.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".utf8parse."0.1.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".utf8parse."0.1.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "utf8parse";
     version = "0.1.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2965,10 +3091,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".vcpkg."0.2.7" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "vcpkg";
     version = "0.2.7";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -2985,10 +3112,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".vec_map."0.8.1" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".vec_map."0.8.1" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "vec_map";
     version = "0.8.1";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3005,10 +3133,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".vte."0.3.3" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".vte."0.3.3" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "vte";
     version = "0.3.3";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3020,16 +3149,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      utf8parse = rustPackages."registry+https://github.com/rust-lang/crates.io-index".utf8parse."0.1.1" { };
+      utf8parse = rustPackages."registry+https://github.com/rust-lang/crates.io-index".utf8parse."0.1.1" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".walkdir."2.2.9" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "walkdir";
     version = "2.2.9";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3041,18 +3171,19 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      same_file = rustPackages."registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" { };
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
-      ${ if hostPlatform.isWindows then "winapi_util" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { };
+      same_file = rustPackages."registry+https://github.com/rust-lang/crates.io-index".same-file."1.0.5" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
+      ${ if hostPlatform.isWindows then "winapi_util" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".wasi."0.7.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".wasi."0.7.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "wasi";
     version = "0.7.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3071,10 +3202,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "winapi";
     version = "0.3.8";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3124,17 +3256,18 @@ in
       [ "ws2tcpip" ]
     ];
     dependencies = {
-      ${ if hostPlatform.config == "i686-pc-windows-gnu" then "winapi_i686_pc_windows_gnu" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-i686-pc-windows-gnu."0.4.0" { };
-      ${ if hostPlatform.config == "x86_64-pc-windows-gnu" then "winapi_x86_64_pc_windows_gnu" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-x86_64-pc-windows-gnu."0.4.0" { };
+      ${ if hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" || hostPlatform.config == "i686-pc-windows-gnu" then "winapi_i686_pc_windows_gnu" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-i686-pc-windows-gnu."0.4.0" { inherit panicStrategy; };
+      ${ if hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" || hostPlatform.config == "x86_64-pc-windows-gnu" then "winapi_x86_64_pc_windows_gnu" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-x86_64-pc-windows-gnu."0.4.0" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".winapi-i686-pc-windows-gnu."0.4.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".winapi-i686-pc-windows-gnu."0.4.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "winapi-i686-pc-windows-gnu";
     version = "0.4.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3151,10 +3284,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "winapi-util";
     version = "0.1.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3166,16 +3300,17 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
+      ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".winapi-x86_64-pc-windows-gnu."0.4.0" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".winapi-x86_64-pc-windows-gnu."0.4.0" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "winapi-x86_64-pc-windows-gnu";
     version = "0.4.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3192,10 +3327,11 @@ in
     };
     buildDependencies = {
     };
-  };
+  } args;
   
-  "registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.2" = mkRustCrate {
+  "registry+https://github.com/rust-lang/crates.io-index".wincolor."1.0.2" = args@{ panicStrategy ? null, ... }: mkRustCrate {
     inherit release profiles;
+    inherit panicStrategy;
     name = "wincolor";
     version = "1.0.2";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -3207,14 +3343,14 @@ in
     features = builtins.concatLists [
     ];
     dependencies = {
-      winapi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { };
-      winapi_util = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { };
+      winapi = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.8" { inherit panicStrategy; };
+      winapi_util = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi-util."0.1.2" { inherit panicStrategy; };
     };
     devDependencies = {
     };
     buildDependencies = {
     };
-  };
+  } args;
   
 }
 

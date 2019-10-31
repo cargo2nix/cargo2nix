@@ -10,7 +10,7 @@ use cargo::{
     core::{
         dependency::Kind as DependencyKind,
         resolver::{Method, Resolve},
-        Dependency, InternedString, Package, PackageId, PackageIdSpec, SourceId, Workspace,
+        InternedString, Package, PackageId, PackageIdSpec, SourceId, Workspace,
     },
     ops::{resolve_ws_with_method, Packages},
     util::important_paths::find_root_manifest_for_wd,
@@ -20,6 +20,7 @@ use crate::{
     expr::BoolExpr,
     fmt_ext::{DisplayFn, Indented},
 };
+use cargo::core::dependency::Platform;
 
 pub mod expr;
 pub mod fmt_ext;
@@ -194,19 +195,18 @@ fn mark_required(
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
     for id in resolve.iter() {
-        let ResolvedPackage { deps, features, .. } = rpkgs_by_id.get_mut(&id).unwrap();
+        let rpkg = rpkgs_by_id.get_mut(&id).unwrap();
         for feature in resolve.features(id).iter() {
-            features
+            rpkg.features
                 .get_mut(feature.as_str())
                 .unwrap()
                 .required_by(root_pkg_name);
         }
 
-        for (dep, _) in resolve.deps(id) {
-            deps.get_mut(&dep)
-                .unwrap()
-                .optionality
-                .required_by(root_pkg_name);
+        for (dep_id, _) in resolve.deps(id) {
+            for dep in rpkg.iter_deps_with_id_mut(dep_id) {
+                dep.optionality.required_by(root_pkg_name);
+            }
         }
     }
 }
@@ -237,19 +237,18 @@ fn activate<'a>(
 
     let root_feature = (pkg.name().as_str(), feature);
     for id in resolve.iter() {
-        let ResolvedPackage { deps, features, .. } = rpkgs_by_id.get_mut(&id).unwrap();
+        let rpkg = rpkgs_by_id.get_mut(&id).unwrap();
         for feature in resolve.features(id).iter() {
-            features
+            rpkg.features
                 .get_mut(feature.as_str())
                 .unwrap()
                 .activated_by(root_feature);
         }
 
-        for (dep, _) in resolve.deps(id) {
-            deps.get_mut(&dep)
-                .unwrap()
-                .optionality
-                .activated_by(root_feature);
+        for (dep_id, _) in resolve.deps(id) {
+            for dep in rpkg.iter_deps_with_id_mut(dep_id) {
+                dep.optionality.activated_by(root_feature)
+            }
         }
     }
 }
@@ -292,7 +291,7 @@ impl Default for Scope<'static> {
 #[derive(Debug)]
 struct ResolvedPackage<'a> {
     pkg: &'a Package,
-    deps: BTreeMap<PackageId, ResolvedDependency<'a>>,
+    deps: BTreeMap<(PackageId, DependencyKind), ResolvedDependency<'a>>,
     features: BTreeMap<Feature<'a>, Optionality<'a>>,
     checksum: Option<Cow<'a, str>>,
 }
@@ -301,8 +300,8 @@ struct ResolvedPackage<'a> {
 struct ResolvedDependency<'a> {
     extern_name: String,
     pkg: &'a Package,
-    dep: Dependency,
     optionality: Optionality<'a>,
+    platforms: Option<Vec<&'a Platform>>,
 }
 
 #[derive(Debug, Default)]
@@ -317,36 +316,45 @@ impl<'a> ResolvedPackage<'a> {
         pkgs_by_id: &HashMap<PackageId, &'a Package>,
         resolve: &'a Resolve,
     ) -> Self {
+        let mut deps = BTreeMap::new();
+        resolve
+            .deps(pkg.package_id())
+            .filter_map(|(dep_id, deps)| {
+                let dep_pkg = pkgs_by_id[&dep_id];
+                let extern_name = resolve
+                    .extern_crate_name(
+                        pkg.package_id(),
+                        dep_id,
+                        dep_pkg.targets().iter().find(|t| t.is_lib())?,
+                    )
+                    .ok()?;
+
+                Some(
+                    deps.iter()
+                        .map(move |dep| (dep_id, dep, dep_pkg, extern_name.clone())),
+                )
+            })
+            .flatten()
+            .for_each(|(dep_id, dep, dep_pkg, extern_name)| {
+                let rdep = deps
+                    .entry((dep_id, dep.kind()))
+                    .or_insert(ResolvedDependency {
+                        extern_name,
+                        pkg: dep_pkg,
+                        optionality: Optionality::default(),
+                        platforms: Some(Vec::new()),
+                    });
+
+                match (dep.platform(), rdep.platforms.as_mut()) {
+                    (Some(platform), Some(platforms)) => platforms.push(platform),
+                    (None, _) => rdep.platforms = None,
+                    _ => {}
+                }
+            });
+
         Self {
             pkg,
-            deps: resolve
-                .deps(pkg.package_id())
-                .filter_map(|(dep_id, _)| {
-                    let dep_pkg = pkgs_by_id[&dep_id];
-                    let extern_name = resolve
-                        .extern_crate_name(
-                            pkg.package_id(),
-                            dep_id,
-                            dep_pkg.targets().iter().find(|t| t.is_lib())?,
-                        )
-                        .ok()?;
-                    let dep = pkg
-                        .dependencies()
-                        .iter()
-                        .find(|dep| dep_pkg.name() == dep.package_name())
-                        .expect(&format!("{} {}", pkg.package_id(), dep_id));
-
-                    Some((
-                        dep_id,
-                        ResolvedDependency {
-                            extern_name,
-                            pkg: dep_pkg,
-                            dep: dep.clone(),
-                            optionality: Optionality::default(),
-                        },
-                    ))
-                })
-                .collect(),
+            deps,
             features: resolve
                 .features(pkg.package_id())
                 .iter()
@@ -381,6 +389,15 @@ impl<'a> ResolvedPackage<'a> {
         }
     }
 
+    fn iter_deps_with_id_mut(
+        &mut self,
+        id: PackageId,
+    ) -> impl Iterator<Item = &mut ResolvedDependency<'a>> {
+        self.deps
+            .range_mut((id, DependencyKind::Normal)..=(id, DependencyKind::Build))
+            .map(|(_, dep)| dep)
+    }
+
     fn to_nix<'b, 'c>(
         &'b self,
         outer: Scope<'c>,
@@ -398,7 +415,6 @@ impl<'a> ResolvedPackage<'a> {
         W: Write,
     {
         use self::BoolExpr::*;
-
         let panic_unwind_if = |cond| {
             DisplayFn(move |f: &mut fmt::Formatter| {
                 if cond {
@@ -457,32 +473,38 @@ impl<'a> ResolvedPackage<'a> {
                 ("buildDependencies", DependencyKind::Build),
             ] {
                 writeln!(f, "{} = {{", attr)?;
-                for (dep_id, dep) in self.deps.iter().filter(|(_, dep)| dep.dep.kind() == *kind) {
+                for ((dep_id, _), rdep) in self
+                    .deps
+                    .iter()
+                    .filter(|((_, dep_kind), _)| dep_kind == kind)
+                {
                     let mut f = f.indent(2);
                     let should_run_on_build_platform =
-                        *kind == DependencyKind::Build || is_proc_macro(dep.pkg);
+                        *kind == DependencyKind::Build || is_proc_macro(rdep.pkg);
                     let crate_set = if should_run_on_build_platform {
                         outer.build_crates
                     } else {
                         outer.crates
                     };
-                    match dep
+                    match rdep
                         .optionality
                         .to_expr(outer.root_features, n_root_pkgs)
-                        .and(
-                            dep.dep
-                                .platform()
-                                .map(|p| platform::to_expr(p, outer.host_platform))
-                                .unwrap_or(True),
-                        )
+                        .and(match rdep.platforms {
+                            Some(ref platforms) => BoolExpr::ors(
+                                platforms
+                                    .iter()
+                                    .map(|p| platform::to_expr(p, outer.host_platform)),
+                            ),
+                            None => BoolExpr::True,
+                        })
                         .simplify()
                     {
-                        True => write!(f, "{}", dep.extern_name,)?,
+                        True => write!(f, "{}", rdep.extern_name,)?,
                         expr => write!(
                             f,
                             "${{ if {} then {:?} else null }}",
                             expr.to_nix(),
-                            dep.extern_name,
+                            rdep.extern_name,
                         )?,
                     }
                     write!(
