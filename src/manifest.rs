@@ -1,4 +1,4 @@
-use toml::{value::Table, Value};
+use toml::value::Table;
 
 use serde::Deserialize;
 

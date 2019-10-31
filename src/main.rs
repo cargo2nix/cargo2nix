@@ -94,7 +94,7 @@ fn main() {
             display_profiles_nix(&profiles)
         )?;
         writeln!(f, "in")?;
-        writeln!(f, "args@{{")?;
+        writeln!(f, "{{")?;
         {
             let mut f = f.indent(2);
             writeln!(f, "{} ? true,", scope.release)?;
@@ -124,7 +124,7 @@ fn main() {
             )?;
             writeln!(
                 f,
-                "{} = {} args.rootFeatures;",
+                "{} = {} rootFeatures;",
                 scope.root_features, scope.expand_features
             )?;
         }
@@ -267,7 +267,7 @@ impl Default for Scope<'static> {
         Self {
             crates: "rustPackages",
             build_crates: "buildRustPackages",
-            root_features: "rootFeatures",
+            root_features: "rootFeatures'",
             expand_features: "expandFeatures",
             release: "release",
             profiles: "profiles",
