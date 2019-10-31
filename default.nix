@@ -108,7 +108,9 @@ in
   # `rustPkgs` now contains all crates in the dependency graph.
   # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.
   # To build test binaries (equivalent to `cargo build --tests`), use
-  #   `rustPkgs.<registry>.<crate>.<version> { complieMode = "test"; }`.
+  #   `rustPkgs.<registry>.<crate>.<version> { compileMode = "test"; }`.
   # To build bench binaries (equivalent to `cargo build --benches`), use
-  #   `rustPkgs.<registry>.<crate>.<version> { complieMode = "bench"; }`.
-  rustPkgs."unknown".cargo2nix."0.4.0" { }
+  #   `rustPkgs.<registry>.<crate>.<version> { compileMode = "bench"; }`.
+{
+  package = rustPkgs."unknown".cargo2nix."0.4.0" { };
+}
