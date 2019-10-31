@@ -70,7 +70,7 @@ let
         ${ if manifest ? package then "package" else null } = manifest.package;
         ${ if manifest ? lib then "lib" else null } = manifest.lib;
         ${ if manifest ? bin then "bin" else null } = manifest.bin;
-        ${ if manifest ? bench then "bench" else null } = manifest.bench;
+        ${ if manifest ? bench && registry == "unknown" then "bench" else null } = manifest.bench;
         ${ if manifest ? test then "test" else null } = manifest.test;
         ${ if manifest ? example then "example" else null } = manifest.example;
         features = genAttrs features (_: [ ]);
