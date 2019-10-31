@@ -10,8 +10,7 @@ use cargo::{
     core::{
         dependency::Kind as DependencyKind,
         resolver::{Method, Resolve},
-        Dependency, GitReference, InternedString, Package, PackageId, PackageIdSpec, SourceId,
-        Workspace,
+        Dependency, InternedString, Package, PackageId, PackageIdSpec, SourceId, Workspace,
     },
     ops::{resolve_ws_with_method, Packages},
     util::important_paths::find_root_manifest_for_wd,
@@ -350,9 +349,15 @@ impl<'a> ResolvedPackage<'a> {
                 .and_then(|s| s.as_ref().map(|s| Cow::Borrowed(s.as_str())))
                 .or_else(|| {
                     let source_id = pkg.package_id().source_id();
-                    if let Some(git_ref) = source_id.git_reference() {
+                    if source_id.is_git() {
                         Some(Cow::Owned(
-                            prefetch_git(source_id.url().as_str(), git_ref).unwrap_or_else(|e| {
+                            prefetch_git(
+                                source_id.url().as_str(),
+                                source_id.precise().unwrap_or_else(|| {
+                                    panic!("no precise git reference for {}", pkg.package_id())
+                                }),
+                            )
+                            .unwrap_or_else(|e| {
                                 panic!(
                                     "failed to compute SHA256 for {} using nix-prefetch-git: {}",
                                     pkg.package_id(),
@@ -653,7 +658,7 @@ fn display_default_features_nix<'a>(pkgs: &'a [&Package]) -> impl 'a + fmt::Disp
     })
 }
 
-fn prefetch_git(url: &str, git_ref: &GitReference) -> Result<String, Box<dyn std::error::Error>> {
+fn prefetch_git(url: &str, rev: &str) -> Result<String, Box<dyn std::error::Error>> {
     let std::process::Output {
         stdout,
         stderr,
@@ -661,14 +666,7 @@ fn prefetch_git(url: &str, git_ref: &GitReference) -> Result<String, Box<dyn std
     } = std::process::Command::new("nix-prefetch-git")
         .arg("--quiet")
         .args(&["--url", url])
-        .args(&[
-            "--rev",
-            &match git_ref {
-                GitReference::Branch(ref branch) => Cow::Owned(format!("refs/heads/{}", branch)),
-                GitReference::Rev(ref rev) => Cow::Borrowed(rev),
-                GitReference::Tag(ref tag) => Cow::Owned(format!("refs/tags/{}", tag)),
-            },
-        ])
+        .args(&["--rev", rev])
         .output()?;
 
     if status.success() {
