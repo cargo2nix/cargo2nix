@@ -81,19 +81,10 @@ fn main() {
         }
     }
 
-    let profiles = manifest::extract_profiles(&std::fs::read(&root_manifest_path).unwrap());
     let scope = Scope::default();
 
     let display = DisplayFn(|f: &mut fmt::Formatter| {
         let mut f = Indented::new(f);
-        writeln!(f, "let")?;
-        writeln!(
-            f.indent(2),
-            "{} = {};",
-            scope.profiles,
-            display_profiles_nix(&profiles)
-        )?;
-        writeln!(f, "in")?;
         writeln!(f, "{{")?;
         {
             let mut f = f.indent(2);
@@ -260,7 +251,6 @@ struct Scope<'a> {
     root_features: &'a str,
     expand_features: &'a str,
     release: &'a str,
-    profiles: &'a str,
     mk_rust_crate: &'a str,
     fetch_crate_crates_io: &'a str,
     fetch_crate_git: &'a str,
@@ -277,7 +267,6 @@ impl Default for Scope<'static> {
             root_features: "rootFeatures'",
             expand_features: "expandFeatures",
             release: "release",
-            profiles: "profiles",
             mk_rust_crate: "mkRustCrate",
             fetch_crate_crates_io: "fetchCratesIo",
             fetch_crate_git: "fetchCrateGit",
@@ -415,28 +404,17 @@ impl<'a> ResolvedPackage<'a> {
         W: Write,
     {
         use self::BoolExpr::*;
-        let panic_unwind_if = |cond| {
-            DisplayFn(move |f: &mut fmt::Formatter| {
-                if cond {
-                    write!(f, r#"panicStrategy = "unwind";"#)
-                } else {
-                    write!(f, "inherit panicStrategy;")
-                }
-            })
-        };
-        let is_self_proc_macro = is_proc_macro(self.pkg);
 
         let mut f = Indented::new(f);
         writeln!(
             f,
-            "{} = args@{{ panicStrategy ? null, ... }}: {} {{",
+            "{} = {} {{",
             display_pkg_id_nix(self.pkg.package_id()),
             outer.mk_rust_crate
         )?;
         {
             let mut f = f.indent(2);
-            writeln!(f, "inherit {} {};", outer.release, outer.profiles)?;
-            writeln!(f, "{}", panic_unwind_if(is_self_proc_macro))?;
+            writeln!(f, "inherit {};", outer.release)?;
             writeln!(f, "name = {:?};", self.pkg.name())?;
             writeln!(f, "version = {:?};", self.pkg.version().to_string())?;
             writeln!(
@@ -507,19 +485,13 @@ impl<'a> ResolvedPackage<'a> {
                             rdep.extern_name,
                         )?,
                     }
-                    write!(
-                        f,
-                        " = {}.{} {{ {} }}",
-                        crate_set,
-                        display_pkg_id_nix(dep_id.clone()),
-                        panic_unwind_if(*kind == DependencyKind::Build || is_self_proc_macro)
-                    )?;
+                    write!(f, " = {}.{}", crate_set, display_pkg_id_nix(dep_id.clone()),)?;
                     writeln!(f, ";")?;
                 }
                 writeln!(f, "}};")?;
             }
         }
-        writeln!(f, "}} args;")
+        writeln!(f, "}};")
     }
 }
 
@@ -594,7 +566,7 @@ fn write_source_nix<W: Write>(
                 "sha256 = {:?};",
                 checksum
                     .unwrap_or_else(|| panic!("checksum is required for crates.io package {}", p))
-            )?;
+            )?
         }
         write!(f, "}}")
     } else if source_id.is_git() {
@@ -658,23 +630,6 @@ fn display_pkg_id_nix(id: PackageId) -> impl fmt::Display {
             id.name(),
             id.version().to_string(),
         )
-    })
-}
-
-fn display_profiles_nix(profiles: &toml::value::Table) -> impl '_ + fmt::Display {
-    DisplayFn(move |f: &mut fmt::Formatter| {
-        let mut f = Indented::new(f);
-        writeln!(f, "{{")?;
-        for (name, profile) in profiles.iter() {
-            let mut f = f.indent(2);
-            writeln!(
-                f,
-                "{} = builtins.fromTOML {:?};",
-                name,
-                toml::to_string(profile).unwrap()
-            )?;
-        }
-        write!(f, "}}")
     })
 }
 

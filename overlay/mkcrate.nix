@@ -1,4 +1,4 @@
-{ # The first argument is provided by `callPackage`.
+{
   cargo,
   rustc,
 
@@ -9,23 +9,18 @@
   rustLib,
   stdenv,
 }:
-{ # The second argument is provided by code generation.
+{
   release, # Compiling in release profile?
   name,
   version,
   registry,
-  profiles,
   src,
   features,
   dependencies,
   devDependencies,
   buildDependencies,
-  panicStrategy,
-}:
-{ # The third argument is customizable by user.
-  compileMode ? "build", # build, test, or bench.
+  compileMode ? "build",
   meta ? { },
-  ...
 }:
 with builtins; with lib;
 let
@@ -61,11 +56,6 @@ let
   isProcMacro = manifest.lib.proc-macro or manifest.lib.proc_macro or false;
 
   patchedManifest =
-    let
-      profileName = if release then "release" else compileMode;
-      profile = profiles.${profileName} or { };
-      patchedProfile = if panicStrategy == null then profile else profile // { panic = panicStrategy; };
-    in
       {
         ${ if manifest ? package then "package" else null } = manifest.package;
         ${ if manifest ? lib then "lib" else null } = manifest.lib;
@@ -74,7 +64,6 @@ let
         ${ if manifest ? test then "test" else null } = manifest.test;
         ${ if manifest ? example then "example" else null } = manifest.example;
         features = genAttrs features (_: [ ]);
-        profile.${profileName} = patchedProfile;
       };
 
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
@@ -153,8 +142,8 @@ let
         dependencies
         devDependencies
         buildDependencies
-        features
-        panicStrategy;
+        features;
+      panicStrategy = panicStrategy';
       shell = pkgs.mkShell (removeAttrs drvAttrs ["src"]);
     };
 

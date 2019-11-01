@@ -35,7 +35,7 @@ lib.fix' (self:
     defaultScope = mkScope self;
     callPackage = lib.callPackageWith defaultScope;
 
-    mkRustCrate = callPackage args.mkRustCrate { inherit rustLib; config = rustPackageConfig; };
+    mkRustCrate = lib.makeOverridable (callPackage args.mkRustCrate { inherit rustLib; config = rustPackageConfig; });
   in packageFun {
     inherit rustPackages buildRustPackages lib mkRustCrate;
     inherit (stdenv) hostPlatform;
