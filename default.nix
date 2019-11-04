@@ -37,7 +37,8 @@ let
   # where
   # `<input>` is one of:
   # - `environment: a set of environment variables available at build time.
-  # - `buildInputs`, `nativeBuildInputs`: similar to the `stdenv.mkDerivation` counter parts.
+  # - `buildInputs`: similar to its `std.mkDervation` cousin.
+  # - `nativeBuildInputs`: similar to its `stdenv.mkDerivation` cousin.
   # - `rustcflags`: a list of extra flags that are passed to `rustc` when building the crate.
   # - `rustcBuildFlags`: a list of extra flags that are passed to `rustc` when building the crate's build script (`build.rs`).
   #
