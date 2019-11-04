@@ -10,7 +10,7 @@
   stdenv,
 }:
 {
-  release, # Compiling in release profile?
+  release, # Compiling in release mode?
   name,
   version,
   registry,
@@ -20,11 +20,12 @@
   devDependencies,
   buildDependencies,
   compileMode ? "build",
+  profile,
   meta ? { },
 }:
 with builtins; with lib;
 let
-  inherit (rustLib) realHostTriple;
+  inherit (rustLib) realHostTriple decideProfile;
 
   accessConfig = type: default:
     let
@@ -64,6 +65,7 @@ let
         ${ if manifest ? test then "test" else null } = manifest.test;
         ${ if manifest ? example then "example" else null } = manifest.example;
         features = genAttrs features (_: [ ]);
+        profile.${ decideProfile compileMode release } = profile;
       };
 
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
@@ -143,7 +145,6 @@ let
         devDependencies
         buildDependencies
         features;
-      panicStrategy = panicStrategy';
       shell = pkgs.mkShell (removeAttrs drvAttrs ["src"]);
     };
 
