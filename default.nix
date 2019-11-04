@@ -45,6 +45,7 @@ let
   # `<package_id>` follows the convention `<registry>.<crate>.<version>` as mentioned in `README`.
   rustPackageConfig = pkgs:
     let
+      # A quick fix for missing frameworks errors on macOS.
       darwinFrameworks = lib.optionals pkgs.hostPlatform.isDarwin
         (with pkgs.darwin.apple_sdk.frameworks; [ Security CoreServices ]);
     in
