@@ -1,4 +1,4 @@
-{ pkgs, lib }:
+{ lib }:
 let
   # NOTE(@dingxiangfei2009): override `override`, `overrideDerivation` and `overrideAttrs`
   spliceFunctor =
@@ -196,55 +196,5 @@ let
       splicePkgs args
     else
       pkgsHostTarget;
-
-  resolveFeatures = import ./resolve-features.nix {
-    inherit
-      lib
-      resolveFeatures
-      pkgName
-      pkgVersion
-      pkgRegistry
-      ;
-  };
-
-  breakPackageId = id:
-    let
-      components = builtins.match "(.+) (.+) \\((.+)\\)" id;
-      components' = builtins.match "(.+) (.+)" id;
-    in
-      if components == null then
-        components' ++ [ "unknown" ]
-      else
-        components;
-
-  pkgName = package-id: lib.elemAt (breakPackageId package-id) 0;
-  pkgVersion = package-id: lib.elemAt (breakPackageId package-id) 1;
-  pkgRegistry = package-id: lib.elemAt (breakPackageId package-id) 2;
 in
-{
-  inherit resolveFeatures splicePackages breakPackageId pkgName pkgVersion pkgRegistry;
-
-  parseCfg = import ./parse-cfg.nix { inherit lib; };
-  json2toml = import ./json2toml.nix { inherit (pkgs.buildPackages.buildPackages) remarshal runCommand; };
-  toml2json = import ./toml2json.nix { inherit lib; inherit (pkgs.buildPackages.buildPackages) remarshal runCommand; };
-
-  isCratesIo = source: source == "registry+https://github.com/rust-lang/crates.io-index";
-  fetchCratesIo = { name, version, sha256 }: pkgs.fetchurl {
-    name = "${name}-${version}.tar.gz";
-    url = "https://crates.io/api/v1/crates/${name}/${version}/download";
-    inherit sha256;
-  };
-
-  isGit = source:
-    builtins.match "^git\\+.+" source != null;
-  fetchGitCrate = { sha256, rev, url }:
-    pkgs.fetchgit { inherit url rev sha256; };
-
-  cleanLocalSource = import ./clean-local-src.nix { inherit lib; };
-
-  computeFinalFeatures = import ./features.nix { inherit lib; };
-
-  realHostTriple = import ./real-host-triple.nix;
-
-  buildResolveRequest = import ./resolve-request.nix { inherit lib; };
-}
+  { inherit splicePackages; }

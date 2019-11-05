@@ -1,1 +1,0 @@
-{ nixpkg ? <nixpkgs> }:
