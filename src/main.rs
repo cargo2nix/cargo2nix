@@ -81,8 +81,8 @@ fn main() {
         }
     }
 
+    let profiles = manifest::extract_profiles(&std::fs::read(&root_manifest_path).unwrap());
     let scope = Scope::default();
-
     let display = DisplayFn(|f: &mut fmt::Formatter| {
         let mut f = Indented::new(f);
         writeln!(f, "{{")?;
@@ -96,8 +96,8 @@ fn main() {
             )?;
             writeln!(f, "{},", scope.crates)?;
             writeln!(f, "{},", scope.build_crates)?;
-            writeln!(f, "{},", scope.mk_rust_crate)?;
             writeln!(f, "{},", scope.host_platform)?;
+            writeln!(f, "mkRustCrate,")?;
             writeln!(f, "rustLib,")?;
             writeln!(f, "lib,")?;
         }
@@ -107,17 +107,32 @@ fn main() {
             let mut f = f.indent(2);
             writeln!(
                 f,
-                "inherit (rustLib) {} {} {} {};",
+                "inherit (rustLib) {} {} {} {} decideProfile genDrvsByProfile;",
                 scope.fetch_crate_crates_io,
                 scope.fetch_crate_local,
                 scope.fetch_crate_git,
-                scope.expand_features
+                scope.expand_features,
             )?;
+            writeln!(f, "profilesByName = {};", display_profiles_nix(&profiles))?;
             writeln!(
                 f,
                 "{} = {} rootFeatures;",
                 scope.root_features, scope.expand_features
             )?;
+            writeln!(f, "{} = f:", scope.mk_rust_crate)?;
+            {
+                let mut f = f.indent(2);
+                writeln!(f, "let")?;
+                writeln!(
+                    f.indent(2),
+                    "drvs = genDrvsByProfile profilesByName (attrs: mkRustCrate (f attrs));"
+                )?;
+                writeln!(
+                    f,
+                    "in {{ compileMode ? null, profileName ? decideProfile compileMode release }}:"
+                )?;
+                writeln!(f.indent(2), "let drv = drvs.${{profileName}}; in if compileMode == null then drv else drv.override {{ inherit compileMode; }};")?;
+            }
         }
         writeln!(f, "in")?;
         writeln!(f, "{{")?;
@@ -267,7 +282,7 @@ impl Default for Scope<'static> {
             root_features: "rootFeatures'",
             expand_features: "expandFeatures",
             release: "release",
-            mk_rust_crate: "mkRustCrate",
+            mk_rust_crate: "overridableMkRustCrate",
             fetch_crate_crates_io: "fetchCratesIo",
             fetch_crate_git: "fetchCrateGit",
             fetch_crate_local: "fetchCrateLocal",
@@ -408,13 +423,13 @@ impl<'a> ResolvedPackage<'a> {
         let mut f = Indented::new(f);
         writeln!(
             f,
-            "{} = {} {{",
+            "{} = {} ({{ profileName, profile }}: {{",
             display_pkg_id_nix(self.pkg.package_id()),
             outer.mk_rust_crate
         )?;
         {
             let mut f = f.indent(2);
-            writeln!(f, "inherit {};", outer.release)?;
+            writeln!(f, "inherit {} profile;", outer.release)?;
             writeln!(f, "name = {:?};", self.pkg.name())?;
             writeln!(f, "version = {:?};", self.pkg.version().to_string())?;
             writeln!(
@@ -451,19 +466,13 @@ impl<'a> ResolvedPackage<'a> {
                 ("buildDependencies", DependencyKind::Build),
             ] {
                 writeln!(f, "{} = {{", attr)?;
+
                 for ((dep_id, _), rdep) in self
                     .deps
                     .iter()
                     .filter(|((_, dep_kind), _)| dep_kind == kind)
                 {
                     let mut f = f.indent(2);
-                    let should_run_on_build_platform =
-                        *kind == DependencyKind::Build || is_proc_macro(rdep.pkg);
-                    let crate_set = if should_run_on_build_platform {
-                        outer.build_crates
-                    } else {
-                        outer.crates
-                    };
                     match rdep
                         .optionality
                         .to_expr(outer.root_features, n_root_pkgs)
@@ -485,13 +494,30 @@ impl<'a> ResolvedPackage<'a> {
                             rdep.extern_name,
                         )?,
                     }
-                    write!(f, " = {}.{}", crate_set, display_pkg_id_nix(dep_id.clone()),)?;
+
+                    let is_build_dep = *kind == DependencyKind::Build || is_proc_macro(rdep.pkg);
+                    let crate_set = if is_build_dep {
+                        outer.build_crates
+                    } else {
+                        outer.crates
+                    };
+                    write!(
+                        f,
+                        " = {}.{} ",
+                        crate_set,
+                        display_pkg_id_nix(dep_id.clone()),
+                    )?;
+                    if is_build_dep {
+                        write!(f, r#"{{ profileName = "__noProfile"; }}"#)?;
+                    } else {
+                        write!(f, r#"{{ inherit profileName; }}"#)?;
+                    }
                     writeln!(f, ";")?;
                 }
                 writeln!(f, "}};")?;
             }
         }
-        writeln!(f, "}};")
+        writeln!(f, "}});")
     }
 }
 
@@ -667,4 +693,21 @@ fn prefetch_git(url: &str, rev: &str) -> Result<String, Box<dyn std::error::Erro
             String::from_utf8(stderr)
         ))?
     }
+}
+
+fn display_profiles_nix(profiles: &manifest::TomlProfile) -> impl '_ + fmt::Display {
+    DisplayFn(move |f: &mut fmt::Formatter| {
+        let mut f = Indented::new(f);
+        writeln!(f, "{{")?;
+        for (name, profile) in profiles.iter() {
+            let mut f = f.indent(2);
+            writeln!(
+                f,
+                "{} = builtins.fromTOML {:?};",
+                name,
+                toml::to_string(profile).unwrap()
+            )?;
+        }
+        write!(f, "}}")
+    })
 }
