@@ -85,13 +85,6 @@ fn main() {
     let scope = Scope::default();
     let display = DisplayFn(|f: &mut fmt::Formatter| {
         let mut f = Indented::new(f);
-        writeln!(f, "let")?;
-        writeln!(
-            f.indent(2),
-            "profilesByName = {};",
-            display_profiles_nix(&profiles)
-        )?;
-        writeln!(f, "in")?;
         writeln!(f, "{{")?;
         {
             let mut f = f.indent(2);
@@ -120,6 +113,7 @@ fn main() {
                 scope.fetch_crate_git,
                 scope.expand_features,
             )?;
+            writeln!(f, "profilesByName = {};", display_profiles_nix(&profiles))?;
             writeln!(
                 f,
                 "{} = {} rootFeatures;",

@@ -1,7 +1,3 @@
-let
-  profilesByName = {
-  };
-in
 {
   release ? true,
   rootFeatures ? [
@@ -16,6 +12,8 @@ in
 }:
 let
   inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit expandFeatures decideProfile genDrvsByProfile;
+  profilesByName = {
+  };
   rootFeatures' = expandFeatures rootFeatures;
   overridableMkRustCrate = f:
     let
