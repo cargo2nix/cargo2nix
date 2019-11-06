@@ -1,26 +1,28 @@
-args@{
-  rustLib,
+{
   pkgs,
-  packageFun,
-  rustPackageConfig ? { },
-  stdenv,
   lib,
+  rustLib,
+  stdenv,
+  mkRustCrate,
+}:
+{
+  packageFun,
   cargo,
   rustc,
-  mkRustCrate,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
-  ...
+  packageOverrides ? [ ],
+  release ? null,
+  rootFeatures ? null,
 }:
 lib.fix' (self:
   let
     rustPackages = self;
-    hasBuildRustPackages = args ? buildRustPackages && args.buildRustPackages != null;
-    buildRustPackages = if hasBuildRustPackages then args.buildRustPackages else self;
+    buildRustPackages' = if buildRustPackages == null then self else buildRustPackages;
     mkScope = scope:
       let
         prevStage = pkgs.__splicedPackages;
-        scopeSpliced = rustLib.splicePackages hasBuildRustPackages {
+        scopeSpliced = rustLib.splicePackages (buildRustPackages != null) {
           pkgsBuildBuild = scope.buildRustPackages.buildRustPackages;
           pkgsBuildHost = scope.buildRustPackages;
           pkgsBuildTarget = {};
@@ -35,15 +37,25 @@ lib.fix' (self:
     defaultScope = mkScope self;
     callPackage = lib.callPackageWith defaultScope;
 
-    mkRustCrate = lib.makeOverridable (callPackage args.mkRustCrate { inherit rustLib; config = rustPackageConfig; });
+    mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
   in packageFun {
-    inherit rustPackages buildRustPackages lib mkRustCrate;
+    inherit rustPackages lib;
     inherit (stdenv) hostPlatform;
+    buildRustPackages = buildRustPackages';
+    mkRustCrate =
+      let
+        combinedOverride = builtins.foldl'
+          rustLib.combineOverrides
+          (_: { overrideArgs = null; overrideAttrs = null; })
+          packageOverrides;
+      in
+        rustLib.runOverride combinedOverride mkRustCrate';
     rustLib = rustLib // { fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath; };
-    ${ if args ? release then "release" else null } = args.release;
-    ${ if args ? rootFeatures then "rootFeatures" else null } = args.rootFeatures;
+    ${ if release == null then null else "release" } = release;
+    ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
   } // {
-    inherit rustPackages buildRustPackages callPackage cargo rustc pkgs mkRustCrate;
-    config = rustPackageConfig;
+    inherit rustPackages callPackage cargo rustc pkgs;
+    mkRustCrate = mkRustCrate';
+    buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
   })

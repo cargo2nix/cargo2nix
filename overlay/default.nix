@@ -10,13 +10,15 @@ let
 
     rustLib = callPackage ./lib { };
 
-    makePackageSet = callPackage ./make-package-set/full.nix;
+    makePackageSet = callPackage ./make-package-set/full.nix { };
 
-    makePackageSet' = pkgs.callPackage ./make-package-set/simplified.nix;
+    makePackageSet' = pkgs.callPackage ./make-package-set/simplified.nix { };
 
     mkRustCrate = import ./mkcrate.nix;
 
     makeShell = callPackage ./make-shell.nix;
+
+    overrides = callPackage ./overrides.nix { };
   };
 in
 {
