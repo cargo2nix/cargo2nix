@@ -45,7 +45,7 @@ let
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "1.37.0";
     packageFun = import ./Cargo.nix;
-    packageOverrides = pkgs.rustBuilder.overrides.all;
+    packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
   };
 in
   # `rustPkgs` now contains all crates in the dependency graph.

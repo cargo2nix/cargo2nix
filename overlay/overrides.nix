@@ -1,4 +1,4 @@
-{ rustLib, lib, buildPackages }:
+{ rustLib, lib, pkgs, buildPackages }:
 let
   inherit (rustLib) makeOverride nullOverride;
   envize = s: builtins.replaceStrings ["-"] ["_"] (lib.toUpper s);
@@ -29,7 +29,6 @@ let
     configureFlags = builtins.filter (flag: flag != "--with-systemd") drv.configureFlags;
   });
 
-
   patchCurl = pkgs:
     let
       openssl = patchOpenssl pkgs;
@@ -40,20 +39,19 @@ let
       libkrb5 = pkgs.libkrb5.override { inherit openssl; };
     };
 
-in
-rec {
-  patches = [ patchOpenssl patchCurl ];
+in rec {
+  patches = { inherit patchOpenssl patchCurl patchPostgresql joinOpenssl; };
 
   # Don't forget to add new overrides here.
-  all = pkgs: [
+  all = [
     capLints
-    (openssl-sys pkgs)
-    (curl-sys pkgs)
-    (libgit2-sys pkgs)
-    (pq-sys pkgs)
-    (prost-build pkgs)
-    (rand_os pkgs)
-    (rand pkgs)
+    openssl-sys
+    curl-sys
+    libgit2-sys
+    pq-sys
+    prost-build
+    rand_os
+    rand
   ];
 
   capLints = makeOverride {
@@ -61,7 +59,7 @@ rec {
     overrideArgs = old: { rustcflags = old.rustcflags or [ ] ++ [ "--cap-lints" "warn" ]; };
   };
 
-  openssl-sys = pkgs: makeOverride {
+  openssl-sys = makeOverride {
     name = "openssl-sys";
     overrideAttrs = _:
       # We don't use key literals here, as they might collide if `hostPlatform == buildPlatform`.
@@ -71,15 +69,14 @@ rec {
       ];
   };
 
-  curl-sys = pkgs: makeOverride {
+  curl-sys = makeOverride {
     name = "curl-sys";
     overrideAttrs = drv: {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ (patchCurl pkgs) ];
     };
   };
 
-  libgit2-sys = pkgs:
-    if pkgs.stdenv.hostPlatform.isDarwin
+  libgit2-sys = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
       name = "libgit2-sys";
       overrideAttrs = drv: {
@@ -92,7 +89,7 @@ rec {
     }
     else nullOverride;
 
-  pq-sys = pkgs:
+  pq-sys =
     let
       binEcho = s: "${pkgs.buildPackages.writeShellScriptBin "bin-echo" "echo ${s}"}/bin/bin-echo";
     in
@@ -108,15 +105,14 @@ rec {
           ];
       };
 
-  prost-build = pkgs: makeOverride {
+  prost-build = makeOverride {
     name = "prost-build";
     overrideAttrs = _: {
       PROTOC = "${pkgs.buildPackages.buildPackages.protobuf}/bin/protoc";
     };
   };
 
-  rand_os = pkgs:
-    if pkgs.stdenv.hostPlatform.isDarwin
+  rand_os = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
       name = "rand_os";
       overrideAttrs = drv: {
@@ -125,8 +121,7 @@ rec {
     }
     else nullOverride;
 
-  rand = pkgs:
-    if pkgs.stdenv.hostPlatform.isDarwin
+  rand = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
       name = "rand";
       overrideAttrs = drv: {
@@ -134,5 +129,4 @@ rec {
       };
     }
     else nullOverride;
-
 }
