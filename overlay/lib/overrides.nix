@@ -1,5 +1,5 @@
 # An overrider has the ability to modify the arguments passed to a function. It takes the original set of arguments
-# and returns a new set of arguments, which will then be merged will the original set to become the new arguments
+# and returns a new set of arguments, which will then be merged with the original set to become the new arguments
 # to the original function.
 # type Overrider = Attrs -> Attrs
 #
