@@ -4,11 +4,17 @@ let
   envize = s: builtins.replaceStrings ["-"] ["_"] (lib.toUpper s);
 
   patchOpenssl = pkgs: (pkgs.openssl.override {
-    # `perl` is only used at build time, but the derivation incorrectly uses host `perl` as an input.
+    # We only need `perl` at build time. It's also used as the interpreter for one
+    # of the produced binaries (`c_rehash`), but they'll be removed later.
     perl = pkgs.buildPackages.buildPackages.perl;
-  }).overrideAttrs (_: {
+  }).overrideAttrs (drv: {
     installTargets = "install_sw";
     outputs = [ "dev" "out" "bin" ];
+    # Remove binaries, we need only libraries.
+    postFixup = ''
+      ${drv.postFixup}
+      rm -rf $bin/*
+    '';
   });
 
   joinOpenssl = openssl: buildPackages.symlinkJoin {
@@ -18,7 +24,7 @@ let
   patchPostgresql = pkgs: (pkgs.postgresql.override {
     openssl = patchOpenssl pkgs;
   }).overrideAttrs (drv: {
-    # We don't need `systemd`. It breaks cross compilation.
+    # Remove `systemd` input as it breaks cross compilation.
     buildInputs = builtins.filter (d: !lib.hasPrefix "systemd" d.name) drv.buildInputs;
     configureFlags = builtins.filter (flag: flag != "--with-systemd") drv.configureFlags;
   });
