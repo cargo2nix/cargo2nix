@@ -44,10 +44,7 @@ lib.fix' (self:
     buildRustPackages = buildRustPackages';
     mkRustCrate =
       let
-        combinedOverride = builtins.foldl'
-          rustLib.combineOverrides
-          (_: { overrideArgs = null; overrideAttrs = null; })
-          packageOverrides;
+        combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
       in
         rustLib.runOverride combinedOverride mkRustCrate';
     rustLib = rustLib // { fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath; };
