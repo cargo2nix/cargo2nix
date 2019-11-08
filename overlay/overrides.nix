@@ -52,6 +52,7 @@ in rec {
     prost-build
     rand_os
     rand
+    rdkafka-sys
   ];
 
   capLints = makeOverride {
@@ -129,4 +130,14 @@ in rec {
       };
     }
     else nullOverride;
+
+  rdkafka-sys = makeOverride {
+    name = "rdkafka-sys";
+    overrideAttrs = drv: {
+      postConfigure = ''
+        ${drv.postConfigure or ""}
+        patchShebangs --build librdkafka/configure
+      '';
+    };
+  };
 }
