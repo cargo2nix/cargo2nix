@@ -38,7 +38,7 @@ in
 rec {
   patches = [ patchOpenssl patchCurl ];
 
-  # Don't forget to add your new overrides here.
+  # Don't forget to add new overrides here.
   all = pkgs: [
     capLints
     (openssl-sys pkgs)
@@ -47,6 +47,7 @@ rec {
     (pq-sys pkgs)
     (prost-build pkgs)
     (rand_os pkgs)
+    (rand pkgs)
   ];
 
   capLints = makeOverride {
@@ -117,4 +118,15 @@ rec {
       };
     }
     else nullOverride;
+
+  rand = pkgs:
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "rand";
+      overrideAttrs = drv: {
+        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.darwin.apple_sdk.frameworks.Security ];
+      };
+    }
+    else nullOverride;
+
 }
