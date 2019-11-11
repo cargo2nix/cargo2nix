@@ -2,7 +2,6 @@
   cargo,
   rustc,
 
-  config,
   lib,
   pkgs,
   buildPackages,
@@ -22,35 +21,12 @@
   compileMode ? "build",
   profile,
   meta ? { },
+  rustcflags ? [ ],
+  rustcBuildFlags ? [ ],
 }:
 with builtins; with lib;
 let
   inherit (rustLib) realHostTriple decideProfile;
-
-  accessConfig = type: default:
-    let
-      all = config."*" or default;
-      reg = config.${type}.${registry}."*" or default;
-      crate = config.${type}.${registry}.${name}."*" or default;
-      ver = config.${type}.${registry}.${name}.${version} or default;
-    in
-      if isAttrs all && isAttrs reg && isAttrs crate && isAttrs ver then
-        recursiveUpdate all (recursiveUpdate reg (recursiveUpdate crate ver))
-      else if isList all && isList reg && isList crate && isList ver then
-        all ++ reg ++ crate ++ ver
-      else if isString all && isString reg && isString crate && isString ver then
-        all + reg + crate + ver
-      else
-        throw "do not know how to merge global, registry, crate and version config values";
-
-  environment = accessConfig "environment" {};
-
-  env-setup =
-    let
-      mapToEnv = key: val:
-        "export ${key}=${escapeShellArg val}";
-    in
-      concatStringsSep "\n" (mapAttrsToList mapToEnv environment);
 
   manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
 
@@ -120,13 +96,24 @@ let
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"}
       '';
 
+    inherit
+      (({ right, wrong }: { runtimeDependencies = right; buildtimeDependencies = wrong; })
+        (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
+          (concatLists [
+            (attrValues dependencies)
+            (optionals (compileMode == "test") (attrValues devDependencies))
+            (attrValues buildDependencies)
+          ])))
+      runtimeDependencies buildtimeDependencies;
+
   drvAttrs = {
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
     inherit src version meta;
     crateName = manifest.lib.name or (replaceChars ["-"] ["_"] name);
-    buildInputs = sort (a: b: "${a}" < "${b}") (accessConfig "buildInputs" [ ]);
-    nativeBuildInputs = sort (a: b: "${a}" < "${b}")
-      ([ cargo buildPackages.pkg-config ] ++ accessConfig "nativeBuildInputs" [ ]);
+    buildInputs = runtimeDependencies;
+    propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
+    nativeBuildInputs = [ cargo buildPackages.pkg-config ] ++ buildtimeDependencies;
+
     depsBuildBuild = [ buildPackages.buildPackages.stdenv.cc buildPackages.buildPackages.jq ];
 
     # Running the default `strip -S` command on Darwin corrupts the
@@ -154,11 +141,9 @@ let
 
     isProcMacro = optionalString isProcMacro "1";
 
-    extraRustcFlags = accessConfig "rustcflags" [ ];
+    extraRustcFlags = rustcflags;
 
-    extraRustcBuildFlags = accessConfig "rustcBuildFlags" [ ];
-
-    shellHook = env-setup;
+    extraRustcBuildFlags = rustcBuildFlags;
 
     # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
     configureCargo = ''
@@ -190,7 +175,6 @@ let
 
     runCargo = ''
       (
-        ${env-setup}
         set -euox pipefail
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
@@ -228,7 +212,6 @@ let
     buildPhase = ''
       runHook overrideCargoManifest
       runHook setBuildEnv
-      ${accessConfig "preBuild" ""}
       runHook runCargo
     '';
 

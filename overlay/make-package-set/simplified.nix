@@ -1,16 +1,18 @@
-args@{
+{
   pkgs,
   buildPackages,
   stdenv,
   rustBuilder,
+}:
+args@{
   rustChannel,
   packageFun,
-  rustPackageConfig ? _: { },
+  packageOverrides ? _: [ ],
   ...
 }:
 let
   rustChannel = buildPackages.rustChannelOf {
-    channel = "1.37.0";
+    channel = args.rustChannel;
   };
   inherit (rustChannel) cargo;
   rustc = rustChannel.rust.override {
@@ -18,13 +20,13 @@ let
       (rustBuilder.rustLib.realHostTriple stdenv.targetPlatform)
     ];
   };
-  extraArgs = builtins.removeAttrs args [ "stdenv" "pkgs" "buildPackages" "rustBuilder" "rustChannel" "packageFun" "rustPackageConfig" ];
+  extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" ];
 in
 rustBuilder.makePackageSet (extraArgs // {
   inherit cargo rustc packageFun;
-  rustPackageConfig = rustPackageConfig pkgs;
+  packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
       inherit cargo rustc packageFun;
-      rustPackageConfig = rustPackageConfig buildPackages;
+      packageOverrides = packageOverrides buildPackages;
   });
 })
