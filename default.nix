@@ -1,11 +1,11 @@
 {
-  nixpkgs ? fetchGit {
-    url = https://github.com/NixOS/nixpkgs;
-    rev = "47b551c6a854a049045455f8ab1b8750e7b00625";
+  nixpkgs ? builtins.fetchTarball {
+    url = https://github.com/NixOS/nixpkgs/archive/47b551c6a854a049045455f8ab1b8750e7b00625.tar.gz;
+    sha256 = "0p0p6gf3kimcan4jgb4im3plm3yw68da09ywmyzhak8h64sgy4kg";
   },
-  nixpkgsMozilla ? fetchGit {
-    url = https://github.com/mozilla/nixpkgs-mozilla;
-    rev = "50bae918794d3c283aeb335b209efd71e75e3954";
+  nixpkgsMozilla ? builtins.fetchTarball {
+    url = https://github.com/mozilla/nixpkgs-mozilla/archive/50bae918794d3c283aeb335b209efd71e75e3954.tar.gz;
+    sha256 = "07b7hgq5awhddcii88y43d38lncqq9c8b2px4p93r5l7z0phv89d";
   },
   system ? builtins.currentSystem,
   overlays ? [ ],
