@@ -37,9 +37,6 @@ nix-build -A package --arg crossSystem null
 2. Use `default.nix` in this repository as an example, select the package you want
 to build and set up required build-time/run-time dependencies.
 
-As an example, `cargo2nix` can be built from `package.unknown.cargo2nix."0.1.0"`
-in the generated package set `rustPackages`.
-
 ---
 
 Note: The naming convention behind
