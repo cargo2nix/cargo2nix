@@ -39,8 +39,25 @@ let
       libkrb5 = pkgs.libkrb5.override { inherit openssl; };
     };
 
+  propagateEnv = name: envs: buildPackages.stdenv.mkDerivation {
+    name = "${name}-propagate-env";
+    setupHook = buildPackages.writeText "exports.sh" ''
+      ${name}-setup-env() {
+        ${lib.concatMapStringsSep
+            "\n"
+            ({ name, value }: "export ${name}=${lib.escapeShellArg value}")
+            envs}
+      }
+      addEnvHooks "$hostOffset" ${name}-setup-env
+    '';
+    phases = "installPhase fixupPhase";
+    installPhase = "mkdir -p $out";
+    preferLocalBuild = true;
+    allowSubstitutes = false;
+  };
+
 in rec {
-  patches = { inherit patchOpenssl patchCurl patchPostgresql joinOpenssl; };
+  patches = { inherit patchOpenssl patchCurl patchPostgresql joinOpenssl propagateEnv; };
 
   # Don't forget to add new overrides here.
   all = [
@@ -62,12 +79,14 @@ in rec {
 
   openssl-sys = makeOverride {
     name = "openssl-sys";
-    overrideAttrs = _:
-      # We don't use key literals here, as they might collide if `hostPlatform == buildPlatform`.
-      builtins.listToAttrs [
-        { name = "${envize pkgs.stdenv.buildPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
-        { name = "${envize pkgs.stdenv.hostPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        (propagateEnv "openssl-sys" [
+          { name = "${envize pkgs.stdenv.buildPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
+          { name = "${envize pkgs.stdenv.hostPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
+        ])
       ];
+    };
   };
 
   curl-sys = makeOverride {
@@ -96,20 +115,26 @@ in rec {
     in
       makeOverride {
         name = "pq-sys";
-        overrideAttrs = _:
-          # We don't use key literals here, as they might collide if `hostPlatform == buildPlatform`.
-          # We can't use the host `pg_config` here either, as it might not run on build platform. `pq-sys` only needs
+        overrideAttrs = drv: {
+          # We can't use the host `pg_config` here, as it might not run on build platform. `pq-sys` only needs
           # to know the `lib` directory for `libpq`, so just create a fake binary that gives it exactly that.
-          builtins.listToAttrs [
-            { name = "PG_CONFIG_${envize pkgs.stdenv.buildPlatform.config}"; value = binEcho "${(patchPostgresql pkgs.buildPackages).lib}/lib"; }
-            { name = "PG_CONFIG_${envize pkgs.stdenv.hostPlatform.config}"; value = binEcho "${(patchPostgresql pkgs).lib}/lib"; }
+          propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+            (propagateEnv "pq-sys" [
+              { name = "PG_CONFIG_${envize pkgs.stdenv.buildPlatform.config}"; value = binEcho "${(patchPostgresql pkgs.buildPackages).lib}/lib"; }
+              { name = "PG_CONFIG_${envize pkgs.stdenv.hostPlatform.config}"; value = binEcho "${(patchPostgresql pkgs).lib}/lib"; }
+            ])
           ];
+        };
       };
 
   prost-build = makeOverride {
     name = "prost-build";
-    overrideAttrs = _: {
-      PROTOC = "${pkgs.buildPackages.buildPackages.protobuf}/bin/protoc";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        (propagateEnv "prost-build" [
+          { name = "PROTOC"; value = "${pkgs.buildPackages.buildPackages.protobuf}/bin/protoc"; }
+        ])
+      ];
     };
   };
 
