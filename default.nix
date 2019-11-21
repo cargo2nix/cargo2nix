@@ -57,6 +57,6 @@ in
 rec {
   package = rustPkgs."unknown".cargo2nix."0.5.0" { };
   shell = pkgs.mkShell {
-    inputsFrom = [ package ];
+    inputsFrom = [ (rustPkgs.noBuild."unknown".cargo2nix."0.5.0" { }) ];
   };
 }

@@ -16,6 +16,8 @@ let
 
     mkRustCrate = import ./mkcrate.nix;
 
+    mkRustCrateNoBuild = callPackage ./mkcrate-nobuild.nix;
+
     makeShell = callPackage ./make-shell.nix;
 
     overrides = callPackage ./overrides.nix { };

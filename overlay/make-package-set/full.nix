@@ -4,6 +4,7 @@
   rustLib,
   stdenv,
   mkRustCrate,
+  mkRustCrateNoBuild,
 }:
 {
   packageFun,
@@ -38,20 +39,22 @@ lib.fix' (self:
     callPackage = lib.callPackageWith defaultScope;
 
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
-  in packageFun {
-    inherit rustPackages lib;
-    inherit (stdenv) hostPlatform;
-    buildRustPackages = buildRustPackages';
-    mkRustCrate =
-      let
-        combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
-      in
-        rustLib.runOverride combinedOverride mkRustCrate';
-    rustLib = rustLib // { fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath; };
-    ${ if release == null then null else "release" } = release;
-    ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
-  } // {
+    combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
+    packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
+      inherit rustPackages buildRustPackages lib;
+      inherit (stdenv) hostPlatform;
+      mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
+      rustLib = rustLib // { fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath; };
+      ${ if release == null then null else "release" } = release;
+      ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
+    });
+
+  in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
     inherit rustPackages callPackage cargo rustc pkgs;
+    noBuild = packageFunWith {
+      mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
+      buildRustPackages = buildRustPackages'.noBuild;
+    };
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
