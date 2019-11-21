@@ -34,4 +34,6 @@ in stdenv.mkDerivation {
   nativeBuildInputs = buildtimeDependencies;
   phases = "installPhase fixupPhase";
   installPhase = "mkdir -p $out";
+  preferLocalBuild = true;
+  allowSubstitutes = false;
 }

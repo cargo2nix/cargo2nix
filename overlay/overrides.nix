@@ -52,6 +52,8 @@ let
     '';
     phases = "installPhase fixupPhase";
     installPhase = "mkdir -p $out";
+    preferLocalBuild = true;
+    allowSubstitutes = false;
   };
 
 in rec {
