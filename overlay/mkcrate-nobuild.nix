@@ -29,9 +29,7 @@ let
     runtimeDependencies buildtimeDependencies;
 in stdenv.mkDerivation {
   name = "crate-${name}-${version}";
-  buildInputs = runtimeDependencies;
   propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
-  nativeBuildInputs = buildtimeDependencies;
   phases = "installPhase fixupPhase";
   installPhase = "mkdir -p $out";
   preferLocalBuild = true;
