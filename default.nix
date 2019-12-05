@@ -41,6 +41,7 @@ let
   #     Each feature should be of the form `<crate_name>[/<feature>]`.
   #     If `/<feature>` is omitted, the crate is activated with no default features.
   #     The default behavior is to activate all crates with default features.
+  # - `fetchCrateAlternativeRegistry` (optional): A fetcher for crates on alternative registries.
   # - `release` (optional): Whether to enable release mode (equivalent to `cargo build --release`), defaults to `true`.
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "1.37.0";
@@ -55,8 +56,9 @@ in
   # To build bench binaries (equivalent to `cargo build --benches`), use
   #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "bench"; }`.
 rec {
-  package = rustPkgs."unknown".cargo2nix."0.5.0" { };
+  package = rustPkgs.unknown.cargo2nix."0.5.0" { };
   shell = pkgs.mkShell {
-    inputsFrom = [ (rustPkgs.noBuild."unknown".cargo2nix."0.5.0" { }) ];
+    inputsFrom = [ (rustPkgs.noBuild.unknown.cargo2nix."0.5.0" { }) ];
+    nativeBuildInputs = with rustPkgs; [ cargo rustc ];
   };
 }

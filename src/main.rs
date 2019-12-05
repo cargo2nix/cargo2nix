@@ -107,10 +107,11 @@ fn main() {
             let mut f = f.indent(2);
             writeln!(
                 f,
-                "inherit (rustLib) {} {} {} {} decideProfile genDrvsByProfile;",
+                "inherit (rustLib) {} {} {} {} {} decideProfile genDrvsByProfile;",
                 scope.fetch_crate_crates_io,
                 scope.fetch_crate_local,
                 scope.fetch_crate_git,
+                scope.fetch_crate_alternative_registry,
                 scope.expand_features,
             )?;
             writeln!(f, "profilesByName = {};", display_profiles_nix(&profiles))?;
@@ -270,6 +271,7 @@ struct Scope<'a> {
     fetch_crate_crates_io: &'a str,
     fetch_crate_git: &'a str,
     fetch_crate_local: &'a str,
+    fetch_crate_alternative_registry: &'a str,
     optional: &'a str,
     host_platform: &'a str,
 }
@@ -286,6 +288,7 @@ impl Default for Scope<'static> {
             fetch_crate_crates_io: "fetchCratesIo",
             fetch_crate_git: "fetchCrateGit",
             fetch_crate_local: "fetchCrateLocal",
+            fetch_crate_alternative_registry: "fetchCrateAlternativeRegistry",
             optional: "lib.optional",
             host_platform: "hostPlatform",
         }
@@ -626,6 +629,23 @@ fn write_source_nix<W: Write>(
                 .join(".")
                 .display()
         )
+    } else if source_id.is_registry() {
+        writeln!(f, "{} {{", scope.fetch_crate_alternative_registry)?;
+        {
+            let mut f = f.indent(2);
+            writeln!(f, "index = {};", source_id.url())?;
+            writeln!(f, "name = {:?};", p.name())?;
+            writeln!(f, "version = {:?};", p.version().to_string())?;
+            writeln!(
+                f,
+                "sha256 = {:?};",
+                checksum.unwrap_or_else(|| panic!(
+                    "checksum is required for alternative registry package {}",
+                    p
+                ))
+            )?;
+        }
+        write!(f, "}}")
     } else {
         panic!("unsupported source {}", p)
     }
