@@ -26,7 +26,7 @@ rustBuilder.makePackageSet (extraArgs // {
   inherit cargo rustc packageFun;
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
-      inherit cargo rustc packageFun;
-      packageOverrides = packageOverrides buildPackages;
+    inherit cargo rustc packageFun;
+    packageOverrides = packageOverrides buildPackages;
   });
 })
