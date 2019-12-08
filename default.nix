@@ -56,6 +56,7 @@ in
   # To build bench binaries (equivalent to `cargo build --benches`), use
   #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "bench"; }`.
 rec {
+  inherit rustPkgs;
   package = rustPkgs.unknown.cargo2nix."0.5.0" { };
   shell = pkgs.mkShell {
     inputsFrom = [ (rustPkgs.noBuild.unknown.cargo2nix."0.5.0" { }) ];
