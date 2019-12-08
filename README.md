@@ -127,3 +127,8 @@ and
 His source is available [here](https://github.com/Twey/mkRustCrate).
 This work is impossible without these fantastic write-ups.
 Special thanks to James Kay!
+
+## License
+
+`cargo2nix` is free and open source software distributed under the terms of the
+[MIT License](./LICENSE).
