@@ -119,14 +119,14 @@ specified in the Cargo manifests and build-time dependencies.
 
 ## Credits
 
-This Nix overlay is inspired by the excellent work done by James Kay, which
-is described
-[here](https://www.hadean.com/blog/managing-rust-dependencies-with-nix-part-i)
-and
-[here](https://www.hadean.com/blog/managing-rust-dependencies-with-nix-part-ii).
-His source is available [here](https://github.com/Twey/mkRustCrate).
-This work is impossible without these fantastic write-ups.
-Special thanks to James Kay!
+The design for the Nix overlay is inspired by the excellent work done by James
+Kay, which is described [here][blog-1] and [here][blog-2]. His source is
+available [here][mkRustCrate]. This work would have been impossible without
+these fantastic write-ups. Special thanks to James Kay!
+
+[blog-1]: https://www.hadean.com/blog/managing-rust-dependencies-with-nix-part-i
+[blog-2]: https://www.hadean.com/blog/managing-rust-dependencies-with-nix-part-ii
+[mkRustCrate]: https://github.com/Twey/mkRustCrate
 
 ## License
 
