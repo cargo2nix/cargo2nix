@@ -21,6 +21,8 @@ let
     makeShell = callPackage ./make-shell.nix;
 
     overrides = callPackage ./overrides.nix { };
+
+    runTests = callPackage ./run-tests.nix { };
   };
 in
 {
