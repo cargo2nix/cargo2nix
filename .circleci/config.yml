@@ -16,7 +16,7 @@ jobs:
             USER=root cachix push tenx-cargo2nix -w &
       - run:
           name: Build
-          command: nix-build ./. -A package --show-trace --no-out-link
+          command: nix-build ./. -A ci --show-trace --no-out-link
           no_output_timeout: 5h
       - save_cache:
           key: nix-store

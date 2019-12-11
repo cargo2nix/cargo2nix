@@ -60,6 +60,12 @@ in
 rec {
   inherit rustPkgs;
   package = rustPkgs.workspace.cargo2nix { };
+  # `runTests` runs all tests for a crate inside a Nix derivation.
+  # This may be problematic as Nix may restrict filesystem, network access,
+  # socket creation, ... which the test binary may need.
+  # If you run to those problems, build test binaries (as shown above) and run them
+  # manually outside a Nix derivation.
+  ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix { };
   # `noBuild` is a special crate set used to create a development shell
   # containing all native dependencies provided by the overrides above.
   # `cargo build` with in the shell should just work.
