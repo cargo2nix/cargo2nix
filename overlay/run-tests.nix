@@ -6,7 +6,10 @@ let
 in
   runCommand
     "test-${testBins.name}"
-    ({ CARGO_MANIFEST_DIR = testBins.src; } // env)
+    ({
+      inherit (testBins) src;
+      CARGO_MANIFEST_DIR = testBins.src;
+    } // env)
     ''
         for f in ${testBins}/bin/*; do
           # HACK: cargo produces the crate's main binary in the bin directory if the crate contains example tests.
