@@ -137,6 +137,15 @@ fn main() {
         }
         writeln!(f, "in")?;
         writeln!(f, "{{")?;
+        {
+            let mut f = f.indent(2);
+            writeln!(f, "workspace = {{")?;
+            for pkg in root_pkgs.iter() {
+                writeln!(f.indent(2), "{} = {}.{};", pkg.name(), scope.crates, display_pkg_id_nix(pkg.package_id()))?;
+            }
+            writeln!(f, "}};")?;
+        }
+
         for rpkg in rpkgs_by_id.values() {
             writeln!(
                 f.indent(2),

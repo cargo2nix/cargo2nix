@@ -55,11 +55,16 @@ in
   #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "test"; }`.
   # To build bench binaries (equivalent to `cargo build --benches`), use
   #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "bench"; }`.
+  # For convenience, you can also refer to the crates in the workspace using
+  #   `rustPkgs.workspace.<crate>`.
 rec {
   inherit rustPkgs;
-  package = rustPkgs.unknown.cargo2nix."0.5.0" { };
+  package = rustPkgs.workspace.cargo2nix { };
+  # `noBuild` is a special crate set used to create a development shell
+  # containing all native dependencies provided by the overrides above.
+  # `cargo build` with in the shell should just work.
   shell = pkgs.mkShell {
-    inputsFrom = [ (rustPkgs.noBuild.unknown.cargo2nix."0.5.0" { }) ];
+    inputsFrom =  pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
     nativeBuildInputs = with rustPkgs; [ cargo rustc ];
   };
 }
