@@ -11,9 +11,8 @@ in
     name = "test-${testBins.name}";
     inherit (testBins) src;
     CARGO_MANIFEST_DIR = testBins.src;
-    phases = [ "unpackPhase" "checkPhase" ];
-    doCheck = true;
-    checkPhase = ''
+    phases = [ "unpackPhase" "buildPhase" ];
+    buildPhase = ''
       for f in ${testBins}/bin/*; do
         # HACK: cargo produces the crate's main binary in the bin directory if the crate contains example tests.
         # The `grep` filters out the main binary, which doesn't contain the help string found in test binaries.
