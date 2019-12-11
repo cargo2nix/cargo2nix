@@ -3,6 +3,7 @@
 crate:
 env@{
   testCommand ? bin: "${bin}",
+  ...
 }:
 let
   testBins = crate { compileMode = "test"; };
