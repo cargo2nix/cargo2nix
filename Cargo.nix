@@ -11,7 +11,7 @@
   lib,
 }:
 let
-  inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit expandFeatures decideProfile genDrvsByProfile;
+  inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit fetchCrateAlternativeRegistry expandFeatures decideProfile genDrvsByProfile;
   profilesByName = {
   };
   rootFeatures' = expandFeatures rootFeatures;
@@ -22,6 +22,9 @@ let
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in
 {
+  workspace = {
+    cargo2nix = rustPackages."unknown".cargo2nix."0.5.0";
+  };
   "registry+https://github.com/rust-lang/crates.io-index".adler32."1.0.4" = overridableMkRustCrate ({ profileName, profile }: {
     inherit release profile;
     name = "adler32";
