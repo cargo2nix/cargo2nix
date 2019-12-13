@@ -21,13 +21,11 @@ let
     name = "openssl"; paths = with openssl; [ out dev ];
   };
 
-  patchPostgresql = pkgs: (pkgs.postgresql.override {
+  patchPostgresql = pkgs: pkgs.postgresql.override {
     openssl = patchOpenssl pkgs;
-  }).overrideAttrs (drv: {
     # Remove `systemd` input as it breaks cross compilation.
-    buildInputs = builtins.filter (d: !lib.hasPrefix "systemd" d.name) drv.buildInputs;
-    configureFlags = builtins.filter (flag: flag != "--with-systemd") drv.configureFlags;
-  });
+    enableSystemd = false;
+  };
 
   patchCurl = pkgs:
     let
