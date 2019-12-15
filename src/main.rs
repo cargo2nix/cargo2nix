@@ -2,6 +2,7 @@ use std::{
     borrow::{Borrow, Cow},
     collections::{BTreeMap, BTreeSet, HashMap},
     fmt::{self, Write},
+    fs, io,
     path::Path,
     rc::Rc,
 };
@@ -32,6 +33,59 @@ type PackageName<'a> = &'a str;
 type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
 
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
+
+    match args.as_slice() {
+        [_, "--stdin"] => generate_cargo_nix(io::stdout()),
+        [_, "--file"] => write_to_file("Cargo.nix"),
+        [_, "--file", file] => write_to_file(file),
+        [_] => print_help(),
+        [_, "--help"] => print_help(),
+        [_, "--version"] => print_version(),
+        _ => {
+            println!("Invalid arguments: {:?}", &args[1..]);
+            println!("\nTry again, with help: \n");
+            print_help();
+        }
+    }
+}
+
+fn print_version() {
+    println!("cargo2nix-{}\n", env!("CARGO_PKG_VERSION"));
+}
+fn print_help() {
+    print_version();
+    println!("$ cargo2nix                     # Print the help");
+    println!("$ cargo2nix --stdin             # Output on the stdin");
+    println!("$ cargo2nix --file              # Output to Cargo.nix");
+    println!("$ cargo2nix --file <file>       # Output to the given file");
+    println!("$ cargo2nix --version           # Print version of cargo2nix");
+    println!("$ cargo2nix --help              # Print the help");
+}
+
+fn write_to_file(file: impl AsRef<Path>) {
+    if file.as_ref().exists() {
+        print!(
+            "Warning: do you want to overwrite '{}'? yes/no: ",
+            file.as_ref().display()
+        );
+        io::Write::flush(&mut io::stdout().lock()).expect("flush stdout buffer");
+        let mut line = String::default();
+        io::stdin()
+            .read_line(&mut line)
+            .expect("failed to read input");
+        if line.trim() != "yes" {
+            println!("aborted!");
+        }
+    }
+    generate_cargo_nix(fs::File::create(&file).expect(&format!(
+        "Couldn't open file for writing: {}",
+        file.as_ref().display()
+    )));
+}
+
+fn generate_cargo_nix(mut out: impl io::Write) {
     let config = {
         let mut c = cargo::Config::default().unwrap();
         c.configure(0, None, &None, false, true, false, &None, &[])
