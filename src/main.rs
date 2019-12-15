@@ -195,7 +195,13 @@ fn generate_cargo_nix(mut out: impl io::Write) {
             let mut f = f.indent(2);
             writeln!(f, "workspace = {{")?;
             for pkg in root_pkgs.iter() {
-                writeln!(f.indent(2), "{} = {}.{};", pkg.name(), scope.crates, display_pkg_id_nix(pkg.package_id()))?;
+                writeln!(
+                    f.indent(2),
+                    "{} = {}.{};",
+                    pkg.name(),
+                    scope.crates,
+                    display_pkg_id_nix(pkg.package_id())
+                )?;
             }
             writeln!(f, "}};")?;
         }
@@ -504,11 +510,11 @@ impl<'a> ResolvedPackage<'a> {
             writeln!(f, "inherit {} profile;", outer.release)?;
             writeln!(f, "name = {:?};", self.pkg.name())?;
             writeln!(f, "version = {:?};", self.pkg.version().to_string())?;
-            writeln!(
-                f,
-                "registry = {:?};",
-                display_source_id(self.pkg.package_id().source_id()).to_string()
-            )?;
+
+            let registry = display_source_id(self.pkg.package_id().source_id()).to_string();
+            if registry != "registry+https://github.com/rust-lang/crates.io-index" {
+                writeln!(f, "registry = {:?};", registry)?;
+            }
             writeln!(
                 f,
                 "src = {};",
@@ -519,31 +525,38 @@ impl<'a> ResolvedPackage<'a> {
                     cwd
                 )
             )?;
-            writeln!(f, "features = builtins.concatLists [")?;
-            for (feature, optionality) in self.features.iter() {
-                let mut f = f.indent(2);
-                match optionality
-                    .to_expr(outer.root_features, n_root_pkgs)
-                    .simplify()
-                {
-                    True => writeln!(f, "[ {:?} ]", feature)?,
-                    expr => writeln!(f, "({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?,
+            if self.features.len() != 0 {
+                write!(f, "features = [")?;
+                for (feature, optionality) in self.features.iter() {
+                    let mut f = f.indent(2);
+                    match optionality
+                        .to_expr(outer.root_features, n_root_pkgs)
+                        .simplify()
+                    {
+                        True => write!(f, " {:?}", feature)?,
+                        expr => {
+                            write!(f, " ({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?
+                        }
+                    }
                 }
+                writeln!(f, " ];")?;
             }
-            writeln!(f, "];")?;
 
             for (attr, kind) in &[
                 ("dependencies", DependencyKind::Normal),
                 ("devDependencies", DependencyKind::Development),
                 ("buildDependencies", DependencyKind::Build),
             ] {
-                writeln!(f, "{} = {{", attr)?;
-
-                for ((dep_id, _), rdep) in self
+                let deps: Vec<_> = self
                     .deps
                     .iter()
                     .filter(|((_, dep_kind), _)| dep_kind == kind)
-                {
+                    .collect();
+                if deps.len() == 0 {
+                    continue;
+                }
+                writeln!(f, "{} = {{", attr)?;
+                for ((dep_id, _), rdep) in deps {
                     let mut f = f.indent(2);
                     match rdep
                         .optionality
