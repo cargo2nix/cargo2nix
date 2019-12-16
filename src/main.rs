@@ -525,20 +525,20 @@ impl<'a> ResolvedPackage<'a> {
                 )
             )?;
             if !self.features.is_empty() {
-                write!(f, "features = builtins.concatLists [")?;
+                writeln!(f, "features = builtins.concatLists [")?;
                 for (feature, optionality) in self.features.iter() {
                     let mut f = f.indent(2);
                     match optionality
                         .to_expr(outer.root_features, n_root_pkgs)
                         .simplify()
                     {
-                        True => write!(f, " [{:?}]", feature)?,
+                        True => writeln!(f, "[{:?}]", feature)?,
                         expr => {
-                            write!(f, " ({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?
+                            writeln!(f, "({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?
                         }
                     }
                 }
-                writeln!(f, " ];")?;
+                writeln!(f, "];")?;
             }
 
             for (attr, kind) in &[
