@@ -665,25 +665,18 @@ fn write_source_nix<W: Write>(
 
     let mut f = Indented::new(f);
     if source_id.is_default_registry() {
-        writeln!(f, "{} {{", scope.fetch_crate_crates_io)?;
-        {
-            let mut f = f.indent(2);
-            writeln!(f, "inherit name version;")?;
-            writeln!(
-                f,
-                "sha256 = {:?};",
-                checksum
-                    .unwrap_or_else(|| panic!("checksum is required for crates.io package {}", p))
-            )?
-        }
-        write!(f, "}}")
+        write!(
+            f,
+            "{} {{ inherit name version; sha256 = {:?}; }}",
+            scope.fetch_crate_crates_io,
+            checksum.unwrap_or_else(|| panic!("checksum is required for crates.io package {}", p))
+        )
     } else if source_id.is_git() {
         writeln!(f, "{} {{", scope.fetch_crate_git)?;
         {
             let mut f = f.indent(2);
+            writeln!(f, "inherit name version;")?;
             writeln!(f, "url = {:?};", source_id.url().to_string())?;
-            writeln!(f, "name = {:?};", p.name())?;
-            writeln!(f, "version = {:?};", p.version().to_string())?;
             writeln!(
                 f,
                 "rev = {:?};",
@@ -712,9 +705,8 @@ fn write_source_nix<W: Write>(
         writeln!(f, "{} {{", scope.fetch_crate_alternative_registry)?;
         {
             let mut f = f.indent(2);
+            writeln!(f, "inherit name version;")?;
             writeln!(f, "index = {};", source_id.url())?;
-            writeln!(f, "name = {:?};", p.name())?;
-            writeln!(f, "version = {:?};", p.version().to_string())?;
             writeln!(
                 f,
                 "sha256 = {:?};",
