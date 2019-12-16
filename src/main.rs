@@ -532,7 +532,7 @@ impl<'a> ResolvedPackage<'a> {
                         .to_expr(outer.root_features, n_root_pkgs)
                         .simplify()
                     {
-                        True => writeln!(f, "[{:?}]", feature)?,
+                        True => writeln!(f, "[ {:?} ]", feature)?,
                         expr => {
                             writeln!(f, "({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?
                         }
