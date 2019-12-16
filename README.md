@@ -38,7 +38,7 @@ nix-build -A package --arg crossSystem null
 
 ### As a build system
 
-1. Generate version pins to `Cargo.nix` by running `cargo2nix > Cargo.nix` at
+1. Generate version pins to `Cargo.nix` by running `cargo2nix --file Cargo.nix` at
    the root of your cargo workspace.
 
 2. Use `default.nix` in this repository as an example, select the package you
