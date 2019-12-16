@@ -36,18 +36,13 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
 
-    match args.as_slice() {
-        [_, "--stdout"] => generate_cargo_nix(io::stdout()),
-        [_, "-s"] => generate_cargo_nix(io::stdout()),
-        [_, "--file"] => write_to_file("Cargo.nix"),
-        [_, "-f"] => write_to_file("Cargo.nix"),
-        [_, "--file", file] => write_to_file(file),
-        [_, "-f", file] => write_to_file(file),
-        [_] => print_help(),
-        [_, "--help"] => print_help(),
-        [_, "-h"] => print_help(),
-        [_, "--version"] => print_version(),
-        [_, "-v"] => print_version(),
+    match &args[1..] {
+        ["--stdout"] | ["-s"] => generate_cargo_nix(io::stdout().lock()),
+        ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
+        ["--file", file] | ["-f", file] => write_to_file(file),
+        ["--help"] | ["-h"] => print_help(),
+        ["--version"] | ["-v"] => print_version(),
+        [] => print_help(),
         _ => {
             println!("Invalid arguments: {:?}", &args[1..]);
             println!("\nTry again, with help: \n");
@@ -70,23 +65,25 @@ fn print_help() {
 }
 
 fn write_to_file(file: impl AsRef<Path>) {
-    if file.as_ref().exists() {
+    let file = file.as_ref();
+    if file.exists() {
         print!(
             "warning: do you want to overwrite '{}'? yes/no: ",
-            file.as_ref().display()
+            file.display()
         );
-        io::Write::flush(&mut io::stdout().lock()).expect("flush stdout buffer");
-        let mut line = String::default();
+        io::Write::flush(&mut io::stdout()).expect("flush stdout buffer");
+        let mut line = String::new();
         io::stdin()
             .read_line(&mut line)
             .expect("failed to read input");
         if line.trim() != "yes" {
             println!("aborted!");
+            return;
         }
     }
     generate_cargo_nix(fs::File::create(&file).expect(&format!(
         "could not open file for writing: {}",
-        file.as_ref().display()
+        file.display()
     )));
 }
 
@@ -527,7 +524,7 @@ impl<'a> ResolvedPackage<'a> {
                     cwd
                 )
             )?;
-            if self.features.len() != 0 {
+            if !self.features.is_empty() {
                 write!(f, "features = builtins.concatLists [")?;
                 for (feature, optionality) in self.features.iter() {
                     let mut f = f.indent(2);
