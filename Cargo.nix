@@ -23,6 +23,7 @@ let
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in
 {
+  cargo2nixVersion = "0.6.0";
   workspace = {
     cargo2nix = rustPackages."unknown".cargo2nix."0.6.0";
   };
