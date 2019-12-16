@@ -37,12 +37,17 @@ fn main() {
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
 
     match args.as_slice() {
-        [_, "--stdin"] => generate_cargo_nix(io::stdout()),
+        [_, "--stdout"] => generate_cargo_nix(io::stdout()),
+        [_, "-s"] => generate_cargo_nix(io::stdout()),
         [_, "--file"] => write_to_file("Cargo.nix"),
+        [_, "-f"] => write_to_file("Cargo.nix"),
         [_, "--file", file] => write_to_file(file),
+        [_, "-f", file] => write_to_file(file),
         [_] => print_help(),
         [_, "--help"] => print_help(),
+        [_, "-h"] => print_help(),
         [_, "--version"] => print_version(),
+        [_, "-v"] => print_version(),
         _ => {
             println!("Invalid arguments: {:?}", &args[1..]);
             println!("\nTry again, with help: \n");
@@ -56,18 +61,18 @@ fn print_version() {
 }
 fn print_help() {
     print_version();
-    println!("$ cargo2nix                     # Print the help");
-    println!("$ cargo2nix --stdin             # Output on the stdin");
-    println!("$ cargo2nix --file              # Output to Cargo.nix");
-    println!("$ cargo2nix --file <file>       # Output to the given file");
-    println!("$ cargo2nix --version           # Print version of cargo2nix");
-    println!("$ cargo2nix --help              # Print the help");
+    println!("$ cargo2nix                        # Print the help");
+    println!("$ cargo2nix -s,--stdout            # Output to stdout");
+    println!("$ cargo2nix -f,--file              # Output to Cargo.nix");
+    println!("$ cargo2nix -f,--file <file>       # Output to the given file");
+    println!("$ cargo2nix -v,--version           # Print version of cargo2nix");
+    println!("$ cargo2nix -h,--help              # Print the help");
 }
 
 fn write_to_file(file: impl AsRef<Path>) {
     if file.as_ref().exists() {
         print!(
-            "Warning: do you want to overwrite '{}'? yes/no: ",
+            "warning: do you want to overwrite '{}'? yes/no: ",
             file.as_ref().display()
         );
         io::Write::flush(&mut io::stdout().lock()).expect("flush stdout buffer");
@@ -80,7 +85,7 @@ fn write_to_file(file: impl AsRef<Path>) {
         }
     }
     generate_cargo_nix(fs::File::create(&file).expect(&format!(
-        "Couldn't open file for writing: {}",
+        "could not open file for writing: {}",
         file.as_ref().display()
     )));
 }
@@ -511,10 +516,11 @@ impl<'a> ResolvedPackage<'a> {
             writeln!(f, "name = {:?};", self.pkg.name())?;
             writeln!(f, "version = {:?};", self.pkg.version().to_string())?;
 
-            let registry = display_source_id(self.pkg.package_id().source_id()).to_string();
-            if registry != "registry+https://github.com/rust-lang/crates.io-index" {
-                writeln!(f, "registry = {:?};", registry)?;
-            }
+            writeln!(
+                f,
+                "registry = {:?};",
+                display_source_id(self.pkg.package_id().source_id()).to_string()
+            )?;
             writeln!(
                 f,
                 "src = {};",
@@ -526,14 +532,14 @@ impl<'a> ResolvedPackage<'a> {
                 )
             )?;
             if self.features.len() != 0 {
-                write!(f, "features = [")?;
+                write!(f, "features = builtins.concatLists [")?;
                 for (feature, optionality) in self.features.iter() {
                     let mut f = f.indent(2);
                     match optionality
                         .to_expr(outer.root_features, n_root_pkgs)
                         .simplify()
                     {
-                        True => write!(f, " {:?}", feature)?,
+                        True => write!(f, " [{:?}]", feature)?,
                         expr => {
                             write!(f, " ({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?
                         }
@@ -547,12 +553,12 @@ impl<'a> ResolvedPackage<'a> {
                 ("devDependencies", DependencyKind::Development),
                 ("buildDependencies", DependencyKind::Build),
             ] {
-                let deps: Vec<_> = self
+                let mut deps = self
                     .deps
                     .iter()
                     .filter(|((_, dep_kind), _)| dep_kind == kind)
-                    .collect();
-                if deps.len() == 0 {
+                    .peekable();
+                if deps.peek().is_none() {
                     continue;
                 }
                 writeln!(f, "{} = {{", attr)?;
