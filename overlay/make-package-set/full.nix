@@ -11,7 +11,7 @@
   cargo,
   rustc,
   buildRustPackages ? null,
-  localPatterns ? [ ''^(src|test)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
+  localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? [ ],
   fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
   release ? null,
