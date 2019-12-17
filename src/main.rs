@@ -183,7 +183,7 @@ fn generate_cargo_nix(mut out: impl io::Write) {
                 writeln!(f, "let")?;
                 writeln!(
                     f.indent(2),
-                    "drvs = genDrvsByProfile profilesByName ({{profile, profileName}}: mkRustCrate ({{ inherit {} profile; }} // (f profileName)));", scope.release
+                    "drvs = genDrvsByProfile profilesByName ({{ profile, profileName }}: mkRustCrate ({{ inherit {} profile; }} // (f profileName)));", scope.release
                 )?;
                 writeln!(
                     f,
