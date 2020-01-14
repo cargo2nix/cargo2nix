@@ -23,6 +23,7 @@
   meta ? { },
   rustcflags ? [ ],
   rustcBuildFlags ? [ ],
+  NIX_DEBUG ? 0,
 }:
 with builtins; with lib;
 let
@@ -92,7 +93,7 @@ let
         else "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
       ''
-        cargo build -vvv ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
+        cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"}
       '';
 
@@ -107,6 +108,7 @@ let
       runtimeDependencies buildtimeDependencies;
 
   drvAttrs = {
+    inherit NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
     inherit src version meta;
     crateName = manifest.lib.name or (replaceChars ["-"] ["_"] name);
@@ -188,6 +190,7 @@ let
 
     setBuildEnv = ''
       . ${./utils.sh}
+      export CARGO_VERBOSE=`cargoVerbosityLevel $NIX_DEBUG`
       export NIX_RUST_METADATA=`extractHash $out`
       export CARGO_HOME=`pwd`/.cargo
       mkdir -p deps build_deps

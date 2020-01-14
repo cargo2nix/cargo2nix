@@ -196,3 +196,16 @@ install_crate() {
 --arg procmacro "$isProcMacro" \
 --arg version $version >$out/.cargo-info
 }
+
+cargoVerbosityLevel() {
+  level=${1:-0}
+  verbose_flag=""
+
+  if (( level >= 1 )); then
+    verbose_flag="-v"
+  elif (( level >= 7 )); then
+    verbose_flag="-vv"
+  fi
+
+  echo ${verbose_flag}
+}
