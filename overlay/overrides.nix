@@ -68,7 +68,7 @@ in rec {
     rand_os
     rand
     rdkafka-sys
-    webpki-roots
+    ring
   ];
 
   capLints = makeOverride {
@@ -165,9 +165,9 @@ in rec {
     };
   };
   
-  webpki-roots = if pkgs.stdenv.hostPlatform.isDarwin
+  ring = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
-      name = "webpki-roots";
+      name = "ring";
       overrideAttrs = drv: {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.darwin.apple_sdk.frameworks.Security ];
       };
