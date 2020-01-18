@@ -29,22 +29,6 @@ with builtins; with lib;
 let
   inherit (rustLib) realHostTriple decideProfile;
 
-  manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
-
-  isProcMacro = manifest.lib.proc-macro or manifest.lib.proc_macro or false;
-
-  patchedManifest =
-      {
-        ${ if manifest ? package then "package" else null } = manifest.package;
-        ${ if manifest ? lib then "lib" else null } = manifest.lib;
-        ${ if manifest ? bin then "bin" else null } = manifest.bin;
-        ${ if manifest ? bench && registry == "unknown" then "bench" else null } = manifest.bench;
-        ${ if manifest ? test then "test" else null } = manifest.test;
-        ${ if manifest ? example then "example" else null } = manifest.example;
-        features = genAttrs features (_: [ ]);
-        profile.${ decideProfile compileMode release } = profile;
-      };
-
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
     #!${stdenv.shell}
     . ${./utils.sh}
@@ -111,12 +95,14 @@ let
     inherit NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
     inherit src version meta;
-    crateName = manifest.lib.name or (replaceChars ["-"] ["_"] name);
+    crateName = replaceChars ["-"] ["_"] name;
     buildInputs = runtimeDependencies;
     propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
     nativeBuildInputs = [ cargo buildPackages.pkg-config ] ++ buildtimeDependencies;
 
-    depsBuildBuild = [ buildPackages.buildPackages.stdenv.cc buildPackages.buildPackages.jq ];
+    depsBuildBuild =
+      let inherit (buildPackages.buildPackages) stdenv jq remarshal;
+      in [ stdenv.cc jq remarshal ];
 
     # Running the default `strip -S` command on Darwin corrupts the
     # .rlib files in "lib/".
@@ -129,7 +115,6 @@ let
         name
         version
         registry
-        patchedManifest
         dependencies
         devDependencies
         buildDependencies
@@ -140,8 +125,6 @@ let
     dependencies = depMapToList dependencies;
     buildDependencies = depMapToList buildDependencies;
     devDependencies = depMapToList (optionalAttrs (compileMode == "test") devDependencies);
-
-    isProcMacro = optionalString isProcMacro "1";
 
     extraRustcFlags = rustcflags;
 
@@ -160,12 +143,26 @@ let
       EOF
     '';
 
+    manifestPatch = toJSON {
+      features = genAttrs features (_: [ ]);
+      profile.${ decideProfile compileMode release } = profile;
+    };
+
     overrideCargoManifest = ''
       echo [[package]] > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
       echo source = \"registry+${registry}\" >> Cargo.lock
-      cp ${rustLib.json2toml { inherit name; json = patchedManifest; }} Cargo.toml
+      mv Cargo.toml Cargo.original.toml
+      remarshal -if toml -of json Cargo.original.toml \
+        | jq "{ package: .package
+              , lib: .lib
+              , bin: .bin
+              , test: .test
+              , example: .example
+              , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
+              } + $manifestPatch" \
+        | remarshal -if json -of toml > Cargo.toml
     '';
 
     configurePhase =
@@ -189,6 +186,10 @@ let
     '';
 
     setBuildEnv = ''
+      isProcMacro="$( \
+        remarshal -if toml -of json Cargo.original.toml \
+        | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
+      )"
       . ${./utils.sh}
       export CARGO_VERBOSE=`cargoVerbosityLevel $NIX_DEBUG`
       export NIX_RUST_METADATA=`extractHash $out`
@@ -220,7 +221,7 @@ let
 
     installPhase = ''
       mkdir -p $out/lib
-      cargo_links=${manifest.package.links or ""}
+      cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
       install_crate ${host-triple}
     '';
   };
