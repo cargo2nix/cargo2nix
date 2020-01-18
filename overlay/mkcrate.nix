@@ -174,7 +174,10 @@ let
 
     runCargo = ''
       (
-        set -euox pipefail
+        set -euo pipefail
+        if (( NIX_DEBUG >= 1 )); then
+          set -x
+        fi
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
@@ -205,12 +208,15 @@ let
       export RUSTC=${wrapper "rustc"}/bin/rustc
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
-      echo $NIX_RUST_LINK_FLAGS
-      echo $NIX_RUST_BUILD_LINK_FLAGS
       depKeys=(`loadDepKeys $dependencies`)
-      for key in ''${depKeys[@]}; do
-        echo $key
-      done
+
+      if (( NIX_DEBUG >= 1 )); then
+        echo $NIX_RUST_LINK_FLAGS
+        echo $NIX_RUST_BUILD_LINK_FLAGS
+        for key in ''${depKeys[@]}; do
+          echo $key
+        done
+      fi
     '';
 
     buildPhase = ''
