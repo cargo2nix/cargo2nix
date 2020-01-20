@@ -46,10 +46,7 @@ lib.fix' (self:
       inherit (stdenv) hostPlatform;
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {
-        fetchCrateAlternativeRegistry = args: rustLib.unpackSrc {
-          inherit (args) name;
-          src = fetchCrateAlternativeRegistry args;
-        };
+        inherit fetchCrateAlternativeRegistry;
         fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath;
       };
       ${ if release == null then null else "release" } = release;
