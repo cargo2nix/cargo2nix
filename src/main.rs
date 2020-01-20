@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 use std::{
     borrow::{Borrow, Cow},
     collections::{BTreeMap, BTreeSet, HashMap},
