@@ -95,7 +95,6 @@ let
     inherit NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
     inherit src version meta;
-    crateName = replaceChars ["-"] ["_"] name;
     buildInputs = runtimeDependencies;
     propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
     nativeBuildInputs = [ cargo buildPackages.pkg-config ] ++ buildtimeDependencies;
@@ -192,6 +191,10 @@ let
       isProcMacro="$( \
         remarshal -if toml -of json Cargo.original.toml \
         | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
+      )"
+      crateName="$(
+        remarshal -if toml -of json Cargo.original.toml \
+        | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
       )"
       . ${./utils.sh}
       export CARGO_VERBOSE=`cargoVerbosityLevel $NIX_DEBUG`
