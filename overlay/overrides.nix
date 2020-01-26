@@ -62,6 +62,7 @@ in rec {
     capLints
     openssl-sys
     curl-sys
+    fsevent-sys
     libgit2-sys
     pq-sys
     prost-build
@@ -92,6 +93,15 @@ in rec {
     name = "curl-sys";
     overrideAttrs = drv: {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ (patchCurl pkgs) ];
+    };
+  };
+
+  fsevent-sys = makeOverride {
+    name = "fsevent-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        pkgs.darwin.apple_sdk.frameworks.CoreServices
+      ];
     };
   };
 
