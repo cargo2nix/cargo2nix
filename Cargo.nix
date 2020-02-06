@@ -25,7 +25,7 @@ in
 {
   cargo2nixVersion = "0.7.0";
   workspace = {
-    cargo2nix = rustPackages."unknown".cargo2nix."0.7.0";
+    cargo2nix = rustPackages."unknown".cargo2nix."0.8.0";
   };
   "registry+https://github.com/rust-lang/crates.io-index".adler32."1.0.4" = overridableMkRustCrate (profileName: rec {
     name = "adler32";
@@ -227,9 +227,9 @@ in
     };
   });
   
-  "unknown".cargo2nix."0.7.0" = overridableMkRustCrate (profileName: rec {
+  "unknown".cargo2nix."0.8.0" = overridableMkRustCrate (profileName: rec {
     name = "cargo2nix";
-    version = "0.7.0";
+    version = "0.8.0";
     registry = "unknown";
     src = fetchCrateLocal ./.;
     dependencies = {
