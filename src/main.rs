@@ -12,18 +12,18 @@ use std::{
 use cargo::{
     core::{
         dependency::Kind as DependencyKind,
-        resolver::{Method, Resolve},
+        resolver::{Resolve, ResolveOpts},
         InternedString, Package, PackageId, PackageIdSpec, SourceId, Workspace,
     },
-    ops::{resolve_ws_with_method, Packages},
+    ops::{resolve_ws_with_opts, Packages},
     util::important_paths::find_root_manifest_for_wd,
 };
+use cargo_platform::Platform;
 
 use crate::{
     expr::BoolExpr,
     fmt_ext::{DisplayFn, Indented},
 };
-use cargo::core::dependency::Platform;
 
 pub mod expr;
 pub mod fmt_ext;
@@ -99,9 +99,9 @@ fn generate_cargo_nix(mut out: impl io::Write) {
     let root_manifest_path = find_root_manifest_for_wd(config.cwd()).unwrap();
     let ws = Workspace::new(&root_manifest_path, &config).unwrap();
 
-    let (package_set, resolve) = resolve_ws_with_method(
+    let resolve = resolve_ws_with_opts(
         &ws,
-        Method::Required {
+        ResolveOpts {
             dev_deps: true,
             features: Rc::new(Default::default()),
             all_features: true,
@@ -111,21 +111,23 @@ fn generate_cargo_nix(mut out: impl io::Write) {
     )
     .unwrap();
 
-    let pkgs_by_id = package_set
-        .get_many(package_set.package_ids())
+    let pkgs_by_id = resolve
+        .pkg_set
+        .get_many(resolve.pkg_set.package_ids())
         .unwrap()
         .iter()
         .map(|pkg| (pkg.package_id(), *pkg))
         .collect::<HashMap<_, _>>();
 
-    let mut rpkgs_by_id = package_set
-        .get_many(package_set.package_ids())
+    let mut rpkgs_by_id = resolve
+        .pkg_set
+        .get_many(resolve.pkg_set.package_ids())
         .unwrap()
         .iter()
         .map(|pkg| {
             (
                 pkg.package_id(),
-                ResolvedPackage::new(pkg, &pkgs_by_id, &resolve),
+                ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve),
             )
         })
         .collect::<BTreeMap<_, _>>();
@@ -262,9 +264,9 @@ fn mark_required(
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) {
-    let (_, resolve) = resolve_ws_with_method(
+    let resolve = resolve_ws_with_opts(
         ws,
-        Method::Required {
+        ResolveOpts {
             dev_deps: true,
             features: Rc::new(Default::default()),
             all_features: false,
@@ -276,16 +278,16 @@ fn mark_required(
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
-    for id in resolve.iter() {
+    for id in resolve.targeted_resolve.iter() {
         let rpkg = rpkgs_by_id.get_mut(&id).unwrap();
-        for feature in resolve.features(id).iter() {
+        for feature in resolve.targeted_resolve.features(id).iter() {
             rpkg.features
                 .get_mut(feature.as_str())
                 .unwrap()
                 .required_by(root_pkg_name);
         }
 
-        for (dep_id, _) in resolve.deps(id) {
+        for (dep_id, _) in resolve.targeted_resolve.deps(id) {
             for dep in rpkg.iter_deps_with_id_mut(dep_id) {
                 dep.optionality.required_by(root_pkg_name);
             }
@@ -299,9 +301,9 @@ fn activate<'a>(
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
 ) {
-    let (_, resolve) = resolve_ws_with_method(
+    let resolve = resolve_ws_with_opts(
         ws,
-        Method::Required {
+        ResolveOpts {
             dev_deps: true,
             features: Rc::new({
                 let mut s = BTreeSet::new();
@@ -318,16 +320,16 @@ fn activate<'a>(
     .unwrap();
 
     let root_feature = (pkg.name().as_str(), feature);
-    for id in resolve.iter() {
+    for id in resolve.targeted_resolve.iter() {
         let rpkg = rpkgs_by_id.get_mut(&id).unwrap();
-        for feature in resolve.features(id).iter() {
+        for feature in resolve.targeted_resolve.features(id).iter() {
             rpkg.features
                 .get_mut(feature.as_str())
                 .unwrap()
                 .activated_by(root_feature);
         }
 
-        for (dep_id, _) in resolve.deps(id) {
+        for (dep_id, _) in resolve.targeted_resolve.deps(id) {
             for dep in rpkg.iter_deps_with_id_mut(dep_id) {
                 dep.optionality.activated_by(root_feature)
             }

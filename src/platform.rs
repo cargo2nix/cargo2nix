@@ -1,4 +1,4 @@
-use cargo::{core::dependency::Platform, util::CfgExpr};
+use cargo_platform::{CfgExpr, Platform};
 
 use crate::expr::BoolExpr;
 
@@ -13,7 +13,7 @@ pub fn to_expr(p: &Platform, platform_var: &str) -> BoolExpr {
 
 fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
     use self::BoolExpr::{False, Single};
-    use cargo::util::Cfg;
+    use cargo_platform::Cfg;
 
     match cfg {
         CfgExpr::Not(c) => cfg_to_expr(c, platform_var).not(),
