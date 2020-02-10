@@ -125,10 +125,10 @@ dependencies apart, building them individually as separate Nix derivations and
 linking them together. This is achieved by passing custom linker flags to the
 `cargo` invocations and the underlying `rustc` and `rustdoc` invocations.
 
-The overlay is built on top of the work by James Kay. In addition, this overlay
-also takes cross-compilation into account and build the crates onto the correct
-host platform configurations with the correct platform-dependent feature flags
-specified in the Cargo manifests and build-time dependencies.
+In addition, this overlay takes cross-compilation into account and build the
+crates onto the correct host platform configurations with the correct
+platform-dependent feature flags specified in the Cargo manifests and build-time
+dependencies.
 
 ## Credits
 
