@@ -33,15 +33,33 @@ nix-env -iA package -f https://github.com/tenx-tech/cargo2nix/tarball/master --a
 
 ### As a build system
 
-1. Generate version pins to `Cargo.nix` by running `cargo2nix --file Cargo.nix` at
-   the root of your cargo workspace.
+1. Generate a `Cargo.nix` file by running `cargo2nix -f` at the root of your
+   Cargo workspace.
 
-2. Use `default.nix` in this repository as an example, select the package you
-   want to build and set up required build-time/run-time dependencies.
+2. Use the `default.nix` and `shell.nix` in this repository as an example and
+   point the `package` attribute to the package(s) you would like to build.
+
+3. Build your Cargo workspace with the following command:
+
+   ```bash
+   # For Linux users
+   nix-build -A package
+
+   # For macOS/Darwin users
+   nix-build -A package --arg crossSystem null
+   ```
+
+   Alternatively, you can drop into a self-contained environment containing the
+   correct version of the Rust toolchain (`rustc`, `cargo`, `rls`) and all
+   required system dependencies by running:
+
+   ```bash
+   nix-shell
+   ```
 
 ### Optional declarative development shell
 
-You can optionally use any of these crate derivation as your `nix-shell`
+You can optionally use any of these crate derivations as your `nix-shell`
 development shell. The advantage of this shell is that in this environment users
 can develop their crates and be sure that their crates builds in the same way
 that `cargo2nix` overlay will build them.
@@ -53,7 +71,7 @@ you into such a development shell.
 ```bash
 # When a crate is not associated with any registry, such as when building locally,
 # the registry is "unknown" as shown below.
-nix-shell -A 'rustPkgs.unknown.cargo2nix."0.5.0"' default.nix
+nix-shell -A 'rustPkgs.unknown.cargo2nix."0.8.0"' default.nix
 ```
 
 You will need to bootstrap some environment in this declarative development
