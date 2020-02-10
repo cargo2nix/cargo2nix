@@ -96,27 +96,6 @@ command used by `cargo2nix`, use
 runHook runCargo
 ```
 
-### Airplane mode
-
-Note: This functionality is currently not working in version 0.4. Revert back to
-[version 0.3](https://github.com/tenx-tech/cargo2nix/tree/0b14c7efe1a35986c07f9624b76ae5f2a8c67ec0)
-if you need it.
-
-Going flying next morning and planning to code Rust to kill your boredom for the
-next 12 hours? Airplane mode allows you to work offline as long as you have
-checked in the `crates-io` dependencies into Nix store. The `shell` derivation
-in `default.nix` is a sample derivation that enables airplane mode for your
-`cargo`.
-
-To enter airplane mode, run the following command.
-
-```bash
-nix-shell -A shell --fallback --option substitute false
-```
-
-Then execute `vendor_source` command in the shell to install source replacement
-for the `crates-io` public crates.
-
 ## Common issues
 
 1. Many `crates.io` public crates may not build using the current Rust compiler,
