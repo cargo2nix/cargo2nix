@@ -114,7 +114,7 @@ runHook runCargo
    removing the inner whitespace from the problematic keys should work around
    this issue.
 
-   ```
+   ```text
    error: while parsing a TOML string at /nix/store/.../overlay/mkcrate.nix:31:14: Bare key 'cfg(target_os = "linux")' cannot contain whitespace at line 45
    ```
 
