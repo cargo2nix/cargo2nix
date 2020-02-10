@@ -122,8 +122,8 @@ runHook runCargo
 
 This Nixpkgs overlay builds your Rust crates and binaries by first pulling the
 dependencies apart, building them individually as separate Nix derivations and
-linking them together. This is achieved by basically passing linker flags to the
-`cargo` invocations and the underlying `rustc`/`rustdoc` invocations.
+linking them together. This is achieved by passing custom linker flags to the
+`cargo` invocations and the underlying `rustc` and `rustdoc` invocations.
 
 The overlay is built on top of the work by James Kay. In addition, this overlay
 also takes cross-compilation into account and build the crates onto the correct
