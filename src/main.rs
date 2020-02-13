@@ -242,6 +242,10 @@ fn simplify_optionality<'a, 'b: 'a>(
             }
         }
 
+        // Dev dependencies can't be optional.
+        rpkg.deps.iter_mut().filter(|((_, kind), _)| *kind == DependencyKind::Development)
+            .for_each(|(_, d)| d.optionality = Optionality::Required);
+
         if all_eq(rpkg.iter_optionality_mut()) {
             // This package is always required by a subset of the root packages with the same set of features.
             rpkg.iter_optionality_mut()
@@ -510,8 +514,9 @@ impl<'a> ResolvedPackage<'a> {
 
     fn iter_optionality_mut(&mut self) -> impl Iterator<Item = &mut Optionality<'a>> {
         self.deps
-            .values_mut()
-            .map(|d| &mut d.optionality)
+            .iter_mut()
+            .filter(|((_, kind), _)| *kind != DependencyKind::Development)
+            .map(|(_, d)| &mut d.optionality)
             .chain(self.features.values_mut())
     }
 
