@@ -140,6 +140,7 @@ fn generate_cargo_nix(mut out: impl io::Write) {
             activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id);
         }
     }
+    simplify_optionality(rpkgs_by_id.values_mut(), root_pkgs.len());
 
     let profiles = manifest::extract_profiles(&std::fs::read(&root_manifest_path).unwrap());
     let scope = Scope::default();
@@ -215,16 +216,38 @@ fn generate_cargo_nix(mut out: impl io::Write) {
         }
 
         for rpkg in rpkgs_by_id.values() {
-            writeln!(
-                f.indent(2),
-                "{}",
-                rpkg.to_nix(scope, root_pkgs.len(), config.cwd())
-            )?;
+            writeln!(f.indent(2), "{}", rpkg.to_nix(scope, config.cwd()))?;
         }
         writeln!(f, "}}")
     });
 
     writeln!(out, "{}", display).expect("write everything");
+}
+
+fn simplify_optionality<'a, 'b: 'a>(
+    rpkgs: impl IntoIterator<Item = &'a mut ResolvedPackage<'b>>,
+    n_root_pkgs: usize,
+) {
+    for rpkg in rpkgs.into_iter() {
+        for optionality in rpkg.iter_optionality_mut() {
+            if let Optionality::Optional {
+                ref required_by_pkgs,
+                ..
+            } = optionality
+            {
+                if required_by_pkgs.len() == n_root_pkgs {
+                    // This dependency/feature of this package is required by any of the root packages.
+                    *optionality = Optionality::Required;
+                }
+            }
+        }
+
+        if all_eq(rpkg.iter_optionality_mut()) {
+            // This package is always required by a subset of the root packages with the same set of features.
+            rpkg.iter_optionality_mut()
+                .for_each(|o| *o = Optionality::Required);
+        }
+    }
 }
 
 fn all_features<'a>(p: &'a Package) -> impl 'a + Iterator<Item = Feature<'a>> {
@@ -388,10 +411,13 @@ struct ResolvedDependency<'a> {
     platforms: Option<Vec<&'a Platform>>,
 }
 
-#[derive(Debug, Default)]
-struct Optionality<'a> {
-    required_by_pkgs: BTreeSet<PackageName<'a>>,
-    activated_by_features: Vec<RootFeature<'a>>,
+#[derive(PartialEq, Eq, Debug)]
+enum Optionality<'a> {
+    Required,
+    Optional {
+        required_by_pkgs: BTreeSet<PackageName<'a>>,
+        activated_by_features: BTreeSet<RootFeature<'a>>,
+    },
 }
 
 impl<'a> ResolvedPackage<'a> {
@@ -482,19 +508,21 @@ impl<'a> ResolvedPackage<'a> {
             .map(|(_, dep)| dep)
     }
 
-    fn to_nix<'b, 'c>(
-        &'b self,
-        outer: Scope<'c>,
-        n_root_pkgs: usize,
-        cwd: &'b Path,
-    ) -> impl 'b + fmt::Display
+    fn iter_optionality_mut(&mut self) -> impl Iterator<Item = &mut Optionality<'a>> {
+        self.deps
+            .values_mut()
+            .map(|d| &mut d.optionality)
+            .chain(self.features.values_mut())
+    }
+
+    fn to_nix<'b, 'c>(&'b self, outer: Scope<'c>, cwd: &'b Path) -> impl 'b + fmt::Display
     where
         'c: 'b,
     {
-        DisplayFn(move |f: &mut fmt::Formatter| self.write_nix(f, outer, n_root_pkgs, cwd))
+        DisplayFn(move |f: &mut fmt::Formatter| self.write_nix(f, outer, cwd))
     }
 
-    fn write_nix<W>(&self, f: W, outer: Scope, n_root_pkgs: usize, cwd: &Path) -> fmt::Result
+    fn write_nix<W>(&self, f: W, outer: Scope, cwd: &Path) -> fmt::Result
     where
         W: Write,
     {
@@ -531,10 +559,7 @@ impl<'a> ResolvedPackage<'a> {
                 writeln!(f, "features = builtins.concatLists [")?;
                 for (feature, optionality) in self.features.iter() {
                     let mut f = f.indent(2);
-                    match optionality
-                        .to_expr(outer.root_features, n_root_pkgs)
-                        .simplify()
-                    {
+                    match optionality.to_expr(outer.root_features).simplify() {
                         True => writeln!(f, "[ {:?} ]", feature)?,
                         expr => {
                             writeln!(f, "({} ({}) {:?})", outer.optional, expr.to_nix(), feature)?
@@ -562,7 +587,7 @@ impl<'a> ResolvedPackage<'a> {
                     let mut f = f.indent(2);
                     match rdep
                         .optionality
-                        .to_expr(outer.root_features, n_root_pkgs)
+                        .to_expr(outer.root_features)
                         .and(match rdep.platforms {
                             Some(ref platforms) => BoolExpr::ors(
                                 platforms
@@ -608,39 +633,61 @@ impl<'a> ResolvedPackage<'a> {
     }
 }
 
+impl<'a> Default for Optionality<'a> {
+    fn default() -> Self {
+        Optionality::Optional {
+            required_by_pkgs: Default::default(),
+            activated_by_features: Default::default(),
+        }
+    }
+}
+
 impl<'a> Optionality<'a> {
     fn activated_by(&mut self, (pkg_name, feature): RootFeature<'a>) {
-        if !self.required_by_pkgs.contains(pkg_name) {
-            self.activated_by_features.push((pkg_name, feature));
+        if let Optionality::Optional {
+            required_by_pkgs,
+            activated_by_features,
+        } = self
+        {
+            if !required_by_pkgs.contains(pkg_name) {
+                activated_by_features.insert((pkg_name, feature));
+            }
         }
     }
 
     fn required_by(&mut self, pkg_name: PackageName<'a>) {
-        self.required_by_pkgs.insert(pkg_name);
+        if let Optionality::Optional {
+            required_by_pkgs, ..
+        } = self
+        {
+            required_by_pkgs.insert(pkg_name);
+        }
     }
 
-    fn to_expr(&self, root_features_var: &str, n_root_pkgs: usize) -> BoolExpr {
+    fn to_expr(&self, root_features_var: &str) -> BoolExpr {
         use self::BoolExpr::*;
-        if self.required_by_pkgs.len() == n_root_pkgs {
-            // Required by all root packages, no conditioning needed.
-            True
-        } else {
-            BoolExpr::ors(
-                self.activated_by_features
-                    .iter()
-                    .map(|root_feature| {
-                        Single(format!(
-                            "{} ? {:?}",
-                            root_features_var,
-                            display_root_feature(*root_feature)
-                        ))
-                    })
-                    .chain(
-                        self.required_by_pkgs.iter().map(|pkg_name| {
+
+        match self {
+            Optionality::Required => True,
+            Optionality::Optional {
+                activated_by_features,
+                required_by_pkgs,
+            } => {
+                BoolExpr::ors(
+                    activated_by_features
+                        .iter()
+                        .map(|root_feature| {
+                            Single(format!(
+                                "{} ? {:?}",
+                                root_features_var,
+                                display_root_feature(*root_feature)
+                            ))
+                        })
+                        .chain(required_by_pkgs.iter().map(|pkg_name| {
                             Single(format!("{} ? {:?}", root_features_var, pkg_name))
-                        }),
-                    ),
-            )
+                        })),
+                )
+            }
         }
     }
 }
@@ -805,4 +852,18 @@ fn display_profiles_nix(profiles: &manifest::TomlProfile) -> impl '_ + fmt::Disp
         }
         write!(f, "}}")
     })
+}
+
+fn all_eq<T, I>(i: I) -> bool
+where
+    I: IntoIterator<Item = T>,
+    T: PartialEq,
+{
+    let mut iter = i.into_iter();
+    let first = match iter.next() {
+        Some(x) => x,
+        None => return true,
+    };
+
+    return iter.all(|x| x == first);
 }
