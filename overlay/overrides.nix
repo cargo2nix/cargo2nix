@@ -60,14 +60,14 @@ in rec {
   # Don't forget to add new overrides here.
   all = [
     capLints
-    openssl-sys
     curl-sys
     fsevent-sys
     libgit2-sys
+    openssl-sys
     pq-sys
     prost-build
-    rand_os
     rand
+    rand_os
     rdkafka-sys
     ring
   ];
@@ -75,18 +75,6 @@ in rec {
   capLints = makeOverride {
     registry = "registry+https://github.com/rust-lang/crates.io-index";
     overrideArgs = old: { rustcflags = old.rustcflags or [ ] ++ [ "--cap-lints" "warn" ]; };
-  };
-
-  openssl-sys = makeOverride {
-    name = "openssl-sys";
-    overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
-        (propagateEnv "openssl-sys" [
-          { name = "${envize pkgs.stdenv.buildPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
-          { name = "${envize pkgs.stdenv.hostPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
-        ])
-      ];
-    };
   };
 
   curl-sys = makeOverride {
@@ -118,6 +106,18 @@ in rec {
     }
     else nullOverride;
 
+  openssl-sys = makeOverride {
+    name = "openssl-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        (propagateEnv "openssl-sys" [
+          { name = "${envize pkgs.stdenv.buildPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
+          { name = "${envize pkgs.stdenv.hostPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
+        ])
+      ];
+    };
+  };
+
   pq-sys =
     let
       binEcho = s: "${pkgs.buildPackages.writeShellScriptBin "bin-echo" "echo ${s}"}/bin/bin-echo";
@@ -147,18 +147,18 @@ in rec {
     };
   };
 
-  rand_os = if pkgs.stdenv.hostPlatform.isDarwin
+  rand = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
-      name = "rand_os";
+      name = "rand";
       overrideAttrs = drv: {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.darwin.apple_sdk.frameworks.Security ];
       };
     }
     else nullOverride;
 
-  rand = if pkgs.stdenv.hostPlatform.isDarwin
+  rand_os = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
-      name = "rand";
+      name = "rand_os";
       overrideAttrs = drv: {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.darwin.apple_sdk.frameworks.Security ];
       };
