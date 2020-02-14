@@ -11,8 +11,7 @@ bringing you reproducible builds and better caching.
 This repository hosts two components:
 
 - A [Nixpkgs](https://github.com/NixOS/nixpkgs) overlay, located at the `/overlay`
-  directory, providing utilities to build your Cargo workspace and set up
-  airplane mode.
+  directory, providing utilities to build and test your Cargo workspace.
   
 - A utility written in Rust to generate version pins of crate dependencies.
   
