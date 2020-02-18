@@ -64,6 +64,7 @@ in rec {
     fsevent-sys
     libgit2-sys
     openssl-sys
+    pkg-config
     pq-sys
     prost-build
     rand
@@ -117,6 +118,19 @@ in rec {
       ];
     };
   };
+
+  pkg-config = if pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
+    then makeOverride {
+      name = "pkg-config";
+      overrideAttrs = drv: {
+        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          (propagateEnv "pkg-config" [
+            { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
+          ])
+        ];
+      };
+    }
+    else nullOverride;
 
   pq-sys =
     let
