@@ -3,8 +3,6 @@ use std::fmt;
 use once_cell::sync::OnceCell;
 use regex::Regex;
 
-use crate::fmt_ext::DisplayFn;
-
 pub enum BoolExpr {
     And(Box<BoolExpr>, Box<BoolExpr>),
     Or(Box<BoolExpr>, Box<BoolExpr>),
@@ -169,4 +167,16 @@ fn is_valid_ident(id: &str) -> bool {
     IDENT_RE
         .get_or_init(|| Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_'-.]*$").unwrap())
         .is_match(id)
+}
+
+#[derive(Clone)]
+struct DisplayFn<F>(pub F);
+
+impl<F> fmt::Display for DisplayFn<F>
+where
+    F: Fn(&mut fmt::Formatter) -> fmt::Result,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        (self.0)(f)
+    }
 }

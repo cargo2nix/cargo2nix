@@ -20,7 +20,7 @@ let
         rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
         cargo2nixOverlay = import ./overlay;
       in
-       overlays ++ [ cargo2nixOverlay rustOverlay ];
+        overlays ++ [ cargo2nixOverlay rustOverlay ];
   };
 
   # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
@@ -47,6 +47,7 @@ let
     rustChannel = "1.37.0";
     packageFun = import ./Cargo.nix;
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
+    localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };
 in
   # `rustPkgs` now contains all crates in the dependency graph.
