@@ -119,7 +119,7 @@ in rec {
     };
   };
 
-  pkg-config = if pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform
+  pkg-config = if pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
     then makeOverride {
       name = "pkg-config";
       overrideAttrs = drv: {
