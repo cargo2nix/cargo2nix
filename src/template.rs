@@ -88,10 +88,21 @@ pub struct Crate {
 
 #[derive(Debug, Serialize)]
 pub enum Source {
-    CratesIo { sha256: String },
-    Git { rev: String, sha256: String },
-    Local { path: PathBuf },
-    Registry { index: String, sha256: String },
+    CratesIo {
+        sha256: String,
+    },
+    Git {
+        url: String,
+        rev: String,
+        sha256: String,
+    },
+    Local {
+        path: PathBuf,
+    },
+    Registry {
+        index: String,
+        sha256: String,
+    },
 }
 
 #[derive(Debug, Serialize)]
@@ -133,6 +144,7 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Source {
         }
     } else if id.source_id().is_git() {
         Source::Git {
+            url: id.source_id().url().to_string(),
             rev: id
                 .source_id()
                 .precise()
