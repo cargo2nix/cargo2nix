@@ -153,7 +153,7 @@ fn write_to_file(file: impl AsRef<Path>) {
 
     temp_file
         .persist(path)
-        .unwrap_or_else(|_| panic!("could not write file to final location: {}", path.display()));
+        .unwrap_or_else(|e| panic!("could not write file to {}: {}", path.display(), e));
 }
 
 fn generate_cargo_nix(mut out: impl io::Write) {
