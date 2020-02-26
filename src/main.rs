@@ -348,23 +348,6 @@ pub struct ResolvedPackage<'a> {
     checksum: Option<Cow<'a, str>>,
 }
 
-#[derive(Debug)]
-struct ResolvedDependency<'a> {
-    extern_name: String,
-    pkg: &'a Package,
-    optionality: Optionality<'a>,
-    platforms: Option<Vec<&'a Platform>>,
-}
-
-#[derive(PartialEq, Eq, Debug)]
-enum Optionality<'a> {
-    Required,
-    Optional {
-        required_by_pkgs: BTreeSet<PackageName<'a>>,
-        activated_by_features: BTreeSet<RootFeature<'a>>,
-    },
-}
-
 impl<'a> ResolvedPackage<'a> {
     fn new(
         pkg: &'a Package,
@@ -460,6 +443,23 @@ impl<'a> ResolvedPackage<'a> {
             .map(|(_, d)| &mut d.optionality)
             .chain(self.features.values_mut())
     }
+}
+
+#[derive(Debug)]
+struct ResolvedDependency<'a> {
+    extern_name: String,
+    pkg: &'a Package,
+    optionality: Optionality<'a>,
+    platforms: Option<Vec<&'a Platform>>,
+}
+
+#[derive(PartialEq, Eq, Debug)]
+enum Optionality<'a> {
+    Required,
+    Optional {
+        required_by_pkgs: BTreeSet<PackageName<'a>>,
+        activated_by_features: BTreeSet<RootFeature<'a>>,
+    },
 }
 
 impl<'a> Default for Optionality<'a> {
