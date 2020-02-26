@@ -19,6 +19,7 @@ use cargo::{
 };
 use cargo_platform::Platform;
 use colorify::colorify;
+use failure::{Error, ResultExt};
 use semver::{Version, VersionReq};
 use tera::Tera;
 
@@ -33,24 +34,34 @@ mod template;
 type Feature<'a> = &'a str;
 type PackageName<'a> = &'a str;
 type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
+type Result<T> = std::result::Result<T, Error>;
 
 const VERSION_ATTRIBUTE_NAME: &str = "cargo2nixVersion";
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
+    if let Err(err) = try_main(&args) {
+        eprintln!("{}", err);
+        std::process::exit(1);
+    }
+}
 
+fn try_main(args: &[&str]) -> Result<()> {
     match &args[1..] {
         ["--stdout"] | ["-s"] => generate_cargo_nix(io::stdout().lock()),
         ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
         ["--file", file] | ["-f", file] => write_to_file(file),
         ["--help"] | ["-h"] => print_help(),
-        ["--version"] | ["-v"] => println!("{}", version()),
+        ["--version"] | ["-v"] => {
+            println!("{}", version());
+            Ok(())
+        }
         [] => print_help(),
         _ => {
             println!("Invalid arguments: {:?}", &args[1..]);
             println!("\nTry again, with help: \n");
-            print_help();
+            print_help()
         }
     }
 }
@@ -93,7 +104,7 @@ fn version_req(path: &Path) -> (VersionReq, Version) {
     )
 }
 
-fn print_help() {
+fn print_help() -> Result<()> {
     println!("cargo2nix-{}\n", version());
     println!("$ cargo2nix                        # Print the help");
     println!("$ cargo2nix -s,--stdout            # Output to stdout");
@@ -101,9 +112,10 @@ fn print_help() {
     println!("$ cargo2nix -f,--file <file>       # Output to the given file");
     println!("$ cargo2nix -v,--version           # Print version of cargo2nix");
     println!("$ cargo2nix -h,--help              # Print the help");
+    Ok(())
 }
 
-fn write_to_file(file: impl AsRef<Path>) {
+fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
     let path = file.as_ref();
     if path.exists() {
         let (vers_req, ver) = version_req(path);
@@ -121,7 +133,7 @@ fn write_to_file(file: impl AsRef<Path>) {
                 colorify!(red: "Please upgrade your cargo2nix ({}) to proceed.\n"),
                 vers_req
             );
-            return;
+            return Ok(());
         }
         println!(
             colorify!(green_bold: "\nVersion {} matches the requirement {} [{}]\n"),
@@ -140,7 +152,7 @@ fn write_to_file(file: impl AsRef<Path>) {
             .expect("failed to read input");
         if line.trim() != "yes" {
             println!("aborted!");
-            return;
+            return Ok(());
         }
     }
 
@@ -148,14 +160,16 @@ fn write_to_file(file: impl AsRef<Path>) {
         .tempfile()
         .expect("could not create new temporary file");
 
-    generate_cargo_nix(&mut temp_file);
+    generate_cargo_nix(&mut temp_file)?;
 
     temp_file
         .persist(path)
-        .unwrap_or_else(|e| panic!("could not write file to {}: {}", path.display(), e));
+        .with_context(|e| format!("could not write file to {}: {}", path.display(), e))?;
+
+    Ok(())
 }
 
-fn generate_cargo_nix(mut out: impl io::Write) {
+fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let config = {
         let mut c = cargo::Config::default().unwrap();
         c.configure(0, None, &None, false, true, false, &None, &[])
@@ -208,7 +222,8 @@ fn generate_cargo_nix(mut out: impl io::Write) {
     )
     .expect("error adding template");
     let context = tera::Context::from_serialize(plan).unwrap();
-    write!(out, "{}", tera.render("Cargo.nix.tera", &context).unwrap()).expect("write error")
+    write!(out, "{}", tera.render("Cargo.nix.tera", &context).unwrap())?;
+    Ok(())
 }
 
 fn simplify_optionality<'a, 'b: 'a>(
@@ -525,7 +540,7 @@ fn display_root_feature((pkg_name, feature): RootFeature) -> String {
     format!("{}/{}", pkg_name, feature)
 }
 
-fn prefetch_git(url: &str, rev: &str) -> Result<String, Box<dyn std::error::Error>> {
+fn prefetch_git(url: &str, rev: &str) -> Result<String> {
     use std::process::{Command, Output};
 
     let Output {
@@ -539,16 +554,16 @@ fn prefetch_git(url: &str, rev: &str) -> Result<String, Box<dyn std::error::Erro
         .output()?;
 
     if status.success() {
-        Ok(serde_json::from_slice::<serde_json::Value>(&stdout)?
+        serde_json::from_slice::<serde_json::Value>(&stdout)?
             .get("sha256")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string())
-            .ok_or("unexpected JSON output")?)
+            .ok_or_else(|| failure::format_err!("unexpected JSON output"))
     } else {
-        Err(format!(
+        Err(failure::format_err!(
             "process failed with stderr {:?}",
             String::from_utf8(stderr)
-        ))?
+        ))
     }
 }
 
