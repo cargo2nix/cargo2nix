@@ -200,7 +200,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
                 ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve),
             )
         })
-        .collect::<BTreeMap<_, _>>();
+        .collect();
 
     let root_pkgs = ws.members().collect::<Vec<_>>();
     for pkg in root_pkgs.iter() {
