@@ -6,14 +6,13 @@ use std::{
     fs,
     io::{self, BufRead},
     path::Path,
-    rc::Rc,
 };
 
 use cargo::{
     core::{
         dependency::Kind as DependencyKind,
         resolver::{Resolve, ResolveOpts},
-        InternedString, Package, PackageId, PackageIdSpec, Workspace,
+        Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
     util::important_paths::find_root_manifest_for_wd,
@@ -310,21 +309,15 @@ fn activate<'a>(
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
 ) {
+    let spec = PackageIdSpec::from_package_id(pkg.package_id());
+    let (features, uses_default) = match feature {
+        "default" => (vec![], true),
+        other => (vec![other.to_string()], false),
+    };
     let resolve = resolve_ws_with_opts(
         ws,
-        ResolveOpts {
-            dev_deps: true,
-            features: Rc::new({
-                let mut s = BTreeSet::new();
-                if feature != "default" {
-                    s.insert(InternedString::new(feature));
-                }
-                s
-            }),
-            all_features: false,
-            uses_default_features: feature == "default",
-        },
-        &[PackageIdSpec::from_package_id(pkg.package_id())],
+        ResolveOpts::new(true, &features[..], false, uses_default),
+        &[spec],
     )
     .unwrap();
 
