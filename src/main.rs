@@ -171,28 +171,26 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
 
 fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let config = {
-        let mut c = cargo::Config::default().unwrap();
-        c.configure(0, None, &None, false, true, false, &None, &[])
-            .unwrap();
-        c
+        let mut config = cargo::Config::default()?;
+        config.configure(0, None, &None, false, true, false, &None, &[])?;
+        config
     };
-    let root_manifest_path = find_root_manifest_for_wd(config.cwd()).unwrap();
-    let ws = Workspace::new(&root_manifest_path, &config).unwrap();
-    let specs = Packages::All.to_package_id_specs(&ws).unwrap();
-    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs).unwrap();
+
+    let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
+    let ws = Workspace::new(&root_manifest_path, &config)?;
+    let specs = Packages::All.to_package_id_specs(&ws)?;
+    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs)?;
 
     let pkgs_by_id = resolve
         .pkg_set
-        .get_many(resolve.pkg_set.package_ids())
-        .unwrap()
+        .get_many(resolve.pkg_set.package_ids())?
         .iter()
         .map(|pkg| (pkg.package_id(), *pkg))
         .collect::<HashMap<_, _>>();
 
     let mut rpkgs_by_id = resolve
         .pkg_set
-        .get_many(resolve.pkg_set.package_ids())
-        .unwrap()
+        .get_many(resolve.pkg_set.package_ids())?
         .iter()
         .map(|pkg| {
             (
@@ -204,7 +202,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
 
     let root_pkgs = ws.members().collect::<Vec<_>>();
     for pkg in root_pkgs.iter() {
-        let pkg_ws = Workspace::new(pkg.manifest_path(), &config).unwrap();
+        let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
         mark_required(pkg, &pkg_ws, &mut rpkgs_by_id);
         for feature in all_features(&pkg) {
             activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id);
@@ -212,17 +210,19 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     }
 
     simplify_optionality(rpkgs_by_id.values_mut(), root_pkgs.len());
-    let profiles = manifest::extract_profiles(&fs::read(&root_manifest_path).unwrap());
+    let root_manifest = fs::read(&root_manifest_path)?;
+    let profiles = manifest::extract_profiles(&root_manifest);
 
     let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd());
     let mut tera = Tera::default();
     tera.add_raw_template(
         "Cargo.nix.tera",
         include_str!("../templates/Cargo.nix.tera"),
-    )
-    .expect("error adding template");
-    let context = tera::Context::from_serialize(plan).unwrap();
-    write!(out, "{}", tera.render("Cargo.nix.tera", &context).unwrap())?;
+    )?;
+    let context = tera::Context::from_serialize(plan)?;
+    let rendered = tera.render("Cargo.nix.tera", &context)?;
+    write!(out, "{}", rendered)?;
+
     Ok(())
 }
 
