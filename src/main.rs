@@ -244,7 +244,7 @@ fn simplify_optionality<'a, 'b: 'a>(
     }
 }
 
-fn all_features<'a>(p: &'a Package) -> impl 'a + Iterator<Item = Feature<'a>> {
+fn all_features(p: &Package) -> impl Iterator<Item = Feature> + '_ {
     let features = p.summary().features();
     features
         .keys()
