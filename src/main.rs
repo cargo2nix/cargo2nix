@@ -192,12 +192,10 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         .get_many(resolve.pkg_set.package_ids())?
         .iter()
         .map(|pkg| {
-            (
-                pkg.package_id(),
-                ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve),
-            )
+            ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve)
+                .map(|res| (pkg.package_id(), res))
         })
-        .collect();
+        .collect::<Result<_>>()?;
 
     let root_pkgs: Vec<_> = ws.members().collect();
     for pkg in root_pkgs.iter() {
@@ -368,7 +366,7 @@ impl<'a> ResolvedPackage<'a> {
         pkg: &'a Package,
         pkgs_by_id: &HashMap<PackageId, &'a Package>,
         resolve: &'a Resolve,
-    ) -> Self {
+    ) -> Result<Self> {
         let mut deps = BTreeMap::new();
         resolve
             .deps(pkg.package_id())
@@ -405,41 +403,45 @@ impl<'a> ResolvedPackage<'a> {
                 }
             });
 
-        Self {
-            pkg,
-            deps,
-            features: resolve
-                .features(pkg.package_id())
-                .iter()
-                .map(|feature| (feature.as_str(), Optionality::default()))
-                .collect(),
-            checksum: resolve
+        let features = resolve
+            .features(pkg.package_id())
+            .iter()
+            .map(|feature| (feature.as_str(), Optionality::default()))
+            .collect();
+
+        let checksum = {
+            let checksum = resolve
                 .checksums()
                 .get(&pkg.package_id())
-                .and_then(|s| s.as_ref().map(|s| Cow::Borrowed(s.as_str())))
-                .or_else(|| {
-                    let source_id = pkg.package_id().source_id();
-                    if source_id.is_git() {
-                        Some(Cow::Owned(
-                            prefetch_git(
-                                source_id.url().as_str(),
-                                source_id.precise().unwrap_or_else(|| {
-                                    panic!("no precise git reference for {}", pkg.package_id())
-                                }),
-                            )
-                            .unwrap_or_else(|e| {
-                                panic!(
-                                    "failed to compute SHA256 for {} using nix-prefetch-git: {}",
-                                    pkg.package_id(),
-                                    e
-                                )
-                            }),
-                        ))
-                    } else {
-                        None
-                    }
-                }),
-        }
+                .and_then(|s| s.as_ref().map(Cow::from));
+
+            let source_id = pkg.package_id().source_id();
+            if checksum.is_none() && source_id.is_git() {
+                let url = source_id.url().as_str();
+                let rev = source_id.precise().ok_or_else(|| {
+                    failure::format_err!("no precise git reference for {}", pkg.package_id())
+                })?;
+                prefetch_git(url, rev)
+                    .map(Cow::Owned)
+                    .map(Some)
+                    .with_context(|e| {
+                        format!(
+                            "failed to compute SHA256 for {} using nix-prefetch-git: {}",
+                            pkg.package_id(),
+                            e
+                        )
+                    })?
+            } else {
+                checksum
+            }
+        };
+
+        Ok(Self {
+            pkg,
+            deps,
+            features,
+            checksum,
+        })
     }
 
     fn iter_deps_with_id_mut(
