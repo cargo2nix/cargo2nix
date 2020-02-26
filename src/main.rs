@@ -257,13 +257,13 @@ fn simplify_optionality<'a, 'b: 'a>(
     }
 }
 
-fn all_features(p: &Package) -> impl Iterator<Item = Feature> + '_ {
-    let features = p.summary().features();
+fn all_features(pkg: &Package) -> impl Iterator<Item = Feature> + '_ {
+    let features = pkg.summary().features();
     features
         .keys()
         .map(|k| k.as_str())
         .chain(
-            p.dependencies()
+            pkg.dependencies()
                 .iter()
                 .filter(|d| d.is_optional())
                 .map(|d| d.name_in_toml().as_str()),
@@ -275,10 +275,9 @@ fn all_features(p: &Package) -> impl Iterator<Item = Feature> + '_ {
         })
 }
 
-fn is_proc_macro(p: &Package) -> bool {
+fn is_proc_macro(pkg: &Package) -> bool {
     use cargo::core::{LibKind, TargetKind};
-
-    p.targets()
+    pkg.targets()
         .iter()
         .filter_map(|t| match t.kind() {
             TargetKind::Lib(kinds) => Some(kinds.iter()),
