@@ -202,7 +202,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let root_pkgs = ws.members().collect::<Vec<_>>();
     for pkg in root_pkgs.iter() {
         let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
-        mark_required(pkg, &pkg_ws, &mut rpkgs_by_id);
+        mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
         for feature in all_features(&pkg) {
             activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id);
         }
@@ -292,10 +292,9 @@ fn mark_required(
     root_pkg: &Package,
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
-) {
+) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let resolve =
-        resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec]).unwrap();
+    let resolve = resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec])?;
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
@@ -314,6 +313,8 @@ fn mark_required(
             }
         }
     }
+
+    Ok(())
 }
 
 fn activate<'a>(
