@@ -204,7 +204,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
         mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
         for feature in all_features(&pkg) {
-            activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id);
+            activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id)?;
         }
     }
 
@@ -322,7 +322,7 @@ fn activate<'a>(
     feature: Feature<'a>,
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
-) {
+) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(pkg.package_id());
     let (features, uses_default) = match feature {
         "default" => (vec![], true),
@@ -333,8 +333,7 @@ fn activate<'a>(
         ws,
         ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
-    )
-    .unwrap();
+    )?;
 
     let root_feature = (pkg.name().as_str(), feature);
     for id in resolve.targeted_resolve.iter() {
@@ -352,6 +351,8 @@ fn activate<'a>(
             }
         }
     }
+
+    Ok(())
 }
 
 #[derive(Debug)]
