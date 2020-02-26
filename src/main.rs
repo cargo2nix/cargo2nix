@@ -72,8 +72,8 @@ fn version() -> Version {
     Version::parse(env!("CARGO_PKG_VERSION")).unwrap()
 }
 
-fn read_version_attribute(path: &Path) -> Version {
-    let file = fs::File::open(path).expect(&format!("Couldn't open file {}", path.display()));
+fn read_version_attribute(path: &Path) -> Result<Version> {
+    let file = fs::File::open(path).context(format!("Couldn't open file {}", path.display()))?;
     io::BufReader::new(file)
         .lines()
         .filter_map(|line| line.ok())
@@ -81,29 +81,26 @@ fn read_version_attribute(path: &Path) -> Version {
         .and_then(|s| {
             if let Some(i) = s.find('"') {
                 if let Some(j) = s.rfind('"') {
-                    return Some(Version::parse(&s[i + 1..j]).expect("parse version attribute"));
+                    return Version::parse(&s[i + 1..j]).ok();
                 }
             }
             None
         })
-        .expect(&format!(
-            "{} not found in {}",
-            VERSION_ATTRIBUTE_NAME,
-            path.display()
-        ))
+        .ok_or_else(|| {
+            failure::format_err!(
+                "valid {} not found in {}",
+                VERSION_ATTRIBUTE_NAME,
+                path.display()
+            )
+        })
 }
 
-fn version_req(path: &Path) -> (VersionReq, Version) {
-    let ver = read_version_attribute(path);
-    let requirement = format!(">={}.{}", ver.major, ver.minor);
-    (
-        VersionReq::parse(&requirement).expect(&format!(
-            "parse {} found in {}",
-            requirement,
-            path.display()
-        )),
-        ver,
-    )
+fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
+    let version = read_version_attribute(path)?;
+    let requirement = format!(">={}.{}", version.major, version.minor);
+    VersionReq::parse(&requirement)
+        .map_err(|_| failure::format_err!("parse {} found in {}", requirement, path.display()))
+        .map(|req| (req, version))
 }
 
 fn print_help() -> Result<()> {
@@ -120,7 +117,7 @@ fn print_help() -> Result<()> {
 fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
     let path = file.as_ref();
     if path.exists() {
-        let (vers_req, ver) = version_req(path);
+        let (vers_req, ver) = version_req(path)?;
         if !vers_req.matches(&version()) {
             println!(
                 colorify!(red_bold: "\nVersion requirement {} [{}]"),
