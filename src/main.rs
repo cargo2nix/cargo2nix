@@ -210,7 +210,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let root_manifest = fs::read(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
-    let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd());
+    let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd())?;
     let mut tera = Tera::default();
     tera.add_raw_template(
         "Cargo.nix.tera",
