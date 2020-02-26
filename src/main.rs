@@ -188,7 +188,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         .get_many(resolve.pkg_set.package_ids())?
         .iter()
         .map(|pkg| (pkg.package_id(), *pkg))
-        .collect::<HashMap<_, _>>();
+        .collect();
 
     let mut rpkgs_by_id = resolve
         .pkg_set
