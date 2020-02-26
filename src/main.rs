@@ -281,17 +281,9 @@ fn mark_required(
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) {
-    let resolve = resolve_ws_with_opts(
-        ws,
-        ResolveOpts {
-            dev_deps: true,
-            features: Rc::new(Default::default()),
-            all_features: false,
-            uses_default_features: false,
-        },
-        &[PackageIdSpec::from_package_id(root_pkg.package_id())],
-    )
-    .unwrap();
+    let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
+    let resolve =
+        resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec]).unwrap();
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
