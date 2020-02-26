@@ -6,14 +6,13 @@ use std::{
     fs,
     io::{self, BufRead},
     path::Path,
-    rc::Rc,
 };
 
 use cargo::{
     core::{
         dependency::Kind as DependencyKind,
         resolver::{Resolve, ResolveOpts},
-        InternedString, Package, PackageId, PackageIdSpec, Workspace,
+        Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
     util::important_paths::find_root_manifest_for_wd,
@@ -165,18 +164,8 @@ fn generate_cargo_nix(mut out: impl io::Write) {
     };
     let root_manifest_path = find_root_manifest_for_wd(config.cwd()).unwrap();
     let ws = Workspace::new(&root_manifest_path, &config).unwrap();
-
-    let resolve = resolve_ws_with_opts(
-        &ws,
-        ResolveOpts {
-            dev_deps: true,
-            features: Rc::new(Default::default()),
-            all_features: true,
-            uses_default_features: true,
-        },
-        &Packages::All.to_package_id_specs(&ws).unwrap(),
-    )
-    .unwrap();
+    let specs = Packages::All.to_package_id_specs(&ws).unwrap();
+    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs).unwrap();
 
     let pkgs_by_id = resolve
         .pkg_set
@@ -254,7 +243,7 @@ fn simplify_optionality<'a, 'b: 'a>(
     }
 }
 
-fn all_features<'a>(p: &'a Package) -> impl 'a + Iterator<Item = Feature<'a>> {
+fn all_features(p: &Package) -> impl Iterator<Item = Feature> + '_ {
     let features = p.summary().features();
     features
         .keys()
@@ -291,17 +280,9 @@ fn mark_required(
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) {
-    let resolve = resolve_ws_with_opts(
-        ws,
-        ResolveOpts {
-            dev_deps: true,
-            features: Rc::new(Default::default()),
-            all_features: false,
-            uses_default_features: false,
-        },
-        &[PackageIdSpec::from_package_id(root_pkg.package_id())],
-    )
-    .unwrap();
+    let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
+    let resolve =
+        resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec]).unwrap();
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
@@ -328,21 +309,16 @@ fn activate<'a>(
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
 ) {
+    let spec = PackageIdSpec::from_package_id(pkg.package_id());
+    let (features, uses_default) = match feature {
+        "default" => (vec![], true),
+        other => (vec![other.to_string()], false),
+    };
+
     let resolve = resolve_ws_with_opts(
         ws,
-        ResolveOpts {
-            dev_deps: true,
-            features: Rc::new({
-                let mut s = BTreeSet::new();
-                if feature != "default" {
-                    s.insert(InternedString::new(feature));
-                }
-                s
-            }),
-            all_features: false,
-            uses_default_features: feature == "default",
-        },
-        &[PackageIdSpec::from_package_id(pkg.package_id())],
+        ResolveOpts::new(true, &features[..], false, uses_default),
+        &[spec],
     )
     .unwrap();
 
@@ -370,23 +346,6 @@ pub struct ResolvedPackage<'a> {
     deps: BTreeMap<(PackageId, DependencyKind), ResolvedDependency<'a>>,
     features: BTreeMap<Feature<'a>, Optionality<'a>>,
     checksum: Option<Cow<'a, str>>,
-}
-
-#[derive(Debug)]
-struct ResolvedDependency<'a> {
-    extern_name: String,
-    pkg: &'a Package,
-    optionality: Optionality<'a>,
-    platforms: Option<Vec<&'a Platform>>,
-}
-
-#[derive(PartialEq, Eq, Debug)]
-enum Optionality<'a> {
-    Required,
-    Optional {
-        required_by_pkgs: BTreeSet<PackageName<'a>>,
-        activated_by_features: BTreeSet<RootFeature<'a>>,
-    },
 }
 
 impl<'a> ResolvedPackage<'a> {
@@ -484,6 +443,23 @@ impl<'a> ResolvedPackage<'a> {
             .map(|(_, d)| &mut d.optionality)
             .chain(self.features.values_mut())
     }
+}
+
+#[derive(Debug)]
+struct ResolvedDependency<'a> {
+    extern_name: String,
+    pkg: &'a Package,
+    optionality: Optionality<'a>,
+    platforms: Option<Vec<&'a Platform>>,
+}
+
+#[derive(PartialEq, Eq, Debug)]
+enum Optionality<'a> {
+    Required,
+    Optional {
+        required_by_pkgs: BTreeSet<PackageName<'a>>,
+        activated_by_features: BTreeSet<RootFeature<'a>>,
+    },
 }
 
 impl<'a> Default for Optionality<'a> {
@@ -587,5 +563,5 @@ where
         None => return true,
     };
 
-    return iter.all(|x| x == first);
+    iter.all(|x| x == first)
 }
