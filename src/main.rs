@@ -42,6 +42,7 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
     if let Err(err) = try_main(&args) {
+        eprint!(colorify!(red_bold: "error: "));
         eprintln!("{}", err);
         std::process::exit(1);
     }
