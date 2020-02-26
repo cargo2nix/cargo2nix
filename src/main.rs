@@ -199,7 +199,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         })
         .collect();
 
-    let root_pkgs = ws.members().collect::<Vec<_>>();
+    let root_pkgs: Vec<_> = ws.members().collect();
     for pkg in root_pkgs.iter() {
         let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
         mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
