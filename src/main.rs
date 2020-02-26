@@ -577,5 +577,5 @@ where
         None => return true,
     };
 
-    return iter.all(|x| x == first);
+    iter.all(|x| x == first)
 }
