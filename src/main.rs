@@ -67,7 +67,9 @@ fn try_main(args: &[&str]) -> Result<()> {
 }
 
 fn version() -> Version {
-    Version::parse(env!("CARGO_PKG_VERSION")).expect("parse CARGO_PKG_VERSION")
+    // Since `CARGO_PKG_VERSION` is provided by Cargo itself, which uses the same `semver` crate to
+    // parse version strings, the `unwrap()` below should never fail.
+    Version::parse(env!("CARGO_PKG_VERSION")).unwrap()
 }
 
 fn read_version_attribute(path: &Path) -> Version {
