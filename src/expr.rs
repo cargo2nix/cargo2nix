@@ -1,8 +1,5 @@
 use std::fmt;
 
-use once_cell::sync::OnceCell;
-use regex::Regex;
-
 pub enum BoolExpr {
     And(Box<BoolExpr>, Box<BoolExpr>),
     Or(Box<BoolExpr>, Box<BoolExpr>),
@@ -163,10 +160,14 @@ where
 }
 
 fn is_valid_ident(id: &str) -> bool {
-    static IDENT_RE: OnceCell<Regex> = OnceCell::new();
-    IDENT_RE
-        .get_or_init(|| Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_'-.]*$").unwrap())
-        .is_match(id)
+    let mut chars = id.chars();
+
+    match chars.next() {
+        Some(c) if c.is_ascii_alphabetic() || c == '_' => {}
+        _ => return false,
+    }
+
+    chars.all(|c| c.is_ascii_alphanumeric() || "_'-.".contains(c))
 }
 
 #[derive(Clone)]
