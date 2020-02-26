@@ -165,18 +165,8 @@ fn generate_cargo_nix(mut out: impl io::Write) {
     };
     let root_manifest_path = find_root_manifest_for_wd(config.cwd()).unwrap();
     let ws = Workspace::new(&root_manifest_path, &config).unwrap();
-
-    let resolve = resolve_ws_with_opts(
-        &ws,
-        ResolveOpts {
-            dev_deps: true,
-            features: Rc::new(Default::default()),
-            all_features: true,
-            uses_default_features: true,
-        },
-        &Packages::All.to_package_id_specs(&ws).unwrap(),
-    )
-    .unwrap();
+    let specs = Packages::All.to_package_id_specs(&ws).unwrap();
+    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs).unwrap();
 
     let pkgs_by_id = resolve
         .pkg_set
