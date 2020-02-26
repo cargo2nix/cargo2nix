@@ -314,6 +314,7 @@ fn activate<'a>(
         "default" => (vec![], true),
         other => (vec![other.to_string()], false),
     };
+
     let resolve = resolve_ws_with_opts(
         ws,
         ResolveOpts::new(true, &features[..], false, uses_default),
