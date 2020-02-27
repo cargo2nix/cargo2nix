@@ -15,7 +15,7 @@ use cargo::{
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
-    util::important_paths::find_root_manifest_for_wd,
+    util::{errors, important_paths::find_root_manifest_for_wd},
 };
 use cargo_platform::Platform;
 use colorify::colorify;
@@ -43,7 +43,7 @@ fn main() {
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
     if let Err(err) = try_main(&args) {
         eprint!(colorify!(red_bold: "error: "));
-        eprintln!("{}", err);
+        eprintln!("{}", errors::display_causes(&err));
         std::process::exit(1);
     }
 }
@@ -98,9 +98,10 @@ fn read_version_attribute(path: &Path) -> Result<Version> {
 
 fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
     let version = read_version_attribute(path)?;
-    let requirement = format!(">={}.{}", version.major, version.minor);
-    VersionReq::parse(&requirement)
-        .map_err(|_| failure::format_err!("parse {} found in {}", requirement, path.display()))
+    let req = format!(">={}.{}", version.major, version.minor);
+    VersionReq::parse(&req)
+        .context(format!("parse {} found in {}", req, path.display()))
+        .map_err(Error::from)
         .map(|req| (req, version))
 }
 
@@ -164,7 +165,7 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
 
     temp_file
         .persist(path)
-        .with_context(|e| format!("could not write file to {}: {}", path.display(), e))?;
+        .context(format!("could not write file to {}", path.display()))?;
 
     Ok(())
 }
@@ -425,13 +426,10 @@ impl<'a> ResolvedPackage<'a> {
                 prefetch_git(url, rev)
                     .map(Cow::Owned)
                     .map(Some)
-                    .with_context(|e| {
-                        format!(
-                            "failed to compute SHA256 for {} using nix-prefetch-git: {}",
-                            pkg.package_id(),
-                            e
-                        )
-                    })?
+                    .context(format!(
+                        "failed to compute SHA256 for {} using nix-prefetch-git",
+                        pkg.package_id(),
+                    ))?
             } else {
                 checksum
             }
