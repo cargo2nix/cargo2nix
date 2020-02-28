@@ -4,7 +4,7 @@ use std::{
     borrow::Cow,
     collections::{BTreeMap, BTreeSet, HashMap},
     fs,
-    io::{self, BufRead},
+    io::{self, BufRead, Write},
     path::Path,
 };
 
@@ -15,10 +15,11 @@ use cargo::{
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
-    util::important_paths::find_root_manifest_for_wd,
+    util::{errors, important_paths::find_root_manifest_for_wd},
 };
 use cargo_platform::Platform;
 use colorify::colorify;
+use failure::{Error, ResultExt};
 use semver::{Version, VersionReq};
 use tera::Tera;
 
@@ -33,34 +34,47 @@ mod template;
 type Feature<'a> = &'a str;
 type PackageName<'a> = &'a str;
 type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
+type Result<T> = std::result::Result<T, Error>;
 
 const VERSION_ATTRIBUTE_NAME: &str = "cargo2nixVersion";
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
+    if let Err(err) = try_main(&args) {
+        eprint!(colorify!(red_bold: "error: "));
+        eprintln!("{}", errors::display_causes(&err));
+        std::process::exit(1);
+    }
+}
 
+fn try_main(args: &[&str]) -> Result<()> {
     match &args[1..] {
         ["--stdout"] | ["-s"] => generate_cargo_nix(io::stdout().lock()),
         ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
         ["--file", file] | ["-f", file] => write_to_file(file),
         ["--help"] | ["-h"] => print_help(),
-        ["--version"] | ["-v"] => println!("{}", version()),
+        ["--version"] | ["-v"] => {
+            println!("{}", version());
+            Ok(())
+        }
         [] => print_help(),
         _ => {
             println!("Invalid arguments: {:?}", &args[1..]);
             println!("\nTry again, with help: \n");
-            print_help();
+            print_help()
         }
     }
 }
 
 fn version() -> Version {
-    Version::parse(env!("CARGO_PKG_VERSION")).expect("parse CARGO_PKG_VERSION")
+    // Since `CARGO_PKG_VERSION` is provided by Cargo itself, which uses the same `semver` crate to
+    // parse version strings, the `unwrap()` below should never fail.
+    Version::parse(env!("CARGO_PKG_VERSION")).unwrap()
 }
 
-fn read_version_attribute(path: &Path) -> Version {
-    let file = fs::File::open(path).expect(&format!("Couldn't open file {}", path.display()));
+fn read_version_attribute(path: &Path) -> Result<Version> {
+    let file = fs::File::open(path).context(format!("Couldn't open file {}", path.display()))?;
     io::BufReader::new(file)
         .lines()
         .filter_map(|line| line.ok())
@@ -68,32 +82,30 @@ fn read_version_attribute(path: &Path) -> Version {
         .and_then(|s| {
             if let Some(i) = s.find('"') {
                 if let Some(j) = s.rfind('"') {
-                    return Some(Version::parse(&s[i + 1..j]).expect("parse version attribute"));
+                    return Version::parse(&s[i + 1..j]).ok();
                 }
             }
             None
         })
-        .expect(&format!(
-            "{} not found in {}",
-            VERSION_ATTRIBUTE_NAME,
-            path.display()
-        ))
+        .ok_or_else(|| {
+            failure::format_err!(
+                "valid {} not found in {}",
+                VERSION_ATTRIBUTE_NAME,
+                path.display()
+            )
+        })
 }
 
-fn version_req(path: &Path) -> (VersionReq, Version) {
-    let ver = read_version_attribute(path);
-    let requirement = format!(">={}.{}", ver.major, ver.minor);
-    (
-        VersionReq::parse(&requirement).expect(&format!(
-            "parse {} found in {}",
-            requirement,
-            path.display()
-        )),
-        ver,
-    )
+fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
+    let version = read_version_attribute(path)?;
+    let req = format!(">={}.{}", version.major, version.minor);
+    VersionReq::parse(&req)
+        .context(format!("parse {} found in {}", req, path.display()))
+        .map_err(Error::from)
+        .map(|req| (req, version))
 }
 
-fn print_help() {
+fn print_help() -> Result<()> {
     println!("cargo2nix-{}\n", version());
     println!("$ cargo2nix                        # Print the help");
     println!("$ cargo2nix -s,--stdout            # Output to stdout");
@@ -101,30 +113,32 @@ fn print_help() {
     println!("$ cargo2nix -f,--file <file>       # Output to the given file");
     println!("$ cargo2nix -v,--version           # Print version of cargo2nix");
     println!("$ cargo2nix -h,--help              # Print the help");
+    Ok(())
 }
 
-fn write_to_file(file: impl AsRef<Path>) {
+fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
     let path = file.as_ref();
     if path.exists() {
-        let (vers_req, ver) = version_req(path);
+        let (vers_req, ver) = version_req(path)?;
         if !vers_req.matches(&version()) {
-            println!(
-                colorify!(red_bold: "\nVersion requirement {} [{}]"),
+            let mut message = format!(
+                colorify!(red_bold: "Version requirement {} [{}]\n"),
                 vers_req, ver
             );
-            println!(
-                colorify!(red: "\nYour cargo2nix version is {}, whereas the file '{}' was generated by a newer version of cargo2nix."),
+            message.push_str(&format!(
+                colorify!(red: "Your cargo2nix version is {}, whereas the file '{}' was generated by a newer version of cargo2nix.\n"),
                 version(),
                 path.display()
-            );
-            println!(
-                colorify!(red: "Please upgrade your cargo2nix ({}) to proceed.\n"),
+            ));
+            message.push_str(&format!(
+                colorify!(red: "Please upgrade your cargo2nix ({}) to proceed."),
                 vers_req
-            );
-            return;
+            ));
+            return Err(failure::format_err!("{}", message));
         }
+
         println!(
-            colorify!(green_bold: "\nVersion {} matches the requirement {} [{}]\n"),
+            colorify!(green_bold: "Version {} matches the requirement {} [{}]"),
             version(),
             vers_req,
             ver
@@ -133,82 +147,82 @@ fn write_to_file(file: impl AsRef<Path>) {
             "warning: do you want to overwrite '{}'? yes/no: ",
             path.display()
         );
-        io::Write::flush(&mut io::stdout()).expect("flush stdout buffer");
+
+        io::stdout().flush()?;
         let mut line = String::new();
-        io::stdin()
-            .read_line(&mut line)
-            .expect("failed to read input");
+        io::stdin().read_line(&mut line)?;
         if line.trim() != "yes" {
             println!("aborted!");
-            return;
+            return Ok(());
         }
     }
 
     let mut temp_file = tempfile::Builder::new()
         .tempfile()
-        .expect("could not create new temporary file");
+        .context("could not create new temporary file")?;
 
-    generate_cargo_nix(&mut temp_file);
+    generate_cargo_nix(&mut temp_file)?;
 
     temp_file
         .persist(path)
-        .unwrap_or_else(|e| panic!("could not write file to {}: {}", path.display(), e));
+        .context(format!("could not write file to {}", path.display()))?;
+
+    Ok(())
 }
 
-fn generate_cargo_nix(mut out: impl io::Write) {
+fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let config = {
-        let mut c = cargo::Config::default().unwrap();
-        c.configure(0, None, &None, false, true, false, &None, &[])
-            .unwrap();
-        c
+        let mut config = cargo::Config::default()?;
+        config.configure(0, None, &None, false, true, false, &None, &[])?;
+        config
     };
-    let root_manifest_path = find_root_manifest_for_wd(config.cwd()).unwrap();
-    let ws = Workspace::new(&root_manifest_path, &config).unwrap();
-    let specs = Packages::All.to_package_id_specs(&ws).unwrap();
-    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs).unwrap();
+
+    let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
+    let ws = Workspace::new(&root_manifest_path, &config)?;
+    let specs = Packages::All.to_package_id_specs(&ws)?;
+    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs)?;
 
     let pkgs_by_id = resolve
         .pkg_set
-        .get_many(resolve.pkg_set.package_ids())
-        .unwrap()
+        .get_many(resolve.pkg_set.package_ids())?
         .iter()
         .map(|pkg| (pkg.package_id(), *pkg))
-        .collect::<HashMap<_, _>>();
+        .collect();
 
     let mut rpkgs_by_id = resolve
         .pkg_set
-        .get_many(resolve.pkg_set.package_ids())
-        .unwrap()
+        .get_many(resolve.pkg_set.package_ids())?
         .iter()
         .map(|pkg| {
-            (
-                pkg.package_id(),
-                ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve),
-            )
+            ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve)
+                .map(|res| (pkg.package_id(), res))
         })
-        .collect::<BTreeMap<_, _>>();
+        .collect::<Result<_>>()?;
 
-    let root_pkgs = ws.members().collect::<Vec<_>>();
+    let root_pkgs: Vec<_> = ws.members().collect();
     for pkg in root_pkgs.iter() {
-        let pkg_ws = Workspace::new(pkg.manifest_path(), &config).unwrap();
-        mark_required(pkg, &pkg_ws, &mut rpkgs_by_id);
+        let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
+        mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
         for feature in all_features(&pkg) {
-            activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id);
+            activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id)?;
         }
     }
 
     simplify_optionality(rpkgs_by_id.values_mut(), root_pkgs.len());
-    let profiles = manifest::extract_profiles(&fs::read(&root_manifest_path).unwrap());
+    let root_manifest = fs::read(&root_manifest_path)?;
+    let profiles = manifest::extract_profiles(&root_manifest);
 
-    let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd());
+    let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd())?;
     let mut tera = Tera::default();
     tera.add_raw_template(
         "Cargo.nix.tera",
         include_str!("../templates/Cargo.nix.tera"),
-    )
-    .expect("error adding template");
-    let context = tera::Context::from_serialize(plan).unwrap();
-    write!(out, "{}", tera.render("Cargo.nix.tera", &context).unwrap()).expect("write error")
+    )?;
+    let context = tera::Context::from_serialize(plan)?;
+    let rendered = tera.render("Cargo.nix.tera", &context)?;
+    write!(out, "{}", rendered)?;
+
+    Ok(())
 }
 
 fn simplify_optionality<'a, 'b: 'a>(
@@ -243,13 +257,13 @@ fn simplify_optionality<'a, 'b: 'a>(
     }
 }
 
-fn all_features(p: &Package) -> impl Iterator<Item = Feature> + '_ {
-    let features = p.summary().features();
+fn all_features(pkg: &Package) -> impl Iterator<Item = Feature> + '_ {
+    let features = pkg.summary().features();
     features
         .keys()
         .map(|k| k.as_str())
         .chain(
-            p.dependencies()
+            pkg.dependencies()
                 .iter()
                 .filter(|d| d.is_optional())
                 .map(|d| d.name_in_toml().as_str()),
@@ -261,10 +275,9 @@ fn all_features(p: &Package) -> impl Iterator<Item = Feature> + '_ {
         })
 }
 
-fn is_proc_macro(p: &Package) -> bool {
+fn is_proc_macro(pkg: &Package) -> bool {
     use cargo::core::{LibKind, TargetKind};
-
-    p.targets()
+    pkg.targets()
         .iter()
         .filter_map(|t| match t.kind() {
             TargetKind::Lib(kinds) => Some(kinds.iter()),
@@ -279,10 +292,9 @@ fn mark_required(
     root_pkg: &Package,
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
-) {
+) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let resolve =
-        resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec]).unwrap();
+    let resolve = resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec])?;
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
@@ -301,6 +313,8 @@ fn mark_required(
             }
         }
     }
+
+    Ok(())
 }
 
 fn activate<'a>(
@@ -308,7 +322,7 @@ fn activate<'a>(
     feature: Feature<'a>,
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
-) {
+) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(pkg.package_id());
     let (features, uses_default) = match feature {
         "default" => (vec![], true),
@@ -319,8 +333,7 @@ fn activate<'a>(
         ws,
         ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
-    )
-    .unwrap();
+    )?;
 
     let root_feature = (pkg.name().as_str(), feature);
     for id in resolve.targeted_resolve.iter() {
@@ -338,6 +351,8 @@ fn activate<'a>(
             }
         }
     }
+
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -353,7 +368,7 @@ impl<'a> ResolvedPackage<'a> {
         pkg: &'a Package,
         pkgs_by_id: &HashMap<PackageId, &'a Package>,
         resolve: &'a Resolve,
-    ) -> Self {
+    ) -> Result<Self> {
         let mut deps = BTreeMap::new();
         resolve
             .deps(pkg.package_id())
@@ -390,41 +405,42 @@ impl<'a> ResolvedPackage<'a> {
                 }
             });
 
-        Self {
-            pkg,
-            deps,
-            features: resolve
-                .features(pkg.package_id())
-                .iter()
-                .map(|feature| (feature.as_str(), Optionality::default()))
-                .collect(),
-            checksum: resolve
+        let features = resolve
+            .features(pkg.package_id())
+            .iter()
+            .map(|feature| (feature.as_str(), Optionality::default()))
+            .collect();
+
+        let checksum = {
+            let checksum = resolve
                 .checksums()
                 .get(&pkg.package_id())
-                .and_then(|s| s.as_ref().map(|s| Cow::Borrowed(s.as_str())))
-                .or_else(|| {
-                    let source_id = pkg.package_id().source_id();
-                    if source_id.is_git() {
-                        Some(Cow::Owned(
-                            prefetch_git(
-                                source_id.url().as_str(),
-                                source_id.precise().unwrap_or_else(|| {
-                                    panic!("no precise git reference for {}", pkg.package_id())
-                                }),
-                            )
-                            .unwrap_or_else(|e| {
-                                panic!(
-                                    "failed to compute SHA256 for {} using nix-prefetch-git: {}",
-                                    pkg.package_id(),
-                                    e
-                                )
-                            }),
-                        ))
-                    } else {
-                        None
-                    }
-                }),
-        }
+                .and_then(|s| s.as_ref().map(Cow::from));
+
+            let source_id = pkg.package_id().source_id();
+            if checksum.is_none() && source_id.is_git() {
+                let url = source_id.url().as_str();
+                let rev = source_id.precise().ok_or_else(|| {
+                    failure::format_err!("no precise git reference for {}", pkg.package_id())
+                })?;
+                prefetch_git(url, rev)
+                    .map(Cow::Owned)
+                    .map(Some)
+                    .context(format!(
+                        "failed to compute SHA256 for {} using nix-prefetch-git",
+                        pkg.package_id(),
+                    ))?
+            } else {
+                checksum
+            }
+        };
+
+        Ok(Self {
+            pkg,
+            deps,
+            features,
+            checksum,
+        })
     }
 
     fn iter_deps_with_id_mut(
@@ -525,7 +541,7 @@ fn display_root_feature((pkg_name, feature): RootFeature) -> String {
     format!("{}/{}", pkg_name, feature)
 }
 
-fn prefetch_git(url: &str, rev: &str) -> Result<String, Box<dyn std::error::Error>> {
+fn prefetch_git(url: &str, rev: &str) -> Result<String> {
     use std::process::{Command, Output};
 
     let Output {
@@ -539,16 +555,16 @@ fn prefetch_git(url: &str, rev: &str) -> Result<String, Box<dyn std::error::Erro
         .output()?;
 
     if status.success() {
-        Ok(serde_json::from_slice::<serde_json::Value>(&stdout)?
+        serde_json::from_slice::<serde_json::Value>(&stdout)?
             .get("sha256")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string())
-            .ok_or("unexpected JSON output")?)
+            .ok_or_else(|| failure::format_err!("unexpected JSON output"))
     } else {
-        Err(format!(
+        Err(failure::format_err!(
             "process failed with stderr {:?}",
             String::from_utf8(stderr)
-        ))?
+        ))
     }
 }
 

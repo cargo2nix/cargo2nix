@@ -5,7 +5,7 @@ use cargo::core::{dependency::Kind as DependencyKind, Package, PackageId, Source
 use serde::Serialize;
 
 use crate::manifest::TomlProfile;
-use crate::{platform, BoolExpr, Feature as FeatureStr, Optionality, ResolvedPackage};
+use crate::{platform, BoolExpr, Feature as FeatureStr, Optionality, ResolvedPackage, Result};
 
 #[derive(Debug, Serialize)]
 pub struct BuildPlan {
@@ -22,7 +22,7 @@ impl BuildPlan {
         profiles: TomlProfile,
         rpkgs_by_id: BTreeMap<PackageId, ResolvedPackage<'_>>,
         cwd: &Path,
-    ) -> Self {
+    ) -> Result<Self> {
         let root_features = root_pkgs
             .iter()
             .map(|pkg| format!("{}/default", pkg.name()))
@@ -45,26 +45,26 @@ impl BuildPlan {
             .into_iter()
             .map(|(pkg_id, resolved_pkg)| {
                 let (deps, dev_deps, build_deps) = to_dependencies(&resolved_pkg);
-                Crate {
+                Ok(Crate {
                     name: pkg_id.name().to_string(),
                     version: pkg_id.version().to_string(),
                     registry: to_registry_string(pkg_id.source_id()),
-                    source: to_source(&resolved_pkg, cwd),
+                    source: to_source(&resolved_pkg, cwd)?,
                     features: to_features(&resolved_pkg.features),
                     dependencies: deps,
                     dev_dependencies: dev_deps,
                     build_dependencies: build_deps,
-                }
+                })
             })
-            .collect();
+            .collect::<Result<_>>()?;
 
-        BuildPlan {
+        Ok(BuildPlan {
             cargo2nix_version: env!("CARGO_PKG_VERSION").to_string(),
             root_features,
             profiles,
             workspace_members,
             crates,
-        }
+        })
     }
 }
 
@@ -131,16 +131,18 @@ fn to_registry_string(src_id: SourceId) -> String {
     }
 }
 
-fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Source {
+fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
     let id = pkg.pkg.package_id();
 
-    if id.source_id().is_default_registry() {
+    let source = if id.source_id().is_default_registry() {
         Source::CratesIo {
             sha256: pkg
                 .checksum
                 .as_ref()
-                .unwrap_or_else(|| panic!("checksum is required for crates.io package {}", id))
-                .to_string(),
+                .map(|c| c.to_string())
+                .ok_or_else(|| {
+                    failure::format_err!("checksum is required for crates.io package {}", id)
+                })?,
         }
     } else if id.source_id().is_git() {
         Source::Git {
@@ -148,19 +150,25 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Source {
             rev: id
                 .source_id()
                 .precise()
-                .unwrap_or_else(|| panic!("precise ref not found for git package {}", id))
-                .to_string(),
+                .map(|p| p.to_string())
+                .ok_or_else(|| {
+                    failure::format_err!("precise ref not found for git package {}", id)
+                })?,
             sha256: pkg
                 .checksum
                 .as_ref()
-                .unwrap_or_else(|| panic!("checksum is required for git package {}", id))
-                .to_string(),
+                .map(|c| c.to_string())
+                .ok_or_else(|| {
+                    failure::format_err!("checksum is required for git package {}", id)
+                })?,
         }
     } else if id.source_id().is_path() {
         Source::Local {
             path: pathdiff::diff_paths(Path::new(id.source_id().url().path()), cwd)
-                .unwrap_or_else(|| panic!("path is not absolute for local package {}", id))
-                .join("."),
+                .map(|p| p.join("."))
+                .ok_or_else(|| {
+                    failure::format_err!("path is not absolute for local package {}", id)
+                })?,
         }
     } else if id.source_id().is_registry() {
         Source::Registry {
@@ -168,17 +176,19 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Source {
             sha256: pkg
                 .checksum
                 .as_ref()
-                .unwrap_or_else(|| {
-                    panic!(
-                        "checksum is required for alternative registry package {}",
+                .map(|c| c.to_string())
+                .ok_or_else(|| {
+                    failure::format_err!(
+                        "checksum is required for alternate registry package {}",
                         id
                     )
-                })
-                .to_string(),
+                })?,
         }
     } else {
-        panic!("unsupported source {}", id)
-    }
+        return Err(failure::format_err!("unsupported source for {}", id));
+    };
+
+    Ok(source)
 }
 
 fn to_features(features: &BTreeMap<FeatureStr<'_>, Optionality<'_>>) -> Vec<Feature> {

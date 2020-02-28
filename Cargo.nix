@@ -275,6 +275,7 @@ in
       cargo = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cargo."0.41.0" { inherit profileName; };
       cargo_platform = rustPackages."registry+https://github.com/rust-lang/crates.io-index".cargo-platform."0.1.0" { inherit profileName; };
       colorify = rustPackages."registry+https://github.com/rust-lang/crates.io-index".colorify."0.2.3" { inherit profileName; };
+      failure = rustPackages."registry+https://github.com/rust-lang/crates.io-index".failure."0.1.6" { inherit profileName; };
       pathdiff = rustPackages."registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" { inherit profileName; };
       semver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" { inherit profileName; };
       serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.104" { inherit profileName; };
