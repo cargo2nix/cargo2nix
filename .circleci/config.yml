@@ -16,7 +16,8 @@ jobs:
           name: Build
           command: |
             USER=root cachix use cargo2nix
-            nix-build -A ci --show-trace | cachix push cargo2nix
+            cachix push cargo2nix -w &
+            nix-build -A ci --show-trace
           no_output_timeout: 5h
       - save_cache:
           key: nix-store
