@@ -12,11 +12,12 @@ jobs:
           name: Install cachix
           command: |
             nix-env -iA cachix -f https://cachix.org/api/v1/install
-            USER=root cachix use tenx-cargo2nix
-            USER=root cachix push tenx-cargo2nix -w &
       - run:
           name: Build
-          command: nix-build ./. -A ci --show-trace --no-out-link
+          command: |
+            USER=root cachix use cargo2nix
+            cachix push cargo2nix -w &
+            nix-build -A ci --show-trace
           no_output_timeout: 5h
       - save_cache:
           key: nix-store
