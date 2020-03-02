@@ -9,7 +9,7 @@
   },
   system ? builtins.currentSystem,
   overlays ? [ ],
-  crossSystem ? (import nixpkgs {}).lib.systems.examples.musl64,
+  crossSystem ? null,
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.

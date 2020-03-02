@@ -25,7 +25,7 @@ This project assumes that the [Nix package manager](https://nixos.org/nix) is
 already installed on your machine. Run the command below to install `cargo2nix`:
 
 ```bash
-nix-env -iA package -f https://github.com/tenx-tech/cargo2nix/tarball/master --arg crossSystem null
+nix-env -iA package -f https://github.com/tenx-tech/cargo2nix/tarball/master
 ```
 
 ## How to use this for your Rust projects
