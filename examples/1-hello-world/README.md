@@ -183,7 +183,7 @@ in
 
 Now that Nixpkgs is imported with our two overlays, we now have a few extra
 functions available to us, courtesy of the `cargo2nix` overlay. Specifically, we
-have the entry point to the `cargo2nix` called `rustBuilder`. Inside of
+have the entry point to `cargo2nix` called `rustBuilder`. Inside of
 `rustBuilder`, we have a function called `makePackageSet'` (note the single
 quote in the name) which can be used to build our project's `Cargo.nix` file.
 
