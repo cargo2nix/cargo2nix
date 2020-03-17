@@ -217,18 +217,18 @@ dependency graph from our `Cargo.nix`, which we call `rustPkgs`.
 The structure of `rustPkgs` is organized as follows:
 
 ```nix
-             rustPkgs."unknown"."0.1.0".hello-world { }
-#                     ^^^^^^^^^ ^^^^^^^ ^^^^^^^^^^^ ^^^
-#                         |        |         |       |
-# Source -----------------+        |         |       |
-#  - Crates.io URL                 |         |       |
-#  - Git repository URL            |         |       |
-#  - Alterative registry URL       |         |       |
-#  - `unknown` for path deps       |         |       |
-#                                  |         |       |
-#             Version -------------+         |       |
-#                                            |       |
-#                             Name-----------+       |
+             rustPkgs."unknown".hello-world."0.1.0" { }
+#                     ^^^^^^^^^ ^^^^^^^^^^^ ^^^^^^^ ^^^
+#                         |          |         |     |
+# Source -----------------+          |         |     |
+#  - Crates.io URL                   |         |     |
+#  - Git repository URL              |         |     |
+#  - Alterative registry URL         |         |     |
+#  - `unknown` for path deps         |         |     |
+#                                    |         |     |
+#                Name ---------------+         |     |
+#                                              |     |
+#                           Version -----------+     |
 #                                                    |
 #                    Optional build arguments -------+
 #                     - `compileMode = "test"`
