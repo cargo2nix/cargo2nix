@@ -127,7 +127,7 @@ following arguments:
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/tenx-tech/cargo2nix;
-    ref = "v0.8.0";
+    ref = "v0.8.1";
   },
 }:
 ```
