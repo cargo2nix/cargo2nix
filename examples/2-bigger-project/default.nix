@@ -6,7 +6,7 @@
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/tenx-tech/cargo2nix;
-    ref = "v0.8.1";
+    ref = "v0.8.2";
   },
 }:
 let
@@ -21,7 +21,7 @@ let
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "stable";
     packageFun = import ./Cargo.nix;
-    packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
+    # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
   };
 in
   rustPkgs.workspace.bigger-project {}
