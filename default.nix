@@ -87,5 +87,5 @@ rec {
           (pkgs.lib.filterAttrs (name: kind: kind == "directory")
             (builtins.readDir dir));
     in
-      map (x: x.package) (importExprsInDir ./examples);
+      importExprsInDir ./examples;
 }
