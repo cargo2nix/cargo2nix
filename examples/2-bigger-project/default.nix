@@ -24,4 +24,4 @@ let
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
   };
 in
-  rustPkgs.workspace.hello-world {}
+  rustPkgs.workspace.bigger-project {}

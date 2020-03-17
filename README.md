@@ -32,29 +32,21 @@ nix-env -iA package -f https://github.com/tenx-tech/cargo2nix/tarball/master
 
 ### As a build system
 
+The basic process of converting an existing Cargo project to `cargo2nix` boils
+down to the following steps:
+
 1. Generate a `Cargo.nix` file by running `cargo2nix -f` at the root of your
    Cargo workspace.
+2. Create a `default.nix` file which imports Nixpkgs with the [cargo2nix] and
+   [nixpkgs-mozilla] overlays and builds your project using the `Cargo.nix` file
+   from earlier.
+3. Run `nix-build` to compile and/or test your project.
 
-2. Use the `default.nix` and `shell.nix` in this repository as an example and
-   point the `package` attribute to the package(s) you would like to build.
+[nixpkgs-mozilla]: https://github.com/mozilla/nixpkgs-mozilla#rust-overlay
+[cargo2nix]: ./overlay
 
-3. Build your Cargo workspace with the following command:
-
-   ```bash
-   # For Linux users
-   nix-build -A package
-
-   # For macOS/Darwin users
-   nix-build -A package --arg crossSystem null
-   ```
-
-   Alternatively, you can drop into a self-contained environment containing the
-   correct version of the Rust toolchain (`rustc`, `cargo`, `rls`) and all
-   required system dependencies by running:
-
-   ```bash
-   nix-shell
-   ```
+Check out our series of [example projects](./examples) which showcase how to use
+`cargo2nix` in detail.
 
 ### Optional declarative development shell
 
