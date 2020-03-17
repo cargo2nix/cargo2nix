@@ -6,8 +6,8 @@ and is compiled using the latest release of Rust.
 ## Introduction
 
 This example assumes that you have already read through the [Hello World]
-project and have your machine set up with Nix and `cargo2nix`. If you this is
-not the case, it is strongly recommended that you follow that guide first.
+project and have your machine set up with Nix and `cargo2nix`. If this is not
+the case, it is strongly recommended that you follow that guide first.
 
 [Hello World]: ../1-hello-world/README.md
 
