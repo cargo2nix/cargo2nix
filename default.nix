@@ -77,7 +77,15 @@ rec {
   # containing all native dependencies provided by the overrides above.
   # `cargo build` with in the shell should just work.
   shell = pkgs.mkShell {
-    inputsFrom =  pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
+    inputsFrom = pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
     nativeBuildInputs = with rustPkgs; [ cargo rustc ];
   };
+  examples =
+    let
+      importExprsInDir = with pkgs.lib; dir:
+        mapAttrsToList (name: _: import (dir + "/${name}") {})
+          (pkgs.lib.filterAttrs (name: kind: kind == "directory")
+            (builtins.readDir dir));
+    in
+      map (x: x.package) (importExprsInDir ./examples);
 }
