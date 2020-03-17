@@ -1,7 +1,7 @@
 # A bigger project
 
-This is larger `bin` project which requires some dependencies from Crates.io and
-is compiled using the latest release of Rust.
+This is a larger `bin` project which requires some dependencies from Crates.io
+and is compiled using the latest release of Rust.
 
 ## Introduction
 
