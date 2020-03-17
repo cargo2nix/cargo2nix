@@ -79,7 +79,7 @@ commands up until this point. Now we are ready to begin wrapping up our
 As mentioned in the above [introduction](#introduction), we need to generate a
 `Cargo.nix` file from our crate's `Cargo.toml` and `Cargo.lock` in order to use
 `cargo2nix`. While our project contains a `Cargo.toml`, it doesn't have a
-`Cargo.lock` yet.
+`Cargo.lock` file yet.
 
 While you could make one appear by building your project with `cargo build` for
 the first time, you can also generate one with this command:
@@ -87,9 +87,6 @@ the first time, you can also generate one with this command:
 ```bash
 cargo generate-lockfile
 ```
-
-After running this command, there should now be a `Cargo.lock` file present at
-the project root.
 
 Next, run the following command in the project root to make a `Cargo.nix` file:
 
@@ -113,8 +110,8 @@ crate with Nix.
 
 ### Creating a default.nix
 
-In order to build our project with `nix-build`, the official Nix build tool, we
-need to have a `default.nix` present at the project root. Let's create one!
+In order to build our project with `nix-build`, we need to have a `default.nix`
+present at the project root. Let's create one!
 
 To start, let's create a new file called [`default.nix`] and declare a function
 with the following arguments:
@@ -135,9 +132,7 @@ with the following arguments:
 }:
 ```
 
-As shown above, we declare this function with three arguments: `system`,
-`nixpkgsMozilla`, and `cargo2nix`. Let's break down what these arguments mean
-one by one.
+Let's break down what these function arguments mean one by one.
 
 The first argument, `system`, is a string which declares what platform Nix
 should build this project for. This is _not_ a [Rust target triple], but rather

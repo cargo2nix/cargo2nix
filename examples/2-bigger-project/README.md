@@ -108,8 +108,7 @@ cargo generate-lockfile
 cargo2nix -f
 ```
 
-Pretty smooth sailing so far. Let's create the `default.nix` next so we can
-build this project with Nix.
+Pretty smooth sailing so far.
 
 ### Creating a default.nix
 
@@ -132,9 +131,8 @@ following arguments:
 }:
 ```
 
-This should be identical to the function declaration used in the Hello World
-project from earlier. Likewise, we declare the function body to also be a `let`
-block with almost identical contents as well:
+This should be identical to what we did in the Hello World project from earlier.
+Likewise, we define the function body with almost identical contents as well:
 
 ```nix
 let
