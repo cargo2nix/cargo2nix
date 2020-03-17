@@ -147,7 +147,7 @@ let
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "stable";
     packageFun = import ./Cargo.nix;
-    packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
+    # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if unspecified
   };
 in
   rustPkgs.workspace.bigger-project {}
