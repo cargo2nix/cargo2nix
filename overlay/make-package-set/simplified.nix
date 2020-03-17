@@ -7,7 +7,7 @@
 args@{
   rustChannel,
   packageFun,
-  packageOverrides ? _: [ ],
+  packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
   ...
 }:
 let

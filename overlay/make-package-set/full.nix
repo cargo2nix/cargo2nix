@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  rustBuilder,
   rustLib,
   stdenv,
   mkRustCrate,
@@ -12,7 +13,7 @@
   rustc,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
-  packageOverrides ? [ ],
+  packageOverrides ? rustBuilder.overrides.all,
   fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
   release ? null,
   rootFeatures ? null,
