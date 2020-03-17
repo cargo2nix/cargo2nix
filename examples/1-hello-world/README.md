@@ -201,7 +201,7 @@ let
   };
 
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustVersion = "stable";
+    rustChannel = "stable";
     packageFun = import ./Cargo.nix;
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
   };
