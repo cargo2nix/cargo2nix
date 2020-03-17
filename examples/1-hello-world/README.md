@@ -150,12 +150,12 @@ unspecified by the user, so we use the `?` operator to set a default.
 
 The second argument, `nixpkgsMozilla`, fetches [nixpkgs-mozilla] from GitHub.
 This repository contains a [handy Nixpkgs overlay for Rust] which allows you to
-fetch a version of Rust using [release channels similar to Rustup], e.g.
+fetch a version of Rust using [release channels] similar to Rustup, e.g.
 `"stable"`, `"nightly"`, or `"1.41.0"`.
 
 [nixpkgs-mozilla]: https://github.com/mozilla/nixpkgs-mozilla
 [handy Nixpkgs overlay for Rust]: https://github.com/mozilla/nixpkgs-mozilla#rust-overlay
-[Rust toolchain channel]: https://doc.rust-lang.org/edition-guide/rust-2018/rustup-for-managing-rust-versions.html
+[release channels]: https://doc.rust-lang.org/edition-guide/rust-2018/rustup-for-managing-rust-versions.html
 
 The final argument, `cargo2nix`, fetches the [cargo2nix] repository from GitHub.
 To build our project, we need to fetch a fixed release of `cargo2nix` so we can
