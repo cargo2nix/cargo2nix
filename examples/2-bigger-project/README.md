@@ -172,7 +172,7 @@ library of provided crate overrides in [overlay/overrides.nix].
 [overlay/overrides.nix]: ../../overlay/overrides.nix
 
 `rustBuilder.overrides.all` is a list, so you can always add your own custom
-overrides by appending `++ [ myOverride1 myOverride2]` to the end. We won't
+overrides by appending `++ [ myOverride1 myOverride2 ]` to the end. We won't
 delve into how custom overrides work in this example, but you should at least be
 aware that the option exists.
 
