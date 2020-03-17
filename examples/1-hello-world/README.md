@@ -141,9 +141,9 @@ one by one.
 
 The first argument, `system`, is a string which declares what platform Nix
 should build this project for. This is _not_ a [Rust target triple], but rather
-a [Nix system tuple] such as `"x86_64-linux"` or `"x86_64-darwin"`. By default,
-we want this string to be set to `builtins.currentSystem` if left unspecified by
-the user, so we use the `?` operator to set a default.
+a [Nix system parameter] such as `"x86_64-linux"` or `"x86_64-darwin"`. By
+default, we want this string to be set to `builtins.currentSystem` if left
+unspecified by the user, so we use the `?` operator to set a default.
 
 [Rust target triple]: https://forge.rust-lang.org/release/platform-support.html
 [Nix system parameter]: https://nixos.org/nixos/nix-pills/nixpkgs-parameters.html#idm140737319760528
@@ -165,6 +165,7 @@ we fetch from the Git tag `v0.8.0`.
 Next, we need to write the body of our function. To do this, we declare a `let`
 block and import [Nixpkgs] using our three function arguments from earlier:
 
+[cargo2nix]: https://github.com/tenx-tech/cargo2nix
 [Nixpkgs]: https://github.com/NixOS/nixpkgs
 
 ```nix
