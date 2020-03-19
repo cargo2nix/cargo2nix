@@ -163,9 +163,11 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
 
     generate_cargo_nix(&mut temp_file)?;
 
-    temp_file
-        .persist(path)
-        .context(format!("could not write file to {}", path.display()))?;
+    if let Err(err) = temp_file.persist(path) {
+        let (_, temp_path) = err.file.keep()?;
+        std::fs::copy(temp_path, path)
+            .context(format!("could not write file to {}", path.display()))?;
+    }
 
     Ok(())
 }
