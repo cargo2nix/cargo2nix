@@ -3,19 +3,22 @@ let
   inherit (rustLib) makeOverride nullOverride;
   envize = s: builtins.replaceStrings ["-"] ["_"] (lib.toUpper s);
 
-  patchOpenssl = pkgs: (pkgs.openssl.override {
-    # We only need `perl` at build time. It's also used as the interpreter for one
-    # of the produced binaries (`c_rehash`), but they'll be removed later.
-    perl = pkgs.buildPackages.buildPackages.perl;
-  }).overrideAttrs (drv: {
-    installTargets = "install_sw";
-    outputs = [ "dev" "out" "bin" ];
-    # Remove binaries, we need only libraries.
-    postFixup = ''
-      ${drv.postFixup}
-      rm -rf $bin/*
-    '';
-  });
+  patchOpenssl = pkgs:
+    if pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform
+    then pkgs.openssl
+    else (pkgs.openssl.override {
+      # We only need `perl` at build time. It's also used as the interpreter for one
+      # of the produced binaries (`c_rehash`), but they'll be removed later.
+      perl = pkgs.buildPackages.buildPackages.perl;
+    }).overrideAttrs (drv: {
+      installTargets = "install_sw";
+      outputs = [ "dev" "out" "bin" ];
+      # Remove binaries, we need only libraries.
+      postFixup = ''
+        ${drv.postFixup}
+        rm -rf $bin/*
+      '';
+    });
 
   joinOpenssl = openssl: buildPackages.symlinkJoin {
     name = "openssl"; paths = with openssl; [ out dev ];
