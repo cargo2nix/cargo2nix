@@ -91,7 +91,7 @@ runHook runCargo
 
 1. Many `crates.io` public crates may not build using the current Rust compiler,
    unless a lint cap is put on these crates. For instance, `cargo2nix` caps all
-   warnings in the `failure` crate to just `warn`.
+   lints to `warn` by default.
 2. Nix 2.1.3 ships with a broken `builtins.fromTOML` function which is unable to
    parse lines of TOML that look like this:
 
