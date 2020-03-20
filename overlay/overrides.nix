@@ -131,6 +131,9 @@ in rec {
             { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
           ])
         ];
+        propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+          pkgs.buildPackages.pkg-config
+        ];
       };
     }
     else nullOverride;
