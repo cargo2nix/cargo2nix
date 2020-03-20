@@ -97,7 +97,7 @@ let
     inherit src version meta;
     buildInputs = runtimeDependencies;
     propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
-    nativeBuildInputs = [ cargo buildPackages.pkg-config ] ++ buildtimeDependencies;
+    nativeBuildInputs = [ cargo ] ++ buildtimeDependencies;
 
     depsBuildBuild =
       let inherit (buildPackages.buildPackages) stdenv jq remarshal;
