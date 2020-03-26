@@ -219,4 +219,5 @@ Body:
 ```
 
 Now that we're getting the hang of building crates with `cargo2nix`, let's
-create a small crate workspace and compile some Cargo tests in the next example.
+create a project which relies on external resources located outside of the `src`
+directory.
