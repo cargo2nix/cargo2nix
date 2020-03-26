@@ -22,13 +22,10 @@ let
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "stable";
     packageFun = import ./Cargo.nix;
-    localPatterns =
-      [
-        ''^(src|tests)(/.*)?''
-        ''[^/]*\.(rs|toml)$''
-        # include other directory from the project repository
-        ''^templates(/.*)?''
-      ];
+    localPatterns = [
+      ''^(src|tests|templates)(/.*)?''
+      ''[^/]*\.(rs|toml)$''
+    ];
   };
 in
   rustPkgs.workspace.project-with-resources {}
