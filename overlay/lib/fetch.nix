@@ -8,10 +8,10 @@ rec {
 
   fetchCrateGit = { url, name, version, rev, sha256 }:
     let
-      inherit (buildPackages) runCommand jq remarshal fetchgitPrivate;
-      repo = fetchgitPrivate {
+      inherit (buildPackages) runCommand jq remarshal;
+      repo = builtins.fetchGit {
         name = "${name}-${version}-src";
-        inherit url rev sha256;
+        inherit url rev;
       };
     in
       /. + builtins.readFile (runCommand "find-crate-${name}-${version}"
@@ -35,7 +35,7 @@ rec {
   fetchCrateAlternativeRegistryExpensive = { index, name, version, sha256 }: with buildPackages; stdenvNoCC.mkDerivation {
     name = "${name}-${version}.tar.gz";
 
-    inherit (fetchgitPrivate { url = git://dummy; }) GIT_SSH SSH_AUTH_SOCK;
+    inherit (builtins.fetchGit { url = git://dummy; }) GIT_SSH SSH_AUTH_SOCK;
     INDEX = index;
     CRATE_NAME = name;
     CRATE_VERSION = version;
