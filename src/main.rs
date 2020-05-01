@@ -11,8 +11,9 @@ use std::{
 use anyhow::{anyhow, Context, Result};
 use cargo::{
     core::{
-        resolver::{Resolve, ResolveOpts},
-        dependency::Kind as DepKind,
+        compiler::{CompileKind, RustcTargetData},
+        dependency::DepKind,
+        resolver::{features::HasDevUnits, Resolve, ResolveOpts},
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
@@ -172,14 +173,22 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
 fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let config = {
         let mut config = cargo::Config::default()?;
-        config.configure(0, None, &None, false, true, false, &None, &[])?;
+        config.configure(0, true, None, false, true, false, &None, &[], &[])?;
         config
     };
 
     let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
     let ws = Workspace::new(&root_manifest_path, &config)?;
+    let rtd = RustcTargetData::new(&ws, CompileKind::Host)?;
     let specs = Packages::All.to_package_id_specs(&ws)?;
-    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs)?;
+    let resolve = resolve_ws_with_opts(
+        &ws,
+        &rtd,
+        CompileKind::Host,
+        &ResolveOpts::everything(),
+        &specs,
+        HasDevUnits::No,
+    )?;
 
     let pkgs_by_id = resolve
         .pkg_set
@@ -293,7 +302,15 @@ fn mark_required(
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let resolve = resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec])?;
+    let rtd = RustcTargetData::new(&ws, CompileKind::Host)?;
+    let resolve = resolve_ws_with_opts(
+        ws,
+        &rtd,
+        CompileKind::Host,
+        &ResolveOpts::new(true, &[], false, false),
+        &[spec],
+        HasDevUnits::No,
+    )?;
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
@@ -327,11 +344,14 @@ fn activate<'a>(
         "default" => (vec![], true),
         other => (vec![other.to_string()], false),
     };
-
+    let rtd = RustcTargetData::new(&ws, CompileKind::Host)?;
     let resolve = resolve_ws_with_opts(
         ws,
-        ResolveOpts::new(true, &features[..], false, uses_default),
+        &rtd,
+        CompileKind::Host,
+        &ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
+        HasDevUnits::No,
     )?;
 
     let root_feature = (pkg.name().as_str(), feature);
