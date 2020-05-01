@@ -11,8 +11,8 @@ use std::{
 use anyhow::{anyhow, Context, Result};
 use cargo::{
     core::{
-        dependency::Kind as DependencyKind,
         resolver::{Resolve, ResolveOpts},
+        dependency::Kind as DepKind,
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
@@ -245,7 +245,7 @@ fn simplify_optionality<'a, 'b: 'a>(
         // Dev dependencies can't be optional.
         rpkg.deps
             .iter_mut()
-            .filter(|((_, kind), _)| *kind == DependencyKind::Development)
+            .filter(|((_, kind), _)| *kind == DepKind::Development)
             .for_each(|(_, d)| d.optionality = Optionality::Required);
 
         if all_eq(rpkg.iter_optionality_mut()) {
@@ -357,7 +357,7 @@ fn activate<'a>(
 #[derive(Debug)]
 pub struct ResolvedPackage<'a> {
     pkg: &'a Package,
-    deps: BTreeMap<(PackageId, DependencyKind), ResolvedDependency<'a>>,
+    deps: BTreeMap<(PackageId, DepKind), ResolvedDependency<'a>>,
     features: BTreeMap<Feature<'a>, Optionality<'a>>,
     checksum: Option<Cow<'a, str>>,
 }
@@ -447,14 +447,14 @@ impl<'a> ResolvedPackage<'a> {
         id: PackageId,
     ) -> impl Iterator<Item = &mut ResolvedDependency<'a>> {
         self.deps
-            .range_mut((id, DependencyKind::Normal)..=(id, DependencyKind::Build))
+            .range_mut((id, DepKind::Normal)..=(id, DepKind::Build))
             .map(|(_, dep)| dep)
     }
 
     fn iter_optionality_mut(&mut self) -> impl Iterator<Item = &mut Optionality<'a>> {
         self.deps
             .iter_mut()
-            .filter(|((_, kind), _)| *kind != DependencyKind::Development)
+            .filter(|((_, kind), _)| *kind != DepKind::Development)
             .map(|(_, d)| &mut d.optionality)
             .chain(self.features.values_mut())
     }

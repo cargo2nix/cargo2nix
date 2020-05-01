@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
-use cargo::core::{dependency::Kind as DependencyKind, Package, PackageId, SourceId};
 use anyhow::{anyhow, Result};
+use cargo::core::{dependency::DepKind, Package, PackageId, SourceId};
 use serde::Serialize;
 
 use crate::manifest::TomlProfile;
@@ -233,9 +233,9 @@ fn to_dependencies(
         };
 
         match kind {
-            DependencyKind::Normal => dependencies.push(dep),
-            DependencyKind::Development => dev_dependencies.push(dep),
-            DependencyKind::Build => build_dependencies.push(dep),
+            DepKind::Normal => dependencies.push(dep),
+            DepKind::Development => dev_dependencies.push(dep),
+            DepKind::Build => build_dependencies.push(dep),
         }
     }
 
