@@ -20,7 +20,7 @@ let
         rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
         cargo2nixOverlay = import ./overlay;
       in
-        overlays ++ [ cargo2nixOverlay rustOverlay ];
+        [ cargo2nixOverlay rustOverlay ] ++ overlays;
   };
 
   # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
