@@ -10,6 +10,7 @@
   system ? builtins.currentSystem,
   overlays ? [ ],
   crossSystem ? null,
+  rustChannel ? "1.43.0",
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.
@@ -44,8 +45,8 @@ let
   # - `fetchCrateAlternativeRegistry` (optional): A fetcher for crates on alternative registries.
   # - `release` (optional): Whether to enable release mode (equivalent to `cargo build --release`), defaults to `true`.
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "1.37.0";
     packageFun = import ./Cargo.nix;
+    inherit rustChannel;
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
     localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };
