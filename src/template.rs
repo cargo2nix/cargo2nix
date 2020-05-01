@@ -2,10 +2,11 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use cargo::core::{dependency::Kind as DependencyKind, Package, PackageId, SourceId};
+use anyhow::{anyhow, Result};
 use serde::Serialize;
 
 use crate::manifest::TomlProfile;
-use crate::{platform, BoolExpr, Feature as FeatureStr, Optionality, ResolvedPackage, Result};
+use crate::{platform, BoolExpr, Feature as FeatureStr, Optionality, ResolvedPackage};
 
 #[derive(Debug, Serialize)]
 pub struct BuildPlan {
@@ -140,9 +141,7 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
                 .checksum
                 .as_ref()
                 .map(|c| c.to_string())
-                .ok_or_else(|| {
-                    failure::format_err!("checksum is required for crates.io package {}", id)
-                })?,
+                .ok_or(anyhow!("checksum is required for crates.io package {}", id))?,
         }
     } else if id.source_id().is_git() {
         Source::Git {
@@ -151,41 +150,29 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
                 .source_id()
                 .precise()
                 .map(|p| p.to_string())
-                .ok_or_else(|| {
-                    failure::format_err!("precise ref not found for git package {}", id)
-                })?,
+                .ok_or(anyhow!("precise ref not found for git package {}", id))?,
             sha256: pkg
                 .checksum
                 .as_ref()
                 .map(|c| c.to_string())
-                .ok_or_else(|| {
-                    failure::format_err!("checksum is required for git package {}", id)
-                })?,
+                .ok_or(anyhow!("checksum is required for git package {}", id))?,
         }
     } else if id.source_id().is_path() {
         Source::Local {
             path: pathdiff::diff_paths(Path::new(id.source_id().url().path()), cwd)
                 .map(|p| p.join("."))
-                .ok_or_else(|| {
-                    failure::format_err!("path is not absolute for local package {}", id)
-                })?,
+                .ok_or(anyhow!("path is not absolute for local package {}", id))?,
         }
     } else if id.source_id().is_registry() {
         Source::Registry {
             index: id.source_id().url().to_string(),
-            sha256: pkg
-                .checksum
-                .as_ref()
-                .map(|c| c.to_string())
-                .ok_or_else(|| {
-                    failure::format_err!(
-                        "checksum is required for alternate registry package {}",
-                        id
-                    )
-                })?,
+            sha256: pkg.checksum.as_ref().map(|c| c.to_string()).ok_or(anyhow!(
+                "checksum is required for alternate registry package {}",
+                id
+            ))?,
         }
     } else {
-        return Err(failure::format_err!("unsupported source for {}", id));
+        return Err(anyhow!("unsupported source for {}", id));
     };
 
     Ok(source)

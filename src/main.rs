@@ -8,6 +8,7 @@ use std::{
     path::Path,
 };
 
+use anyhow::{anyhow, Context, Result};
 use cargo::{
     core::{
         dependency::Kind as DependencyKind,
@@ -19,7 +20,6 @@ use cargo::{
 };
 use cargo_platform::Platform;
 use colorify::colorify;
-use failure::{Error, ResultExt};
 use semver::{Version, VersionReq};
 use tera::Tera;
 
@@ -34,7 +34,6 @@ mod template;
 type Feature<'a> = &'a str;
 type PackageName<'a> = &'a str;
 type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
-type Result<T> = std::result::Result<T, Error>;
 
 const VERSION_ATTRIBUTE_NAME: &str = "cargo2nixVersion";
 
@@ -87,13 +86,11 @@ fn read_version_attribute(path: &Path) -> Result<Version> {
             }
             None
         })
-        .ok_or_else(|| {
-            failure::format_err!(
-                "valid {} not found in {}",
-                VERSION_ATTRIBUTE_NAME,
-                path.display()
-            )
-        })
+        .ok_or(anyhow!(
+            "valid {} not found in {}",
+            VERSION_ATTRIBUTE_NAME,
+            path.display()
+        ))
 }
 
 fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
@@ -101,7 +98,7 @@ fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
     let req = format!(">={}.{}", version.major, version.minor);
     VersionReq::parse(&req)
         .context(format!("parse {} found in {}", req, path.display()))
-        .map_err(Error::from)
+        .map_err(anyhow::Error::from)
         .map(|req| (req, version))
 }
 
@@ -134,7 +131,7 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
                 colorify!(red: "Please upgrade your cargo2nix ({}) to proceed."),
                 vers_req
             ));
-            return Err(failure::format_err!("{}", message));
+            return Err(anyhow!("{}", message));
         }
 
         println!(
@@ -422,9 +419,9 @@ impl<'a> ResolvedPackage<'a> {
             let source_id = pkg.package_id().source_id();
             if checksum.is_none() && source_id.is_git() {
                 let url = source_id.url().as_str();
-                let rev = source_id.precise().ok_or_else(|| {
-                    failure::format_err!("no precise git reference for {}", pkg.package_id())
-                })?;
+                let rev = source_id
+                    .precise()
+                    .ok_or(anyhow!("no precise git reference for {}", pkg.package_id()))?;
                 prefetch_git(url, rev)
                     .map(Cow::Owned)
                     .map(Some)
@@ -561,9 +558,9 @@ fn prefetch_git(url: &str, rev: &str) -> Result<String> {
             .get("sha256")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string())
-            .ok_or_else(|| failure::format_err!("unexpected JSON output"))
+            .ok_or(anyhow!("unexpected JSON output"))
     } else {
-        Err(failure::format_err!(
+        Err(anyhow!(
             "process failed with stderr {:?}",
             String::from_utf8(stderr)
         ))
