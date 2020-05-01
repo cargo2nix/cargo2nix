@@ -10,6 +10,7 @@
   system ? builtins.currentSystem,
   overlays ? [ ],
   crossSystem ? null,
+  rustChannel ? "1.43.0",
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.
@@ -53,8 +54,8 @@ let
   #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
   #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "1.37.0";
     packageFun = import ./Cargo.nix;
+    inherit rustChannel;
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
     localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };
