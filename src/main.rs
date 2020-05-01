@@ -15,7 +15,7 @@ use cargo::{
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
-    util::{errors, important_paths::find_root_manifest_for_wd},
+    util::important_paths::find_root_manifest_for_wd,
 };
 use cargo_platform::Platform;
 use colorify::colorify;
@@ -41,7 +41,7 @@ fn main() {
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
     if let Err(err) = try_main(&args) {
         eprint!(colorify!(red_bold: "error: "));
-        eprintln!("{}", errors::display_causes(&err));
+        eprintln!("{:#}", &err);
         std::process::exit(1);
     }
 }
