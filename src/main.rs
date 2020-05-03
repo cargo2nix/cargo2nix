@@ -186,7 +186,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         CompileKind::Host,
         &ResolveOpts::everything(),
         &specs,
-        HasDevUnits::No,
+        HasDevUnits::Yes,
     )?;
 
     let pkgs_by_id = resolve
@@ -308,7 +308,7 @@ fn mark_required(
         CompileKind::Host,
         &ResolveOpts::new(true, &[], false, false),
         &[spec],
-        HasDevUnits::No,
+        HasDevUnits::Yes,
     )?;
 
     let root_pkg_name = root_pkg.name().as_str();
@@ -350,7 +350,7 @@ fn activate<'a>(
         CompileKind::Host,
         &ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
-        HasDevUnits::No,
+        HasDevUnits::Yes,
     )?;
 
     let root_feature = (pkg.name().as_str(), feature);
