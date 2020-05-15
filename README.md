@@ -109,6 +109,11 @@ runHook runCargo
    error: while parsing a TOML string at /nix/store/.../overlay/mkcrate.nix:31:14: Bare key 'cfg(target_os = "linux")' cannot contain whitespace at line 45
    ```
 
+3. Git dependencies and crates from alternative Cargo registries rely on
+   `builtins.fetchGit` to support fetching from private Git repositories. This
+   means that such dependencies cannot be evaluated with `restrict-eval`
+   applied.
+
 ## Design
 
 This Nixpkgs overlay builds your Rust crates and binaries by first pulling the
