@@ -8,10 +8,10 @@ rec {
 
   fetchCrateGit = { url, name, version, rev, sha256 }:
     let
-      inherit (buildPackages) runCommand jq remarshal fetchgitPrivate;
-      repo = fetchgitPrivate {
+      inherit (buildPackages) runCommand jq remarshal;
+      repo = builtins.fetchGit {
         name = "${name}-${version}-src";
-        inherit url rev sha256;
+        inherit url rev;
       };
     in
       /. + builtins.readFile (runCommand "find-crate-${name}-${version}"
@@ -34,9 +34,8 @@ rec {
   # to be downloaded, the whole index needs to be recloned to get the download URL, which is potentially expensive.
   fetchCrateAlternativeRegistryExpensive = { index, name, version, sha256 }: with buildPackages; stdenvNoCC.mkDerivation {
     name = "${name}-${version}.tar.gz";
+    src = builtins.fetchGit { url = index; ref = "master"; };
 
-    inherit (fetchgitPrivate { url = git://dummy; }) GIT_SSH SSH_AUTH_SOCK;
-    INDEX = index;
     CRATE_NAME = name;
     CRATE_VERSION = version;
 
@@ -44,12 +43,11 @@ rec {
     outputHashMode = "flat";
     outputHash = sha256;
 
-    nativeBuildInputs = [ git curl cacert jq ];
+    nativeBuildInputs = [ curl cacert jq ];
 
     builder = builtins.toFile "builder.sh" ''
       source "$stdenv/setup"
-      git clone --depth=1 "$INDEX" ./index
-      dl="$(jq -r ".dl" ./index/config.json)"
+      dl="$(jq -r ".dl" "$src/config.json")"
       if [[ "$dl" =~ "{crate}" ]]; then
         url="$(sed -e "s/{crate}/$CRATE_NAME/" -e "s/{version}/$CRATE_VERSION/" <<< "$dl")"
       else
