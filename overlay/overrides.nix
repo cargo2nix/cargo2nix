@@ -130,8 +130,6 @@ in rec {
           (propagateEnv "pkg-config" [
             { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
           ])
-        ];
-        propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
           pkgs.buildPackages.pkg-config
         ];
       };
