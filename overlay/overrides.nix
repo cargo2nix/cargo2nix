@@ -127,11 +127,10 @@ in rec {
     overrideAttrs = drv: {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
         pkgs.pkg-config
-      ] ++ lib.optional (pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform)
         (propagateEnv "pkg-config" [
           { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
         ])
-      ;
+      ];
     };
   };
 
