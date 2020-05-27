@@ -122,21 +122,17 @@ in rec {
     };
   };
 
-  pkg-config = if pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
-    then makeOverride {
-      name = "pkg-config";
-      overrideAttrs = drv: {
-        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
-          (propagateEnv "pkg-config" [
-            { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
-          ])
-        ];
-        propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
-          pkgs.buildPackages.pkg-config
-        ];
-      };
-    }
-    else nullOverride;
+  pkg-config = makeOverride {
+    name = "pkg-config";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        pkgs.pkg-config
+        (propagateEnv "pkg-config" [
+          { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
+        ])
+      ];
+    };
+  };
 
   pq-sys =
     let
