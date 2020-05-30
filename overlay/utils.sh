@@ -156,6 +156,9 @@ install_crate() {
 
     touch $out/lib/.link-flags
     loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
+    if [ ! -s $out/lib/.link-flags ]; then
+      rm $out/lib/.link-flags
+    fi
 
     if [ "$isProcMacro" ]; then
         pushd target/release
