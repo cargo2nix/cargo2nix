@@ -11,6 +11,7 @@
   packageFun,
   cargo,
   rustc,
+  rust-src,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? rustBuilder.overrides.all,
@@ -55,7 +56,7 @@ lib.fix' (self:
     });
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
-    inherit rustPackages callPackage cargo rustc pkgs;
+    inherit rustPackages callPackage cargo rustc rust-src pkgs;
     noBuild = packageFunWith {
       mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
       buildRustPackages = buildRustPackages'.noBuild;
