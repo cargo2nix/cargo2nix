@@ -70,6 +70,7 @@ in rec {
     pkg-config
     pq-sys
     prost-build
+    protoc
     rand
     rand_os
     rdkafka-sys
@@ -160,6 +161,13 @@ in rec {
           { name = "PROTOC"; value = "${pkgs.buildPackages.buildPackages.protobuf}/bin/protoc"; }
         ])
       ];
+    };
+  };
+
+  protoc = makeOverride {
+    name = "protoc";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.buildPackages.buildPackages.protobuf ];
     };
   };
 
