@@ -62,7 +62,7 @@ you into such a development shell.
 ```bash
 # When a crate is not associated with any registry, such as when building locally,
 # the registry is "unknown" as shown below.
-nix-shell -A 'rustPkgs.unknown.cargo2nix."0.8.0"' default.nix
+nix-shell -A 'rustPkgs.unknown.cargo2nix."0.8.3"' default.nix
 ```
 
 You will need to bootstrap some environment in this declarative development
