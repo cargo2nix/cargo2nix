@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 extractFileExt() {
     local name=`basename $1`
     echo ${name##*.}
@@ -112,6 +113,60 @@ dumpDepInfo() {
                 printf 'DEP_%s_%s=%s\n' $(upper $cargo_links) $(upper $key) "$val" >>$dep_keys
         esac
     done
+}
+
+install_crate2() {
+    mkdir -p "$out/lib"
+    # shellcheck disable=SC2046
+    cp $(jq -rR 'fromjson?
+        | select(.reason == "compiler-artifact")
+        | .filenames
+        | map(select(test("\\.(a|rlib|so|dylib)$")))
+        | .[]' < .cargo-build-output) "$out/lib" || :
+
+    mkdir -p "$out/bin"
+    # shellcheck disable=SC2046
+    cp $(jq -rR 'fromjson?
+        | select(.reason == "compiler-artifact")
+        | .executable
+        | select(.)' < .cargo-build-output) "$out/bin" || :
+
+    jq -rR 'fromjson?
+        | select(.reason == "build-script-executed")
+        | (.linked_libs | map("-l \(.)")) + (.linked_paths | map("-L \(.)"))
+        | .[]' < .cargo-build-output \
+        | tr '\n' ' ' >> "$out/lib/.link-flags"
+
+    local out_dir="$(jq -rR 'fromjson? | select(.reason == "build-script-executed") | .out_dir' < .cargo-build-output)"
+    touch "$out/lib/.dep-keys"
+    # `links` envs aren't included in build output so we have to manually parse them.
+    grep -P '^cargo:(?!rerun-if-changed|rerun-if-env-changed|rustc-link-lib|rustc-link-search|rustc-flags|rustc-cfg|rustc-env|rustc-cdylib-link-arg|warning)' \
+        "$out_dir/../output" | while IFS= read -r line; do
+        [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
+        local key="${BASH_REMATCH[1]}"
+        local val="${BASH_REMATCH[2]}"
+        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+    done || :
+
+    if [[ -d "$out_dir" ]] && { grep "$out_dir" "$out/lib/.dep-keys" || grep "$out_dir" "$out/lib/.link-flags"; }; then
+        local installed_out_dir="$out/build_output" # TODO: Change me
+        sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.dep-keys"
+        sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.link-flags"
+        cp -r "$out_dir" "$installed_out_dir"
+    fi
+
+    loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
+
+    if (shopt -s failglob; : $out/lib/*.rlib) 2>/dev/null; then
+        mkdir -p "$out/lib/deps"
+        linkExternCrateToDeps "$out/lib/deps" $dependencies
+    fi
+
+    jq -n '{name:$name, metadata:$metadata, version:$version, proc_macro:$procmacro}' \
+        --arg name $crateName \
+        --arg metadata $NIX_RUST_METADATA \
+        --arg procmacro "$(basename "$(jq -rR 'fromjson? | select(.target.kind[0] == "proc-macro") | .filenames[0]' < .cargo-build-output)")" \
+        --arg version $version >$out/.cargo-info
 }
 
 install_crate() {
