@@ -51,6 +51,10 @@ fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
             ("target_vendor", v) => {
                 Single(format!("{}.parsed.vendor.name == {:?}", platform_var, v))
             }
+            ("target_cpu", v) => Single(format!("{}Cpu == {:?}", platform_var, v)),
+            ("target_feature", v) => {
+                Single(format!("builtins.elem {:?} {}Features", v, platform_var,))
+            }
             _ => False,
         },
     }

@@ -17,6 +17,8 @@
   fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
   release ? null,
   rootFeatures ? null,
+  hostPlatformCpu ? null,
+  hostPlatformFeatures ? [],
 }:
 lib.fix' (self:
   let
@@ -52,6 +54,8 @@ lib.fix' (self:
       };
       ${ if release == null then null else "release" } = release;
       ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
+      ${ if hostPlatformCpu == null then null else "hostPlatformCpu" } = hostPlatformCpu;
+      ${ if hostPlatformFeatures == null then null else "hostPlatformFeatures" } = hostPlatformFeatures;
     });
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {

@@ -23,6 +23,8 @@
   meta ? { },
   rustcflags ? [ ],
   rustcBuildFlags ? [ ],
+  hostPlatformCpu ? null,
+  hostPlatformFeatures ? [],
   NIX_DEBUG ? 0,
 }:
 with builtins; with lib;
@@ -125,7 +127,10 @@ let
     buildDependencies = depMapToList buildDependencies;
     devDependencies = depMapToList (optionalAttrs (compileMode == "test") devDependencies);
 
-    extraRustcFlags = rustcflags;
+    extraRustcFlags =
+      optionals (hostPlatformCpu != null) ([("-Ctarget-cpu=" + hostPlatformCpu)]) ++
+      optionals (hostPlatformFeatures != []) [("-Ctarget-feature=" + (concatMapStringsSep "," (feature: "+" + feature) hostPlatformFeatures))] ++
+      rustcflags;
 
     extraRustcBuildFlags = rustcBuildFlags;
 
