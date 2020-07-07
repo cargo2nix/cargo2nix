@@ -31,6 +31,7 @@ impl BuildPlan {
         let profiles = profiles
             .into_iter()
             .map(|(name, profile)| (name, toml::to_string(&profile).unwrap()))
+            .map(|(name, toml)| (name, toml.replace("${", "\\${").escape_debug().to_string()))
             .collect();
 
         let workspace_members = root_pkgs
