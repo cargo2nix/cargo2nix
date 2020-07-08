@@ -43,6 +43,14 @@ let
   #     The default behavior is to activate all crates with default features.
   # - `fetchCrateAlternativeRegistry` (optional): A fetcher for crates on alternative registries.
   # - `release` (optional): Whether to enable release mode (equivalent to `cargo build --release`), defaults to `true`.
+  # - `hostPlatformCpu` (optional):
+  #     Equivalent to rust's target-cpu codegen option. If specified "-Ctarget-cpu=<value>" will be added to the set of rust
+  #     flags used for compilation of the package set.
+  # - `hostPlatformFeatures` (optional):
+  #     Equivalent to rust's target-feature codegen option. If specified "-Ctarget-feature=<values>" will be added to the set of rust
+  #     flags used for compilation of the package set. The value should be a list of the features to be turned on, without the leading "+",
+  #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
+  #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "1.37.0";
     packageFun = import ./Cargo.nix;
