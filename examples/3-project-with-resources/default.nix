@@ -6,8 +6,8 @@
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/tenx-tech/cargo2nix;
-    # TODO: pin to tag once v0.8.3 is released (see https://github.com/tenx-tech/cargo2nix/issues/96)
-    ref = "master";
+    # TODO: pin to tag once v0.9.0 is released
+    ref = "2e1f4dbf1bc924c601c24feab902bae8d293d671";
   },
 }:
 let
