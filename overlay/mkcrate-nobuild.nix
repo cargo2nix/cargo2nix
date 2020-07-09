@@ -15,6 +15,8 @@
   meta ? { },
   rustcflags ? [ ],
   rustcBuildFlags ? [ ],
+  hostPlatformCpu ? null,
+  hostPlatformFeatures ? [],
 }:
 with lib; with builtins;
 let
