@@ -1,7 +1,6 @@
 #![forbid(unsafe_code)]
 
 use std::{
-    borrow::Cow,
     collections::{BTreeMap, BTreeSet, HashMap},
     fs,
     io::{self, BufRead, Write},
@@ -362,7 +361,7 @@ pub struct ResolvedPackage<'a> {
     pkg: &'a Package,
     deps: BTreeMap<(PackageId, DependencyKind), ResolvedDependency<'a>>,
     features: BTreeMap<Feature<'a>, Optionality<'a>>,
-    checksum: Option<Cow<'a, str>>,
+    checksum: Option<&'a str>,
 }
 
 impl<'a> ResolvedPackage<'a> {
@@ -416,7 +415,7 @@ impl<'a> ResolvedPackage<'a> {
         let checksum = resolve
             .checksums()
             .get(&pkg.package_id())
-            .and_then(|s| s.as_ref().map(Cow::from));
+            .and_then(|opt| opt.as_ref().map(|s| s.as_str()));
 
         Ok(Self {
             pkg,
