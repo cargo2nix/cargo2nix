@@ -413,29 +413,10 @@ impl<'a> ResolvedPackage<'a> {
             .map(|feature| (feature.as_str(), Optionality::default()))
             .collect();
 
-        let checksum = {
-            let checksum = resolve
-                .checksums()
-                .get(&pkg.package_id())
-                .and_then(|s| s.as_ref().map(Cow::from));
-
-            let source_id = pkg.package_id().source_id();
-            if checksum.is_none() && source_id.is_git() {
-                let url = source_id.url().as_str();
-                let rev = source_id.precise().ok_or_else(|| {
-                    failure::format_err!("no precise git reference for {}", pkg.package_id())
-                })?;
-                prefetch_git(url, rev)
-                    .map(Cow::Owned)
-                    .map(Some)
-                    .context(format!(
-                        "failed to compute SHA256 for {} using nix-prefetch-git",
-                        pkg.package_id(),
-                    ))?
-            } else {
-                checksum
-            }
-        };
+        let checksum = resolve
+            .checksums()
+            .get(&pkg.package_id())
+            .and_then(|s| s.as_ref().map(Cow::from));
 
         Ok(Self {
             pkg,
@@ -541,33 +522,6 @@ impl<'a> Optionality<'a> {
 
 fn display_root_feature((pkg_name, feature): RootFeature) -> String {
     format!("{}/{}", pkg_name, feature)
-}
-
-fn prefetch_git(url: &str, rev: &str) -> Result<String> {
-    use std::process::{Command, Output};
-
-    let Output {
-        stdout,
-        stderr,
-        status,
-    } = Command::new("nix-prefetch-git")
-        .arg("--quiet")
-        .args(&["--url", url])
-        .args(&["--rev", rev])
-        .output()?;
-
-    if status.success() {
-        serde_json::from_slice::<serde_json::Value>(&stdout)?
-            .get("sha256")
-            .and_then(|v| v.as_str())
-            .map(|s| s.to_string())
-            .ok_or_else(|| failure::format_err!("unexpected JSON output"))
-    } else {
-        Err(failure::format_err!(
-            "process failed with stderr {:?}",
-            String::from_utf8(stderr)
-        ))
-    }
 }
 
 fn all_eq<T, I>(i: I) -> bool

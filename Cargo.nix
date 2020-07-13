@@ -281,7 +281,6 @@ in
       pathdiff = rustPackages."registry+https://github.com/rust-lang/crates.io-index".pathdiff."0.1.0" { inherit profileName; };
       semver = rustPackages."registry+https://github.com/rust-lang/crates.io-index".semver."0.9.0" { inherit profileName; };
       serde = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde."1.0.104" { inherit profileName; };
-      serde_json = rustPackages."registry+https://github.com/rust-lang/crates.io-index".serde_json."1.0.41" { inherit profileName; };
       tempfile = rustPackages."registry+https://github.com/rust-lang/crates.io-index".tempfile."3.1.0" { inherit profileName; };
       tera = rustPackages."registry+https://github.com/rust-lang/crates.io-index".tera."1.0.2" { inherit profileName; };
       toml = rustPackages."registry+https://github.com/rust-lang/crates.io-index".toml."0.5.3" { inherit profileName; };
