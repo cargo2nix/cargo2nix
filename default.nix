@@ -68,13 +68,7 @@ in
   #   `rustPkgs.workspace.<crate>`.
 rec {
   inherit rustPkgs;
-  package = (rustPkgs.workspace.cargo2nix { }).overrideAttrs (drv: {
-    nativeBuildInputs = drv.nativeBuildInputs or [ ] ++ [ pkgs.buildPackages.makeWrapper ];
-    installPhase = ''
-      ${drv.installPhase or ""}
-      wrapProgram $out/bin/cargo2nix --prefix PATH ":" "${pkgs.nix-prefetch-git}/bin"
-    '';
-  });
+  package = rustPkgs.workspace.cargo2nix {};
   # `runTests` runs all tests for a crate inside a Nix derivation.
   # This may be problematic as Nix may restrict filesystem, network access,
   # socket creation, ... which the test binary may need.

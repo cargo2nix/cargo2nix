@@ -53,7 +53,6 @@ in
       name = "{{ crate.name }}";
       version = "{{ crate.version }}";
       rev = "{{ crate.source.Git.rev }}";
-      sha256 = "{{ crate.source.Git.sha256 }}"; {# unused #}
     };
     {%- elif crate.source.Local.path %}
     src = fetchCrateLocal ./{{ crate.source.Local.path }};

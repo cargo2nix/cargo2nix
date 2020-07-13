@@ -89,21 +89,10 @@ pub struct Crate {
 
 #[derive(Debug, Serialize)]
 pub enum Source {
-    CratesIo {
-        sha256: String,
-    },
-    Git {
-        url: String,
-        rev: String,
-        sha256: String,
-    },
-    Local {
-        path: PathBuf,
-    },
-    Registry {
-        index: String,
-        sha256: String,
-    },
+    CratesIo { sha256: String },
+    Git { url: String, rev: String },
+    Local { path: PathBuf },
+    Registry { index: String, sha256: String },
 }
 
 #[derive(Debug, Serialize)]
@@ -154,13 +143,6 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
                 .map(|p| p.to_string())
                 .ok_or_else(|| {
                     failure::format_err!("precise ref not found for git package {}", id)
-                })?,
-            sha256: pkg
-                .checksum
-                .as_ref()
-                .map(|c| c.to_string())
-                .ok_or_else(|| {
-                    failure::format_err!("checksum is required for git package {}", id)
                 })?,
         }
     } else if id.source_id().is_path() {
