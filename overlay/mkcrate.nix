@@ -83,15 +83,15 @@ let
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"}
       '';
 
-    inherit
-      (({ right, wrong }: { runtimeDependencies = right; buildtimeDependencies = wrong; })
-        (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
-          (concatLists [
-            (attrValues dependencies)
-            (optionals (compileMode == "test") (attrValues devDependencies))
-            (attrValues buildDependencies)
-          ])))
-      runtimeDependencies buildtimeDependencies;
+  inherit
+    (({ right, wrong }: { runtimeDependencies = right; buildtimeDependencies = wrong; })
+      (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
+        (concatLists [
+          (attrValues dependencies)
+          (optionals (compileMode == "test") (attrValues devDependencies))
+          (attrValues buildDependencies)
+        ])))
+    runtimeDependencies buildtimeDependencies;
 
   drvAttrs = {
     inherit NIX_DEBUG;
