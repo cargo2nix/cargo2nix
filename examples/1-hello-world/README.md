@@ -127,7 +127,7 @@ with the following arguments:
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/tenx-tech/cargo2nix;
-    ref = "v0.8.2";
+    ref = "v0.8.3";
   },
 }:
 ```
@@ -155,7 +155,7 @@ fetch a version of Rust using [release channels] similar to Rustup, e.g.
 The final argument, `cargo2nix`, fetches the [cargo2nix] repository from GitHub.
 To build our project, we need to fetch a fixed release of `cargo2nix` so we can
 use the provided Nixpkgs overlay from it to build our Rust project. By default,
-we fetch from the Git tag `v0.8.1`.
+we fetch from the Git tag `v0.8.3`.
 
 Next, we need to write the body of our function. To do this, we declare a `let`
 block and import [Nixpkgs] using our three function arguments from earlier:
