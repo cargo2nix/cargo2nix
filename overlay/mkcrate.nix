@@ -194,14 +194,26 @@ let
     '';
 
     setBuildEnv = ''
+      MINOR_RUSTC_VERSION="$(${rustc}/bin/rustc --version | cut -d . -f 2)"
+
+      if (( MINOR_RUSTC_VERSION < 41 )); then
+        isProcMacro="$(
+          remarshal -if toml -of json Cargo.original.toml \
+          | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
+        )"
+      fi
+
       crateName="$(
         remarshal -if toml -of json Cargo.original.toml \
         | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
       )"
+
       . ${./utils.sh}
+
       export CARGO_VERBOSE=`cargoVerbosityLevel $NIX_DEBUG`
       export NIX_RUST_METADATA=`extractHash $out`
       export CARGO_HOME=`pwd`/.cargo
+
       mkdir -p deps build_deps
       linkFlags=(`makeExternCrateFlags $dependencies $devDependencies`)
       buildLinkFlags=(`makeExternCrateFlags $buildDependencies`)
@@ -233,7 +245,11 @@ let
     installPhase = ''
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
-      install_crate2 ${host-triple}
+      if (( MINOR_RUSTC_VERSION < 41 )); then
+        install_crate ${host-triple} ${if release then "release" else "debug"}
+      else
+        install_crate2 ${host-triple}
+      fi
     '';
   };
 in
