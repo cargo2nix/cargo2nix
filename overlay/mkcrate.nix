@@ -236,7 +236,7 @@ let
     installPhase = ''
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
-      install_crate ${host-triple}
+      install_crate ${host-triple} ${if release then "release" else "debug"}
     '';
   };
 in

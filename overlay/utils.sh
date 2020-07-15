@@ -116,7 +116,8 @@ dumpDepInfo() {
 
 install_crate() {
     local host_triple=$1
-    pushd target/${host_triple}/release
+    local mode=$2
+    pushd target/${host_triple}/${mode}
     local needs_deps=
     local has_output=
     for output in *; do
@@ -158,7 +159,7 @@ install_crate() {
     loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
 
     if [ "$isProcMacro" ]; then
-        pushd target/release
+        pushd target/${mode}
         for output in *; do
             if [ -d "$output" ]; then
                 continue
