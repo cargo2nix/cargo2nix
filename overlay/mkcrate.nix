@@ -176,22 +176,6 @@ let
         | remarshal -if json -of toml > Cargo.toml
     '';
 
-    runCargo = ''
-      (
-        set -euo pipefail
-        if (( NIX_DEBUG >= 1 )); then
-          set -x
-        fi
-        env \
-          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${host-triple}"="${ccForHost}" \
-          "CXX_${host-triple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
-          ${buildCmd}
-      )
-    '';
-
     setBuildEnv = ''
       MINOR_RUSTC_VERSION="$(${rustc}/bin/rustc --version | cut -d . -f 2)"
 
@@ -233,6 +217,22 @@ let
           echo $key
         done
       fi
+    '';
+
+    runCargo = ''
+      (
+        set -euo pipefail
+        if (( NIX_DEBUG >= 1 )); then
+          set -x
+        fi
+        env \
+          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+          "CC_${host-triple}"="${ccForHost}" \
+          "CXX_${host-triple}"="${cxxForHost}" \
+          "''${depKeys[@]}" \
+          ${buildCmd}
+      )
     '';
 
     buildPhase = ''
