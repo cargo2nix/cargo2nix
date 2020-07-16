@@ -148,6 +148,12 @@ let
       EOF
     '';
 
+    configurePhase = ''
+      runHook preConfigure
+      runHook configureCargo
+      runHook postConfigure
+    '';
+
     manifestPatch = toJSON {
       features = genAttrs features (_: [ ]);
       profile.${ decideProfile compileMode release } = profile;
@@ -169,13 +175,6 @@ let
               } + $manifestPatch" \
         | remarshal -if json -of toml > Cargo.toml
     '';
-
-    configurePhase =
-      ''
-        runHook preConfigure
-        runHook configureCargo
-        runHook postConfigure
-      '';
 
     runCargo = ''
       (
