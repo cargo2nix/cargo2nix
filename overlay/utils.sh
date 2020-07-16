@@ -122,14 +122,14 @@ install_crate2() {
         | select(.reason == "compiler-artifact")
         | .filenames
         | map(select(test("\\.(a|rlib|so|dylib)$")))
-        | .[]' < .cargo-build-output) "$out/lib" || :
+        | .[]' < .cargo-build-output) "$out/lib" 2> /dev/null || :
 
     mkdir -p "$out/bin"
     # shellcheck disable=SC2046
     cp $(jq -rR 'fromjson?
         | select(.reason == "compiler-artifact")
         | .executable
-        | select(.)' < .cargo-build-output) "$out/bin" || :
+        | select(.)' < .cargo-build-output) "$out/bin" 2> /dev/null || rmdir "$out/bin"
 
     jq -rR 'fromjson?
         | select(.reason == "build-script-executed")
@@ -137,22 +137,24 @@ install_crate2() {
         | .[]' < .cargo-build-output \
         | tr '\n' ' ' >> "$out/lib/.link-flags"
 
-    local out_dir="$(jq -rR 'fromjson? | select(.reason == "build-script-executed") | .out_dir' < .cargo-build-output)"
-    touch "$out/lib/.dep-keys"
-    # `links` envs aren't included in build output so we have to manually parse them.
-    grep -P '^cargo:(?!rerun-if-changed|rerun-if-env-changed|rustc-link-lib|rustc-link-search|rustc-flags|rustc-cfg|rustc-env|rustc-cdylib-link-arg|warning)' \
-        "$out_dir/../output" | while IFS= read -r line; do
-        [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
-        local key="${BASH_REMATCH[1]}"
-        local val="${BASH_REMATCH[2]}"
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
-    done || :
+    local out_dir
+    if out_dir="$(jq -rR 'fromjson? | select(.reason == "build-script-executed") | .out_dir' < .cargo-build-output)"; then
+        touch "$out/lib/.dep-keys"
+        # `links` envs aren't included in build output so we have to manually parse them.
+        grep -P '^cargo:(?!rerun-if-changed|rerun-if-env-changed|rustc-link-lib|rustc-link-search|rustc-flags|rustc-cfg|rustc-env|rustc-cdylib-link-arg|warning)' \
+            "$out_dir/../output" | while IFS= read -r line; do
+            [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
+            local key="${BASH_REMATCH[1]}"
+            local val="${BASH_REMATCH[2]}"
+            printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+        done || :
 
-    if [[ -d "$out_dir" ]] && { grep "$out_dir" "$out/lib/.dep-keys" || grep "$out_dir" "$out/lib/.link-flags"; }; then
-        local installed_out_dir="$out/build_output" # TODO: Change me
-        sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.dep-keys"
-        sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.link-flags"
-        cp -r "$out_dir" "$installed_out_dir"
+        if [[ -d "$out_dir" ]] && { grep "$out_dir" "$out/lib/.dep-keys" || grep "$out_dir" "$out/lib/.link-flags"; }; then
+            local installed_out_dir="$out/build_output" # TODO: Change me
+            sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.dep-keys"
+            sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.link-flags"
+            cp -r "$out_dir" "$installed_out_dir"
+        fi
     fi
 
     loadExternCrateLinkFlags $dependencies >> $out/lib/.link-flags
