@@ -140,14 +140,17 @@ install_crate2() {
     local out_dir
     if out_dir="$(jq -rR 'fromjson? | select(.reason == "build-script-executed") | .out_dir' < .cargo-build-output)"; then
         touch "$out/lib/.dep-keys"
+
         # `links` envs aren't included in build output so we have to manually parse them.
-        grep -P '^cargo:(?!rerun-if-changed|rerun-if-env-changed|rustc-link-lib|rustc-link-search|rustc-flags|rustc-cfg|rustc-env|rustc-cdylib-link-arg|warning)' \
-            "$out_dir/../output" | while IFS= read -r line; do
-            [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
-            local key="${BASH_REMATCH[1]}"
-            local val="${BASH_REMATCH[2]}"
-            printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
-        done || :
+        if [[ -f "$out_dir/../output" ]]; then
+            grep -P '^cargo:(?!rerun-if-changed|rerun-if-env-changed|rustc-link-lib|rustc-link-search|rustc-flags|rustc-cfg|rustc-env|rustc-cdylib-link-arg|warning)' \
+                "$out_dir/../output" | while IFS= read -r line; do
+                [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
+                local key="${BASH_REMATCH[1]}"
+                local val="${BASH_REMATCH[2]}"
+                printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+            done || :
+        fi
 
         if [[ -d "$out_dir" ]] && { grep "$out_dir" "$out/lib/.dep-keys" || grep "$out_dir" "$out/lib/.link-flags"; }; then
             local installed_out_dir="$out/build_output" # TODO: Change me
