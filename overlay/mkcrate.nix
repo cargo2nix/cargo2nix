@@ -95,9 +95,8 @@ let
     runtimeDependencies buildtimeDependencies;
 
   drvAttrs = {
-    inherit NIX_DEBUG;
+    inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
-    inherit src version meta;
     buildInputs = runtimeDependencies;
     propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
     nativeBuildInputs = [ cargo ] ++ buildtimeDependencies;
