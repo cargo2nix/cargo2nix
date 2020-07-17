@@ -166,7 +166,7 @@ install_crate2() {
     fi
 
     if [[ -d "$out_dir" ]] && { grep "$out_dir" "$out/lib/.dep-keys" || grep "$out_dir" "$out/lib/.link-flags"; }; then
-      local installed_out_dir="$out/build_output" # TODO: Change me
+      local installed_out_dir="$out/build_script_output"
       sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.dep-keys"
       sed -i "s#$out_dir#$installed_out_dir#g" "$out/lib/.link-flags"
       cp -r "$out_dir" "$installed_out_dir"
