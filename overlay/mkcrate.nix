@@ -80,7 +80,8 @@ let
     in
       ''
         cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
-          ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"}
+          ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
+          --message-format=json | tee .cargo-build-output
       '';
 
   inherit
@@ -94,9 +95,8 @@ let
     runtimeDependencies buildtimeDependencies;
 
   drvAttrs = {
-    inherit NIX_DEBUG;
+    inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
-    inherit src version meta;
     buildInputs = runtimeDependencies;
     propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
     nativeBuildInputs = [ cargo ] ++ buildtimeDependencies;
@@ -147,6 +147,12 @@ let
       EOF
     '';
 
+    configurePhase = ''
+      runHook preConfigure
+      runHook configureCargo
+      runHook postConfigure
+    '';
+
     manifestPatch = toJSON {
       features = genAttrs features (_: [ ]);
       profile.${ decideProfile compileMode release } = profile;
@@ -169,42 +175,27 @@ let
         | remarshal -if json -of toml > Cargo.toml
     '';
 
-    configurePhase =
-      ''
-        runHook preConfigure
-        runHook configureCargo
-        runHook postConfigure
-      '';
-
-    runCargo = ''
-      (
-        set -euo pipefail
-        if (( NIX_DEBUG >= 1 )); then
-          set -x
-        fi
-        env \
-          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${host-triple}"="${ccForHost}" \
-          "CXX_${host-triple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
-          ${buildCmd}
-      )
-    '';
-
     setBuildEnv = ''
-      isProcMacro="$( \
-        remarshal -if toml -of json Cargo.original.toml \
-        | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
-      )"
+      MINOR_RUSTC_VERSION="$(${rustc}/bin/rustc --version | cut -d . -f 2)"
+
+      if (( MINOR_RUSTC_VERSION < 41 )); then
+        isProcMacro="$(
+          remarshal -if toml -of json Cargo.original.toml \
+          | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
+        )"
+      fi
+
       crateName="$(
         remarshal -if toml -of json Cargo.original.toml \
         | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
       )"
+
       . ${./utils.sh}
+
       export CARGO_VERBOSE=`cargoVerbosityLevel $NIX_DEBUG`
       export NIX_RUST_METADATA=`extractHash $out`
       export CARGO_HOME=`pwd`/.cargo
+
       mkdir -p deps build_deps
       linkFlags=(`makeExternCrateFlags $dependencies $devDependencies`)
       buildLinkFlags=(`makeExternCrateFlags $buildDependencies`)
@@ -227,6 +218,22 @@ let
       fi
     '';
 
+    runCargo = ''
+      (
+        set -euo pipefail
+        if (( NIX_DEBUG >= 1 )); then
+          set -x
+        fi
+        env \
+          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+          "CC_${host-triple}"="${ccForHost}" \
+          "CXX_${host-triple}"="${cxxForHost}" \
+          "''${depKeys[@]}" \
+          ${buildCmd}
+      )
+    '';
+
     buildPhase = ''
       runHook overrideCargoManifest
       runHook setBuildEnv
@@ -236,7 +243,11 @@ let
     installPhase = ''
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
-      install_crate ${host-triple} ${if release then "release" else "debug"}
+      if (( MINOR_RUSTC_VERSION < 41 )); then
+        install_crate ${host-triple} ${if release then "release" else "debug"}
+      else
+        install_crate2 ${host-triple}
+      fi
     '';
   };
 in

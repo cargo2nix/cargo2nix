@@ -84,10 +84,17 @@ rec {
   };
   examples =
     let
+      cargo2nix = pkgs.lib.sourceByRegex ./. [
+        ''^(overlay|src|tests|templates)(/.*)?''
+        ''[^/]*\.(nix|rs|toml)$''
+      ];
       importExprsInDir = with pkgs.lib; dir:
-        mapAttrsToList (name: _: import (dir + "/${name}") {})
-          (pkgs.lib.filterAttrs (name: kind: kind == "directory")
-            (builtins.readDir dir));
+        mapAttrsToList
+          (name: _: import (dir + "/${name}") { inherit cargo2nix; })
+          (pkgs.lib.filterAttrs
+            (name: kind: kind == "directory")
+            (builtins.readDir dir)
+          );
     in
       importExprsInDir ./examples;
 }
