@@ -6,7 +6,7 @@ rec {
     inherit sha256;
   };
 
-  fetchCrateGit = { url, name, version, rev, sha256 }:
+  fetchCrateGit = { url, name, version, rev }:
     let
       inherit (buildPackages) runCommand jq remarshal;
       repo = builtins.fetchGit {
