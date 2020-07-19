@@ -1,3 +1,5 @@
+//! A program which generates some text using an embedded template.
+
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
 
 fn main() {
