@@ -50,7 +50,7 @@ generate text according to a statically-embedded template file.
 
 [`ructe`]: https://github.com/kaj/ructe
 
-Let's begin by creating a new Cargo crate called `project-with-resources`.
+Let's begin by creating a new Cargo crate called `static-resources`.
 
 ## Generating the project
 
@@ -63,11 +63,11 @@ can use `nix-shell` to drop into a temporary shell with Cargo present, like so:
 nix-shell -p cargo
 ```
 
-Now that we're inside this shell, let's create the `project-with-resources`
-Cargo project:
+Now that we're inside this shell, let's create the `static-resources` Cargo
+project:
 
 ```bash
-cargo new project-with-resources
+cargo new static-resources
 ```
 
 Since [Cargo 0.26.0](https://github.com/rust-lang/cargo/pull/5029), the default
@@ -75,12 +75,12 @@ project type should be `--bin` if unspecified. You should see the following
 output in your terminal:
 
 ```text
-     Created binary (application) `project-with-resources` package
+     Created binary (application) `static-resources` package
 ```
 
-This should create a new directory called `project-with-resources` containing a
-mostly empty `Cargo.toml` and `src/main.rs` file. Change into that directory
-with `cd` and create a new subdirectory called `templates`, like so:
+This should create a new directory called `static-resources` containing a mostly
+empty `Cargo.toml` and `src/main.rs` file. Change into that directory with `cd`
+and create a new subdirectory called `templates`, like so:
 
 ```bash
 mkdir templates
@@ -200,7 +200,7 @@ let
     ];
   };
 in
-  rustPkgs.workspace.project-with-resources {}
+  rustPkgs.workspace.static-resources {}
 ```
 
 Again, we import Nixpkgs using our `nixpkgsMozilla` and `cargo2nix` overlays
@@ -229,7 +229,7 @@ building it!
 
 ## Building
 
-As always, to compile the `project-with-resources` binary with Nix, run:
+As always, to compile the `static-resources` binary with Nix, run:
 
 ```bash
 nix-build
@@ -239,17 +239,17 @@ This will create a `result` symlink in the current directory with the following
 structure:
 
 ```text
-/nix/store/h8ys3ip98psal68kj747r7vccjkihfnl-crate-project-with-resources-0.1.0
+/nix/store/8r9yp1apjsrrpwmws17f0pmb0anns62a-crate-static-resources-0.1.0
 ├── bin
-│   └── project-with-resources
+│   └── static-resources
 └── lib
 ```
 
-Running the `project-with-resources` binary will print the templated string to
-the screen:
+Running the `static-resources` binary will print the templated string to the
+screen:
 
 ```text
-$ ./result/bin/project-with-resources
+$ ./result/bin/static-resources
 Hello world
 
 ```

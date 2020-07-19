@@ -28,4 +28,4 @@ let
     ];
   };
 in
-  rustPkgs.workspace.project-with-resources {}
+  rustPkgs.workspace.static-resources {}
