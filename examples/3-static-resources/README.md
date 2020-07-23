@@ -25,8 +25,7 @@ foo-project
 ├── Cargo.lock
 ├── Cargo.nix
 ├── Cargo.toml
-├── README.md
-└── result -> /nix/store/qjz1m7pmm23r7fhgbigb2x5pnwqp925j-crate-foo-project-0.1.0
+└── README.md
 ```
 
 The derivation would only see `src`, `tests`, `build.rs`, and `Cargo.toml`. Note
