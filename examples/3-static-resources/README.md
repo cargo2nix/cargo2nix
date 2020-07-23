@@ -120,7 +120,7 @@ fn main() {
 
 This build script will generate a Rust source file named `$OUT_DIR/templates.rs`
 which we can statically embed into our program with `include_str!()`. Let's open
-the `src/main.rs` file eand write some code that will do just that:
+the `src/main.rs` file and write some code that will do just that:
 
 ```rust
 //! A program which generates some text using an embedded template.
