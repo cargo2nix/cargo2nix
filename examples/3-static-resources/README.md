@@ -25,8 +25,7 @@ foo-project
 ├── Cargo.lock
 ├── Cargo.nix
 ├── Cargo.toml
-├── README.md
-└── result -> /nix/store/qjz1m7pmm23r7fhgbigb2x5pnwqp925j-crate-foo-project-0.1.0
+└── README.md
 ```
 
 The derivation would only see `src`, `tests`, `build.rs`, and `Cargo.toml`. Note
@@ -120,7 +119,7 @@ fn main() {
 
 This build script will generate a Rust source file named `$OUT_DIR/templates.rs`
 which we can statically embed into our program with `include_str!()`. Let's open
-the `src/main.rs` file eand write some code that will do just that:
+the `src/main.rs` file and write some code that will do just that:
 
 ```rust
 //! A program which generates some text using an embedded template.
