@@ -4,7 +4,7 @@
 {
   release ? true,
   rootFeatures ? [
-    "project-with-resources/default"
+    "static-resources/default"
   ],
   rustPackages,
   buildRustPackages,
@@ -29,7 +29,7 @@ in
 {
   cargo2nixVersion = "0.8.3";
   workspace = {
-    project-with-resources = rustPackages.unknown.project-with-resources."0.1.0";
+    static-resources = rustPackages.unknown.static-resources."0.1.0";
   };
   "registry+https://github.com/rust-lang/crates.io-index".arrayvec."0.4.12" = overridableMkRustCrate (profileName: rec {
     name = "arrayvec";
@@ -178,16 +178,6 @@ in
     };
   });
   
-  "unknown".project-with-resources."0.1.0" = overridableMkRustCrate (profileName: rec {
-    name = "project-with-resources";
-    version = "0.1.0";
-    registry = "unknown";
-    src = fetchCrateLocal ./.;
-    buildDependencies = {
-      ructe = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".ructe."0.9.2" { profileName = "__noProfile"; };
-    };
-  });
-  
   "registry+https://github.com/rust-lang/crates.io-index".ructe."0.9.2" = overridableMkRustCrate (profileName: rec {
     name = "ructe";
     version = "0.9.2";
@@ -237,6 +227,16 @@ in
     version = "0.7.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
     src = fetchCratesIo { inherit name version; sha256 = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"; };
+  });
+  
+  "unknown".static-resources."0.1.0" = overridableMkRustCrate (profileName: rec {
+    name = "static-resources";
+    version = "0.1.0";
+    registry = "unknown";
+    src = fetchCrateLocal ./.;
+    buildDependencies = {
+      ructe = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".ructe."0.9.2" { profileName = "__noProfile"; };
+    };
   });
   
   "registry+https://github.com/rust-lang/crates.io-index".static_assertions."0.3.4" = overridableMkRustCrate (profileName: rec {
