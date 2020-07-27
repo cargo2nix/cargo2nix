@@ -5,7 +5,7 @@ edition = "2018"
 license = "MIT"
 
 [dependencies]
-cargo = "0.44.0"
+cargo = "0.46.0"
 cargo-platform = "0.1.1"
 colorify = "0.2.3"
 anyhow = "1.0.28"
