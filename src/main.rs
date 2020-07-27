@@ -287,7 +287,8 @@ fn all_features(pkg: &Package) -> impl Iterator<Item = Feature> + '_ {
 }
 
 fn is_proc_macro(pkg: &Package) -> bool {
-    use cargo::core::{LibKind, TargetKind};
+    use cargo::core::compiler::CrateType;
+    use cargo::core::TargetKind;
     pkg.targets()
         .iter()
         .filter_map(|t| match t.kind() {
@@ -295,7 +296,7 @@ fn is_proc_macro(pkg: &Package) -> bool {
             _ => None,
         })
         .flatten()
-        .any(|k| *k == LibKind::ProcMacro)
+        .any(|k| *k == CrateType::ProcMacro)
 }
 
 /// Traverses the whole dependency graph starting at `pkg` and marks required packages and features.
