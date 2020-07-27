@@ -178,12 +178,12 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
 
     let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
     let ws = Workspace::new(&root_manifest_path, &config)?;
-    let rtd = RustcTargetData::new(&ws, CompileKind::Host)?;
+    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
     let specs = Packages::All.to_package_id_specs(&ws)?;
     let resolve = resolve_ws_with_opts(
         &ws,
         &rtd,
-        CompileKind::Host,
+        &[CompileKind::Host],
         &ResolveOpts::everything(),
         &specs,
         HasDevUnits::Yes,
@@ -301,11 +301,11 @@ fn mark_required(
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let rtd = RustcTargetData::new(&ws, CompileKind::Host)?;
+    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
     let resolve = resolve_ws_with_opts(
         ws,
         &rtd,
-        CompileKind::Host,
+        &[CompileKind::Host],
         &ResolveOpts::new(true, &[], false, false),
         &[spec],
         HasDevUnits::Yes,
@@ -343,11 +343,11 @@ fn activate<'a>(
         "default" => (vec![], true),
         other => (vec![other.to_string()], false),
     };
-    let rtd = RustcTargetData::new(&ws, CompileKind::Host)?;
+    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
     let resolve = resolve_ws_with_opts(
         ws,
         &rtd,
-        CompileKind::Host,
+        &[CompileKind::Host],
         &ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
         HasDevUnits::Yes,
