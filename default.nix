@@ -10,7 +10,7 @@
   system ? builtins.currentSystem,
   overlays ? [ ],
   crossSystem ? null,
-  rustChannel ? "1.43.0",
+  rustChannel ? "1.45.0",
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.
