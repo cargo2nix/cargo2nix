@@ -12,7 +12,10 @@ use cargo::{
     core::{
         compiler::{CompileKind, RustcTargetData},
         dependency::DepKind,
-        resolver::{features::HasDevUnits, Resolve, ResolveOpts},
+        resolver::{
+            features::{ForceAllTargets, HasDevUnits},
+            Resolve, ResolveOpts,
+        },
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
@@ -187,6 +190,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         &ResolveOpts::everything(),
         &specs,
         HasDevUnits::Yes,
+        ForceAllTargets::Yes,
     )?;
 
     let pkgs_by_id = resolve
@@ -309,6 +313,7 @@ fn mark_required(
         &ResolveOpts::new(true, &[], false, false),
         &[spec],
         HasDevUnits::Yes,
+        ForceAllTargets::Yes,
     )?;
 
     let root_pkg_name = root_pkg.name().as_str();
@@ -351,6 +356,7 @@ fn activate<'a>(
         &ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
         HasDevUnits::Yes,
+        ForceAllTargets::Yes,
     )?;
 
     let root_feature = (pkg.name().as_str(), feature);
