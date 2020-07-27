@@ -10,8 +10,7 @@
 {
   packageFun,
   workspaceSrc ? null,
-  cargo,
-  rustc,
+  rustChannel,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? rustBuilder.overrides.all,
@@ -36,7 +35,7 @@ lib.fix' (self:
           pkgsHostTarget = scope;
           pkgsTargetTarget = {};
         } // {
-          inherit (scope) pkgs buildRustPackages cargo rustc config __splicedPackages;
+          inherit (scope) pkgs buildRustPackages rustChannel config __splicedPackages;
         };
       in
         prevStage // prevStage.xorg // prevStage.gnome2 // { inherit stdenv; } // scopeSpliced;
@@ -60,7 +59,8 @@ lib.fix' (self:
     });
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
-    inherit rustPackages callPackage cargo rustc pkgs;
+    inherit rustPackages callPackage pkgs;
+    inherit (rustChannel) cargo rustc rust-src;
     noBuild = packageFunWith {
       mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
       buildRustPackages = buildRustPackages'.noBuild;
