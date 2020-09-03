@@ -2,7 +2,7 @@
   system ? builtins.currentSystem,
   nixpkgsMozilla ? builtins.fetchGit {
     url = https://github.com/mozilla/nixpkgs-mozilla;
-    rev = "50bae918794d3c283aeb335b209efd71e75e3954";
+    rev = "18cd4300e9bf61c7b8b372f07af827f6ddc835bb";
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/tenx-tech/cargo2nix;
