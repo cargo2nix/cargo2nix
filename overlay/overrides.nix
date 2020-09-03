@@ -75,6 +75,7 @@ in rec {
     rand_os
     rdkafka-sys
     ring
+    zmq-sys
   ];
 
   capLints = makeOverride {
@@ -198,7 +199,7 @@ in rec {
       '';
     };
   };
-  
+
   ring = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
       name = "ring";
@@ -207,4 +208,11 @@ in rec {
       };
     }
     else nullOverride;
+
+  zmq-sys = makeOverride {
+    name = "zmq-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.zeromq ];
+    };
+  };
 }
