@@ -67,6 +67,7 @@ in rec {
     fsevent-sys
     libgit2-sys
     libdbus-sys
+    libudev-sys
     openssl-sys
     pkg-config
     pq-sys
@@ -108,6 +109,21 @@ in rec {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
         pkgs.dbus
       ];
+    };
+  };
+
+  libudev-sys = pkgs.rustBuilder.rustLib.makeOverride {
+    name = "libudev-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        pkgs.udev
+      ];
+      buildPhase = ''
+        runHook overrideCargoManifest
+        runHook setBuildEnv
+        export PATH=$PATH:$(dirname $RUSTC)
+        runHook runCargo
+      '';
     };
   };
 
