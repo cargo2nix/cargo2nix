@@ -90,14 +90,16 @@ in rec {
     };
   };
 
-  fsevent-sys = makeOverride {
-    name = "fsevent-sys";
-    overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
-        pkgs.darwin.apple_sdk.frameworks.CoreServices
-      ];
-    };
-  };
+  fsevent-sys = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "fsevent-sys";
+      overrideAttrs = drv: {
+        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          pkgs.darwin.apple_sdk.frameworks.CoreServices
+        ];
+      };
+    }
+    else  nullOverride;
 
   libgit2-sys = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
