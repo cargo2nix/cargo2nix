@@ -66,6 +66,7 @@ in rec {
     curl-sys
     fsevent-sys
     libgit2-sys
+    libdbus-sys
     openssl-sys
     pkg-config
     pq-sys
@@ -100,6 +101,15 @@ in rec {
       };
     }
     else  nullOverride;
+
+  libdbus-sys = pkgs.rustBuilder.rustLib.makeOverride {
+    name = "libdbus-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        pkgs.dbus
+      ];
+    };
+  };
 
   libgit2-sys = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
