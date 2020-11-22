@@ -20,7 +20,7 @@ let
   };
 
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "stable";
+    rustChannel = "1.46.0";
     packageFun = import ./Cargo.nix;
     localPatterns = [
       ''^(src|tests|templates)(/.*)?''
