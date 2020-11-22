@@ -66,6 +66,8 @@ in rec {
     curl-sys
     fsevent-sys
     libgit2-sys
+    libdbus-sys
+    libudev-sys
     openssl-sys
     pkg-config
     pq-sys
@@ -90,12 +92,38 @@ in rec {
     };
   };
 
-  fsevent-sys = makeOverride {
-    name = "fsevent-sys";
+  fsevent-sys = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "fsevent-sys";
+      overrideAttrs = drv: {
+        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          pkgs.darwin.apple_sdk.frameworks.CoreServices
+        ];
+      };
+    }
+    else  nullOverride;
+
+  libdbus-sys = pkgs.rustBuilder.rustLib.makeOverride {
+    name = "libdbus-sys";
     overrideAttrs = drv: {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
-        pkgs.darwin.apple_sdk.frameworks.CoreServices
+        pkgs.dbus
       ];
+    };
+  };
+
+  libudev-sys = pkgs.rustBuilder.rustLib.makeOverride {
+    name = "libudev-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        pkgs.udev
+      ];
+      buildPhase = ''
+        runHook overrideCargoManifest
+        runHook setBuildEnv
+        export PATH=$PATH:$(dirname $RUSTC)
+        runHook runCargo
+      '';
     };
   };
 
