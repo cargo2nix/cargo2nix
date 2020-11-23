@@ -125,7 +125,7 @@ following arguments:
     rev = "50bae918794d3c283aeb335b209efd71e75e3954";
   },
   cargo2nix ? builtins.fetchGit {
-    url = https://github.com/tenx-tech/cargo2nix;
+    url = https://github.com/cargo2nix/cargo2nix;
     ref = "v0.9.0";
   },
 }:

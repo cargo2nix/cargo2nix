@@ -61,7 +61,7 @@ Rust crate should be added to the [overlay/overrides.nix] file. The fix will
 constitute at least a patch version bump to `cargo2nix`, since it is a fix of
 existing functionality.
 
-[overlay/overrides.nix]: https://github.com/tenx-tech/cargo2nix/blob/master/overlay/overrides.nix
+[overlay/overrides.nix]: https://github.com/cargo2nix/cargo2nix/blob/master/overlay/overrides.nix
 
 #### 2. Failure to build due to a defect in cargo2nix
 
