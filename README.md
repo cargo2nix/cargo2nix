@@ -2,8 +2,8 @@
 
 [![Build Status][build-badge]][build-url]
 
-[build-badge]: https://circleci.com/gh/tenx-tech/cargo2nix.svg?style=shield
-[build-url]: https://circleci.com/gh/tenx-tech/cargo2nix
+[build-badge]: https://circleci.com/gh/cargo2nix/cargo2nix.svg?style=shield
+[build-url]: https://circleci.com/gh/cargo2nix/cargo2nix
 
 [Nixify](https://nixos.org/nix) your Rust projects today with `cargo2nix`,
 bringing you reproducible builds and better caching.
@@ -25,7 +25,7 @@ This project assumes that the [Nix package manager](https://nixos.org/nix) is
 already installed on your machine. Run the command below to install `cargo2nix`:
 
 ```bash
-nix-env -iA package -f https://github.com/tenx-tech/cargo2nix/tarball/master
+nix-env -iA package -f https://github.com/cargo2nix/cargo2nix/tarball/master
 ```
 
 ## How to use this for your Rust projects

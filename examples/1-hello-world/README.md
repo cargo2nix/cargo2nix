@@ -32,7 +32,7 @@ if it's not already present. This can be done by executing the following
 one-liner in your shell:
 
 ```bash
-nix-env -iA package -f https://github.com/tenx-tech/cargo2nix/tarball/master
+nix-env -iA package -f https://github.com/cargo2nix/cargo2nix/tarball/master
 ```
 
 Once it's installed, we can move on to creating the Cargo project we wish to
@@ -126,7 +126,7 @@ with the following arguments:
     rev = "50bae918794d3c283aeb335b209efd71e75e3954";
   },
   cargo2nix ? builtins.fetchGit {
-    url = https://github.com/tenx-tech/cargo2nix;
+    url = https://github.com/cargo2nix/cargo2nix;
     ref = "v0.9.0";
   },
 }:
@@ -160,7 +160,7 @@ we fetch from the Git tag `v0.8.3`.
 Next, we need to write the body of our function. To do this, we declare a `let`
 block and import [Nixpkgs] using our three function arguments from earlier:
 
-[cargo2nix]: https://github.com/tenx-tech/cargo2nix
+[cargo2nix]: https://github.com/cargo2nix/cargo2nix
 [Nixpkgs]: https://github.com/NixOS/nixpkgs
 
 ```nix
