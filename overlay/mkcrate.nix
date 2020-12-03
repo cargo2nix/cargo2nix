@@ -240,6 +240,8 @@ let
       runHook runCargo
     '';
 
+    outputs = ["out" "bin"];
+
     installPhase = ''
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
