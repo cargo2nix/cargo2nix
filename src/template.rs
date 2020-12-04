@@ -148,7 +148,6 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
     } else if id.source_id().is_path() {
         Source::Local {
             path: pathdiff::diff_paths(Path::new(id.source_id().url().path()), cwd)
-                .map(|p| p.join("."))
                 .ok_or_else(|| {
                     failure::format_err!("path is not absolute for local package {}", id)
                 })?,
