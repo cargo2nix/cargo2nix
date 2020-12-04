@@ -7,6 +7,7 @@
 args@{
   rustChannel,
   packageFun,
+  workspaceSrc ? null,
   packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
   ...
 }:
@@ -23,7 +24,7 @@ let
   extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" ];
 in
 rustBuilder.makePackageSet (extraArgs // {
-  inherit cargo rustc packageFun;
+  inherit cargo rustc packageFun workspaceSrc;
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
     inherit cargo rustc packageFun;
