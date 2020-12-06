@@ -67,6 +67,7 @@ in rec {
     fsevent-sys
     libgit2-sys
     libdbus-sys
+    libssh2-sys
     libudev-sys
     openssl-sys
     pkg-config
@@ -139,6 +140,13 @@ in rec {
       };
     }
     else nullOverride;
+
+  libssh2-sys = makeOverride {
+    name = "libssh2-sys";
+    overrideAttrs = drv: {
+      propogatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.openssl.dev pkgs.zlib.dev ];
+    };
+  };
 
   openssl-sys = makeOverride {
     name = "openssl-sys";
