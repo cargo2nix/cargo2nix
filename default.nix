@@ -1,7 +1,7 @@
 {
   nixpkgs ? builtins.fetchTarball {
-    url = https://github.com/NixOS/nixpkgs/archive/47b551c6a854a049045455f8ab1b8750e7b00625.tar.gz;
-    sha256 = "0p0p6gf3kimcan4jgb4im3plm3yw68da09ywmyzhak8h64sgy4kg";
+    url = https://github.com/NixOS/nixpkgs/archive/e34208e10033315fddf6909d3ff68e2d3cf48a23.tar.gz;
+    sha256 = "0ngkx5ny7bschmiwc5q9yza8fdwlc3zg47avsywwp8yn96k2cpmg";
   },
   nixpkgsMozilla ? builtins.fetchTarball {
     url = https://github.com/mozilla/nixpkgs-mozilla/archive/18cd4300e9bf61c7b8b372f07af827f6ddc835bb.tar.gz;
@@ -10,7 +10,7 @@
   system ? builtins.currentSystem,
   overlays ? [ ],
   crossSystem ? null,
-  rustChannel ? "1.45.0",
+  rustChannel ? "1.48.0",
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.

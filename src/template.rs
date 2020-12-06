@@ -118,7 +118,7 @@ fn to_registry_string(src_id: SourceId) -> String {
     } else if src_id.is_git() {
         format!("git+{}", src_id.url())
     } else {
-        src_id.into_url().to_string()
+        src_id.as_url().to_string()
     }
 }
 
