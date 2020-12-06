@@ -159,7 +159,7 @@ let
     };
 
     overrideCargoManifest = ''
-      echo [[package]] > Cargo.lock
+      echo "[[package]]" > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
       echo source = \"registry+${registry}\" >> Cargo.lock
