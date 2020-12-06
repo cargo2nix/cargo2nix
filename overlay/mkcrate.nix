@@ -162,7 +162,10 @@ let
       echo "[[package]]" > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
-      echo source = \"registry+${registry}\" >> Cargo.lock
+      registry="${registry}"
+      if [ $registry -ne "unknown" ]; then
+        echo source = \"registry+''${registry}\" >> Cargo.lock
+      fi
       mv Cargo.toml Cargo.original.toml
       remarshal -if toml -of json Cargo.original.toml \
         | jq "{ package: .package
