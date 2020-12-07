@@ -50,7 +50,9 @@ lib.fix' (self:
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {
         inherit fetchCrateAlternativeRegistry;
-        fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath;
+        fetchCrateLocal = path: if builtins.typeOf(path) == "path"
+                                then (lib.sourceByRegex path localPatterns).outPath
+                                else path; # skip filtering for non-path types
       };
       ${ if release == null then null else "release" } = release;
       ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
