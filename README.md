@@ -48,52 +48,78 @@ down to the following steps:
 Check out our series of [example projects](./examples) which showcase how to use
 `cargo2nix` in detail.
 
-### Optional declarative development shell
+### Declarative debug & development shell
 
-You can optionally use any of these crate derivations as your `nix-shell`
-development shell. The advantage of this shell is that in this environment users
-can develop their crates and be sure that their crates builds in the same way
-that `cargo2nix` overlay will build them.
+You can load a `nix-shell` for any crate derivation in the dependency tree. The
+advantage of this shell is that in this environment users can develop their
+crates and be sure that their crates builds in the same way that `cargo2nix`
+overlay will build them.
 
-To do this, run `nix-shell -A 'rustPkgs.<registry>.<crate>."x.y.z"' default.nix`.
-For instance, the following command being invoked in this repository root drops
-you into such a development shell.
+To do this, first run `nix-shell -A 'rustPkgs.<registry>.<crate>."x.y.z"'
+default.nix`.  For instance, the following command being invoked in this
+repository root drops you into such a development shell.
 
 ```bash
 # When a crate is not associated with any registry, such as when building locally,
-# the registry is "unknown" as shown below.
+# the registry is "unknown" as shown below:
 nix-shell -A 'rustPkgs.unknown.cargo2nix."0.8.3"' default.nix
+
+# This crate is a dependency that we may be debugging. Use the --pure switch if
+# impurities from your current environment may be polluting the nix build:
+nix-shell --pure -A 'rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"' default.nix
+
+# If you are working on a dependency and need the source (or a fresh copy) you
+# can unpack the $src variable. Through nix stdenv, tar is available in pure 
+# shells
+mkdir debug
+cp $src debug
+cd debug
+tar -xzfv $(basename $src)
+cd <unpacked source>
 ```
 
-You will need to bootstrap some environment in this declarative development
-shell first.
+You will need to override your `Cargo.toml` and `Cargo.lock` in this shell, so
+make sure that you have them backed up if your are directly using your clone of
+your project instead of unpacking fresh sources like above.
+
+Now you just need to run the `$configurePhase` and `$buildPhase` steps in order.
+You can find additional phases that may exist in overrides by running `env |
+grep Phase`
 
 ```bash
-runHook configureCargo  # This overrides your .cargo folder, e.g. for setting cross-compilers
-runHook setBuildEnv     # This sets up linker flags for the `rustc` invocations
-```
+echo $configurePhase 
+# runHook preConfigure runHook configureCargo runHook postConfigure
 
-You will need to override your `Cargo.toml` and `Cargo.lock` in this shell,
-so make sure that you have them backed up beforehand.
+runHook preConfigure
+runHook configureCargo
+runHook postConfigure
 
-```bash
-runHook overrideCargoManifest
-```
+echo $buildPhase
+# runHook overrideCargoManifest runHook setBuildEnv runHook runCargo
 
-Now you can use your favorite editor in this environment. To run the build
-command used by `cargo2nix`, use
-
-```bash
+runHook overrideCargoManifest  # This overrides your .cargo folder, e.g. for setting cross-compilers
+runHook setBuildEnv  # This sets up linker flags for the `rustc` invocations
 runHook runCargo
 ```
 
+If `runCargo` succeeds, you will have a completed output ready for the (usually)
+less interesting `$installPhase`. If there's a problem, inspecting the `env` or
+reading the generated `Cargo.lock` etc should yield clues.  If you've unpacked a
+fresh source and are using the `--pure switch`, everything is identical to how
+the overlay builds the crate, cutting out guess work.
+
 ## Common issues
 
+1. When building `sys` crates, native dependencies that `build.rs` scripts may
+   themselves attempt to provide could be missing. See the
+   `overlay/overrides.nix` for patterns of common solutions for fixing up
+   specific deps.
+   
 1. Many `crates.io` public crates may not build using the current Rust compiler,
    unless a lint cap is put on these crates. For instance, `cargo2nix` caps all
    lints to `warn` by default.
 
-2. Nix 2.1.3 ships with a broken `builtins.fromTOML` function which is unable to
+1. Nix 2.1.3 ships with a broken `builtins.fromTOML` function which is unable to
    parse lines of TOML that look like this:
 
    ```toml
@@ -110,7 +136,7 @@ runHook runCargo
    error: while parsing a TOML string at /nix/store/.../overlay/mkcrate.nix:31:14: Bare key 'cfg(target_os = "linux")' cannot contain whitespace at line 45
    ```
 
-3. Git dependencies and crates from alternative Cargo registries rely on
+1. Git dependencies and crates from alternative Cargo registries rely on
    `builtins.fetchGit` to support fetching from private Git repositories. This
    means that such dependencies cannot be evaluated with `restrict-eval`
    applied.
