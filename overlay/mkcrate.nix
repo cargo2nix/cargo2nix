@@ -163,7 +163,7 @@ let
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
       registry="${registry}"
-      if [ $registry -ne "unknown" ]; then
+      if [ "$registry" != "unknown" ]; then
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
       mv Cargo.toml Cargo.original.toml
