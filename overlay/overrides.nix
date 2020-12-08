@@ -63,6 +63,7 @@ in rec {
   # Don't forget to add new overrides here.
   all = [
     capLints
+    cc
     curl-sys
     fsevent-sys
     libgit2-sys
@@ -85,6 +86,17 @@ in rec {
     registry = "registry+https://github.com/rust-lang/crates.io-index";
     overrideArgs = old: { rustcflags = old.rustcflags or [ ] ++ [ "--cap-lints" "warn" ]; };
   };
+
+  cc = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "cc";
+      overrideAttrs = drv: {
+        propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+          pkgs.xcbuild
+        ];
+      };
+    }
+    else nullOverride;
 
   curl-sys = makeOverride {
     name = "curl-sys";
