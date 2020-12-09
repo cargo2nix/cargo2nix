@@ -145,6 +145,7 @@ in rec {
       name = "libgit2-sys";
       overrideAttrs = drv: {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          pkgs.libgit2
           pkgs.libiconv
           pkgs.darwin.apple_sdk.frameworks.Security
           pkgs.darwin.apple_sdk.frameworks.CoreFoundation
