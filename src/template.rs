@@ -145,6 +145,13 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
     } else if id.source_id().is_path() {
         Source::Local {
             path: pathdiff::diff_paths(Path::new(id.source_id().url().path()), cwd)
+                .map(|p| {
+                    if p.to_string_lossy().len() == 0 {
+                        p.join(".") // map degenerate empty path to "." for tera logic
+                    } else {
+                        p
+                    }
+                })
                 .ok_or(anyhow!("path is not absolute for local package {}", id))?,
         }
     } else if id.source_id().is_registry() {
