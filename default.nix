@@ -83,7 +83,7 @@ rec {
   shell = pkgs.mkShell {
     inputsFrom = pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
     nativeBuildInputs = with rustPkgs; [ cargo rustc rust-src ];
-    RUST_SRC_PATH = "${rustPkgs.rust-src}/lib/rustlib/src/rust/src";
+    RUST_SRC_PATH = "${rustPkgs.rust-src}/lib/rustlib/src/rust/library";
   };
   examples =
     let
