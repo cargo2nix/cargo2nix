@@ -9,8 +9,8 @@
 }:
 {
   packageFun,
-  cargo,
-  rustc,
+  workspaceSrc ? null,
+  rustChannel,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? rustBuilder.overrides.all,
@@ -35,7 +35,7 @@ lib.fix' (self:
           pkgsHostTarget = scope;
           pkgsTargetTarget = {};
         } // {
-          inherit (scope) pkgs buildRustPackages cargo rustc config __splicedPackages;
+          inherit (scope) pkgs buildRustPackages rustChannel config __splicedPackages;
         };
       in
         prevStage // prevStage.xorg // prevStage.gnome2 // { inherit stdenv; } // scopeSpliced;
@@ -45,12 +45,14 @@ lib.fix' (self:
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
     packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib;
+      inherit rustPackages buildRustPackages lib workspaceSrc;
       inherit (stdenv) hostPlatform;
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {
         inherit fetchCrateAlternativeRegistry;
-        fetchCrateLocal = path: (lib.sourceByRegex path localPatterns).outPath;
+        fetchCrateLocal = path: if builtins.typeOf(path) == "path"
+                                then (lib.sourceByRegex path localPatterns).outPath
+                                else path; # skip filtering for non-path types
       };
       ${ if release == null then null else "release" } = release;
       ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
@@ -59,7 +61,8 @@ lib.fix' (self:
     });
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
-    inherit rustPackages callPackage cargo rustc pkgs;
+    inherit rustPackages callPackage pkgs;
+    inherit (rustChannel) cargo rustc rust-src;
     noBuild = packageFunWith {
       mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
       buildRustPackages = buildRustPackages'.noBuild;

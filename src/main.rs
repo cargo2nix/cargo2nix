@@ -7,18 +7,22 @@ use std::{
     path::Path,
 };
 
+use anyhow::{anyhow, Context, Result};
 use cargo::{
     core::{
-        dependency::Kind as DependencyKind,
-        resolver::{Resolve, ResolveOpts},
+        compiler::{CompileKind, RustcTargetData},
+        dependency::DepKind,
+        resolver::{
+            features::{ForceAllTargets, HasDevUnits},
+            Resolve, ResolveOpts,
+        },
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
-    util::{errors, important_paths::find_root_manifest_for_wd},
+    util::important_paths::find_root_manifest_for_wd,
 };
 use cargo_platform::Platform;
 use colorify::colorify;
-use failure::{Error, ResultExt};
 use semver::{Version, VersionReq};
 use tera::Tera;
 
@@ -33,7 +37,6 @@ mod template;
 type Feature<'a> = &'a str;
 type PackageName<'a> = &'a str;
 type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
-type Result<T> = std::result::Result<T, Error>;
 
 const VERSION_ATTRIBUTE_NAME: &str = "cargo2nixVersion";
 
@@ -42,7 +45,7 @@ fn main() {
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
     if let Err(err) = try_main(&args) {
         eprint!(colorify!(red_bold: "error: "));
-        eprintln!("{}", errors::display_causes(&err));
+        eprintln!("{:#}", &err);
         std::process::exit(1);
     }
 }
@@ -86,13 +89,11 @@ fn read_version_attribute(path: &Path) -> Result<Version> {
             }
             None
         })
-        .ok_or_else(|| {
-            failure::format_err!(
-                "valid {} not found in {}",
-                VERSION_ATTRIBUTE_NAME,
-                path.display()
-            )
-        })
+        .ok_or(anyhow!(
+            "valid {} not found in {}",
+            VERSION_ATTRIBUTE_NAME,
+            path.display()
+        ))
 }
 
 fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
@@ -100,7 +101,7 @@ fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
     let req = format!(">={}.{}", version.major, version.minor);
     VersionReq::parse(&req)
         .context(format!("parse {} found in {}", req, path.display()))
-        .map_err(Error::from)
+        .map_err(anyhow::Error::from)
         .map(|req| (req, version))
 }
 
@@ -133,7 +134,7 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
                 colorify!(red: "Please upgrade your cargo2nix ({}) to proceed."),
                 vers_req
             ));
-            return Err(failure::format_err!("{}", message));
+            return Err(anyhow!("{}", message));
         }
 
         println!(
@@ -174,14 +175,23 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
 fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let config = {
         let mut config = cargo::Config::default()?;
-        config.configure(0, None, &None, false, true, false, &None, &[])?;
+        config.configure(0, true, None, false, true, false, &None, &[], &[])?;
         config
     };
 
     let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
     let ws = Workspace::new(&root_manifest_path, &config)?;
+    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
     let specs = Packages::All.to_package_id_specs(&ws)?;
-    let resolve = resolve_ws_with_opts(&ws, ResolveOpts::everything(), &specs)?;
+    let resolve = resolve_ws_with_opts(
+        &ws,
+        &rtd,
+        &[CompileKind::Host],
+        &ResolveOpts::everything(),
+        &specs,
+        HasDevUnits::Yes,
+        ForceAllTargets::Yes,
+    )?;
 
     let pkgs_by_id = resolve
         .pkg_set
@@ -247,7 +257,7 @@ fn simplify_optionality<'a, 'b: 'a>(
         // Dev dependencies can't be optional.
         rpkg.deps
             .iter_mut()
-            .filter(|((_, kind), _)| *kind == DependencyKind::Development)
+            .filter(|((_, kind), _)| *kind == DepKind::Development)
             .for_each(|(_, d)| d.optionality = Optionality::Required);
 
         if all_eq(rpkg.iter_optionality_mut()) {
@@ -277,7 +287,8 @@ fn all_features(pkg: &Package) -> impl Iterator<Item = Feature> + '_ {
 }
 
 fn is_proc_macro(pkg: &Package) -> bool {
-    use cargo::core::{LibKind, TargetKind};
+    use cargo::core::compiler::CrateType;
+    use cargo::core::TargetKind;
     pkg.targets()
         .iter()
         .filter_map(|t| match t.kind() {
@@ -285,7 +296,7 @@ fn is_proc_macro(pkg: &Package) -> bool {
             _ => None,
         })
         .flatten()
-        .any(|k| *k == LibKind::ProcMacro)
+        .any(|k| *k == CrateType::ProcMacro)
 }
 
 /// Traverses the whole dependency graph starting at `pkg` and marks required packages and features.
@@ -295,7 +306,16 @@ fn mark_required(
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let resolve = resolve_ws_with_opts(ws, ResolveOpts::new(true, &[], false, false), &[spec])?;
+    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
+    let resolve = resolve_ws_with_opts(
+        ws,
+        &rtd,
+        &[CompileKind::Host],
+        &ResolveOpts::new(true, &[], false, false),
+        &[spec],
+        HasDevUnits::Yes,
+        ForceAllTargets::Yes,
+    )?;
 
     let root_pkg_name = root_pkg.name().as_str();
     // Dependencies that are activated, even when no features are activated, must be required.
@@ -329,11 +349,15 @@ fn activate<'a>(
         "default" => (vec![], true),
         other => (vec![other.to_string()], false),
     };
-
+    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
     let resolve = resolve_ws_with_opts(
         ws,
-        ResolveOpts::new(true, &features[..], false, uses_default),
+        &rtd,
+        &[CompileKind::Host],
+        &ResolveOpts::new(true, &features[..], false, uses_default),
         &[spec],
+        HasDevUnits::Yes,
+        ForceAllTargets::Yes,
     )?;
 
     let root_feature = (pkg.name().as_str(), feature);
@@ -359,7 +383,7 @@ fn activate<'a>(
 #[derive(Debug)]
 pub struct ResolvedPackage<'a> {
     pkg: &'a Package,
-    deps: BTreeMap<(PackageId, DependencyKind), ResolvedDependency<'a>>,
+    deps: BTreeMap<(PackageId, DepKind), ResolvedDependency<'a>>,
     features: BTreeMap<Feature<'a>, Optionality<'a>>,
     checksum: Option<&'a str>,
 }
@@ -430,14 +454,14 @@ impl<'a> ResolvedPackage<'a> {
         id: PackageId,
     ) -> impl Iterator<Item = &mut ResolvedDependency<'a>> {
         self.deps
-            .range_mut((id, DependencyKind::Normal)..=(id, DependencyKind::Build))
+            .range_mut((id, DepKind::Normal)..=(id, DepKind::Build))
             .map(|(_, dep)| dep)
     }
 
     fn iter_optionality_mut(&mut self) -> impl Iterator<Item = &mut Optionality<'a>> {
         self.deps
             .iter_mut()
-            .filter(|((_, kind), _)| *kind != DependencyKind::Development)
+            .filter(|((_, kind), _)| *kind != DepKind::Development)
             .map(|(_, d)| &mut d.optionality)
             .chain(self.features.values_mut())
     }

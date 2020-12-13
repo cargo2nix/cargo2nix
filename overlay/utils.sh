@@ -129,6 +129,8 @@ dumpDepInfo() {
 }
 
 install_crate2() {
+  mkdir -p $out
+  mkdir -p $bin
   mkdir -p "$out/lib"
   # shellcheck disable=SC2046
   cp $(jq -rR 'fromjson?
@@ -143,12 +145,15 @@ install_crate2() {
     | .[]' < .cargo-build-output \
     | tr '\n' ' ' >> "$out/lib/.link-flags"
 
+  mkdir -p "$bin/bin"
   mkdir -p "$out/bin"
   # shellcheck disable=SC2046
-  cp $(jq -rR 'fromjson?
+  bin_output=$(jq -rR 'fromjson?
     | select(.reason == "compiler-artifact")
     | .executable
-    | select(.)' < .cargo-build-output) "$out/bin" 2> /dev/null || rmdir "$out/bin"
+    | select(.)' < .cargo-build-output)
+  cp $bin_output "$bin/bin" 2> /dev/null || rmdir "$bin/bin"
+  cp $bin_output "$out/bin" 2> /dev/null || rmdir "$out/bin"
 
   local out_dir
   if out_dir="$(jq -rR 'fromjson? | select(.reason == "build-script-executed") | .out_dir' < .cargo-build-output)"; then
@@ -194,10 +199,14 @@ install_crate() {
 
   local needs_deps=
   local has_output=
+  mkdir -p $out
+  mkdir -p $bin
   for output in *; do
     if [ -d "$output" ]; then
       continue
     elif [ -x "$output" ]; then
+      mkdir -p "$bin/bin"
+      cp "$output" "$bin/bin/"
       mkdir -p "$out/bin"
       cp "$output" "$out/bin/"
       has_output=1

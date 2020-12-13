@@ -63,10 +63,12 @@ in rec {
   # Don't forget to add new overrides here.
   all = [
     capLints
+    cc
     curl-sys
     fsevent-sys
     libgit2-sys
     libdbus-sys
+    libssh2-sys
     libudev-sys
     openssl-sys
     pkg-config
@@ -84,6 +86,17 @@ in rec {
     registry = "registry+https://github.com/rust-lang/crates.io-index";
     overrideArgs = old: { rustcflags = old.rustcflags or [ ] ++ [ "--cap-lints" "warn" ]; };
   };
+
+  cc = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "cc";
+      overrideAttrs = drv: {
+        propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+          pkgs.xcbuild
+        ];
+      };
+    }
+    else nullOverride;
 
   curl-sys = makeOverride {
     name = "curl-sys";
@@ -132,6 +145,7 @@ in rec {
       name = "libgit2-sys";
       overrideAttrs = drv: {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          pkgs.libgit2
           pkgs.libiconv
           pkgs.darwin.apple_sdk.frameworks.Security
           pkgs.darwin.apple_sdk.frameworks.CoreFoundation
@@ -140,11 +154,19 @@ in rec {
     }
     else nullOverride;
 
+  libssh2-sys = makeOverride {
+    name = "libssh2-sys";
+    overrideAttrs = drv: {
+      propogatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.openssl.dev pkgs.zlib.dev ];
+    };
+  };
+
   openssl-sys = makeOverride {
     name = "openssl-sys";
     overrideAttrs = drv: {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
         (propagateEnv "openssl-sys" [
+          { name = "RUSTFLAGS"; value = "--cfg ossl111 --cfg ossl110 --cfg ossl101";}
           { name = "${envize pkgs.stdenv.buildPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
           { name = "${envize pkgs.stdenv.hostPlatform.config}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
         ])

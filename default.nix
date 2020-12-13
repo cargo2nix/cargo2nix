@@ -1,7 +1,7 @@
 {
   nixpkgs ? builtins.fetchTarball {
-    url = https://github.com/NixOS/nixpkgs/archive/47b551c6a854a049045455f8ab1b8750e7b00625.tar.gz;
-    sha256 = "0p0p6gf3kimcan4jgb4im3plm3yw68da09ywmyzhak8h64sgy4kg";
+    url = https://github.com/NixOS/nixpkgs/archive/e34208e10033315fddf6909d3ff68e2d3cf48a23.tar.gz;
+    sha256 = "0ngkx5ny7bschmiwc5q9yza8fdwlc3zg47avsywwp8yn96k2cpmg";
   },
   nixpkgsMozilla ? builtins.fetchTarball {
     url = https://github.com/mozilla/nixpkgs-mozilla/archive/18cd4300e9bf61c7b8b372f07af827f6ddc835bb.tar.gz;
@@ -10,6 +10,7 @@
   system ? builtins.currentSystem,
   overlays ? [ ],
   crossSystem ? null,
+  rustChannel ? "1.48.0",
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.
@@ -26,6 +27,7 @@ let
   # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
   # `makePackageSet'` accepts the following arguments:
   # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
+  # - `workspaceSrc` (optional): Sources for the workspace can be provided or default to the current directory.
   # - `rustChannel` (required): The Rust channel used to build the package set.
   # - `packageOverrides` (optional):
   #     A function taking a package set and returning a list of overrides.
@@ -52,8 +54,8 @@ let
   #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
   #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "1.37.0";
     packageFun = import ./Cargo.nix;
+    inherit rustChannel;
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
     localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };
@@ -80,7 +82,8 @@ rec {
   # `cargo build` with in the shell should just work.
   shell = pkgs.mkShell {
     inputsFrom = pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
-    nativeBuildInputs = with rustPkgs; [ cargo rustc ];
+    nativeBuildInputs = with rustPkgs; [ cargo rustc rust-src ];
+    RUST_SRC_PATH = "${rustPkgs.rust-src}/lib/rustlib/src/rust/library";
   };
   examples =
     let

@@ -159,10 +159,13 @@ let
     };
 
     overrideCargoManifest = ''
-      echo [[package]] > Cargo.lock
+      echo "[[package]]" > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
-      echo source = \"registry+${registry}\" >> Cargo.lock
+      registry="${registry}"
+      if [ "$registry" != "unknown" ]; then
+        echo source = \"registry+''${registry}\" >> Cargo.lock
+      fi
       mv Cargo.toml Cargo.original.toml
       remarshal -if toml -of json Cargo.original.toml \
         | jq "{ package: .package
@@ -239,6 +242,8 @@ let
       runHook setBuildEnv
       runHook runCargo
     '';
+
+    outputs = ["out" "bin"];
 
     installPhase = ''
       mkdir -p $out/lib
