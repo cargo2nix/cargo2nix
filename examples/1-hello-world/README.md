@@ -155,7 +155,7 @@ fetch a version of Rust using [release channels] similar to Rustup, e.g.
 The final argument, `cargo2nix`, fetches the [cargo2nix] repository from GitHub.
 To build our project, we need to fetch a fixed release of `cargo2nix` so we can
 use the provided Nixpkgs overlay from it to build our Rust project. By default,
-we fetch from the Git tag `v0.8.3`.
+we fetch from the Git tag `v0.9.0`.
 
 Next, we need to write the body of our function. To do this, we declare a `let`
 block and import [Nixpkgs] using our three function arguments from earlier:

@@ -62,7 +62,7 @@ repository root drops you into such a development shell.
 ```bash
 # When a crate is not associated with any registry, such as when building locally,
 # the registry is "unknown" as shown below:
-nix-shell -A 'rustPkgs.unknown.cargo2nix."0.8.3"' default.nix
+nix-shell -A 'rustPkgs.unknown.cargo2nix."0.9.0"' default.nix
 
 # This crate is a dependency that we may be debugging. Use the --pure switch if
 # impurities from your current environment may be polluting the nix build:
