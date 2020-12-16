@@ -11,6 +11,7 @@
   overlays ? [ ],
   crossSystem ? null,
   rustChannel ? "1.48.0",
+  rustChannelSha256 ? null,
 }:
 let
   # 1. Setup nixpkgs with nixpkgs-mozilla overlay and cargo2nix overlay.
@@ -29,6 +30,7 @@ let
   # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
   # - `workspaceSrc` (optional): Sources for the workspace can be provided or default to the current directory.
   # - `rustChannel` (required): The Rust channel used to build the package set.
+  # - `rustChannelSha256` (optional): The Rust channel sha256, required when cargo2nix is a flake input.
   # - `packageOverrides` (optional):
   #     A function taking a package set and returning a list of overrides.
   #     Overrides are introduced to provide native inputs to build the crates generated in `Cargo.nix`.
@@ -55,7 +57,7 @@ let
   #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     packageFun = import ./Cargo.nix;
-    inherit rustChannel;
+    inherit rustChannel rustChannelSha256;
     packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
     localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };

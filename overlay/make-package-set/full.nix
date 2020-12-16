@@ -11,6 +11,7 @@
   packageFun,
   workspaceSrc ? null,
   rustChannel,
+  rustChannelSha256 ? null,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? rustBuilder.overrides.all,
@@ -35,7 +36,7 @@ lib.fix' (self:
           pkgsHostTarget = scope;
           pkgsTargetTarget = {};
         } // {
-          inherit (scope) pkgs buildRustPackages rustChannel config __splicedPackages;
+          inherit (scope) pkgs buildRustPackages rustChannel rustChannelSha256 config __splicedPackages;
         };
       in
         prevStage // prevStage.xorg // prevStage.gnome2 // { inherit stdenv; } // scopeSpliced;
@@ -70,4 +71,6 @@ lib.fix' (self:
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
-  })
+  } // (if rustChannelSha256 != null then {
+    sha256 = rustChannelSha256;
+  } else {}))
