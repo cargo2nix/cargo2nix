@@ -6,8 +6,7 @@
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/cargo2nix/cargo2nix;
-    # TODO: pin to tag once v0.9.0 is released
-    ref = "ada69dafa095da4133a42abb292f22f12f2c4f36";
+    rev = "4bbd3137ff1422ef3565748eae33efe6e2ffbf39";
   },
 }:
 let
