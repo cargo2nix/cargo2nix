@@ -8,18 +8,18 @@ rec {
 
   fetchCrateGit = { url, name, version, rev }:
     let
-      inherit (buildPackages) runCommand jq remarshal;
+      inherit (buildPackages) runCommand jq yj;
       repo = builtins.fetchGit {
         name = "${name}-${version}-src";
         inherit url rev;
       };
     in
       /. + builtins.readFile (runCommand "find-crate-${name}-${version}"
-        { nativeBuildInputs = [ jq remarshal ]; }
+        { nativeBuildInputs = [ jq yj ]; }
         ''
           shopt -s globstar
           for f in ${repo}/**/Cargo.toml; do
-            if [[ "$(remarshal -if toml -of json "$f" | jq '.package.name == "${name}" and .package.version == "${version}"')" == "true" ]]; then
+            if [[ "$(yj -t < "$f" | jq '.package.name == "${name}" and .package.version == "${version}"')" == "true" ]]; then
               echo -n "''${f%/*}" > $out
               exit 0
             fi

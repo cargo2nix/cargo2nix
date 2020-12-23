@@ -102,8 +102,8 @@ let
     nativeBuildInputs = [ cargo ] ++ buildtimeDependencies;
 
     depsBuildBuild =
-      let inherit (buildPackages.buildPackages) stdenv jq remarshal;
-      in [ stdenv.cc jq remarshal ];
+      let inherit (buildPackages.buildPackages) stdenv jq yj;
+      in [ stdenv.cc jq yj ];
 
     # Running the default `strip -S` command on Darwin corrupts the
     # .rlib files in "lib/".
@@ -167,7 +167,8 @@ let
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
       mv Cargo.toml Cargo.original.toml
-      remarshal -if toml -of json Cargo.original.toml \
+
+      yj -t < Cargo.original.toml \
         | jq "{ package: .package
               , lib: .lib
               , bin: .bin
@@ -175,7 +176,8 @@ let
               , example: .example
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
               } + $manifestPatch" \
-        | remarshal -if json -of toml > Cargo.toml
+        | jq '. | walk(if type == "object" then with_entries(select(.value != null)) else . end)' \
+        | yj -jt > Cargo.toml
     '';
 
     setBuildEnv = ''
@@ -183,13 +185,13 @@ let
 
       if (( MINOR_RUSTC_VERSION < 41 )); then
         isProcMacro="$(
-          remarshal -if toml -of json Cargo.original.toml \
+          yj -t < Cargo.original.toml \
           | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
         )"
       fi
 
       crateName="$(
-        remarshal -if toml -of json Cargo.original.toml \
+        yj -t < Cargo.original.toml \
         | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
       )"
 
@@ -247,7 +249,7 @@ let
 
     installPhase = ''
       mkdir -p $out/lib
-      cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
+      cargo_links="$(yj -t < Cargo.original.toml | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
         install_crate ${host-triple} ${if release then "release" else "debug"}
       else
