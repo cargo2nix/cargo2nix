@@ -174,7 +174,8 @@ let
               , test: .test
               , example: .example
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-              } + $manifestPatch" \
+              } | with_entries(select( .value != null ))
+              + $manifestPatch" \
         | remarshal -if json -of toml > Cargo.toml
     '';
 
