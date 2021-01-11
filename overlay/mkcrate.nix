@@ -167,6 +167,10 @@ let
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
       mv Cargo.toml Cargo.original.toml
+      # Remarshal version cannot handle escaped double quotes in table key paths
+      while grep '\[[^"]*"[^\\"]*\\"[^\\"]*\\"[^"]*[^]]*\]' Cargo.original.toml; do
+        sed -i -r 's/\[([^"]*)"([^\\"]*)\\"([^\\"]*)\\"([^"]*)"([^]]*)\]/[\1"\2'"'"'\3'"'"'\4"\5]/g' Cargo.original.toml
+      done;
       remarshal -if toml -of json Cargo.original.toml \
         | jq "{ package: .package
               , lib: .lib
