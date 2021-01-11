@@ -180,6 +180,7 @@ let
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
               } | with_entries(select( .value != null ))
               + $manifestPatch" \
+        | jq "del(.[][] | nulls)" \
         | remarshal -if json -of toml > Cargo.toml
     '';
 
