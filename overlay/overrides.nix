@@ -4,7 +4,11 @@ let
   envize = s: builtins.replaceStrings ["-"] ["_"] (lib.toUpper s);
 
   patchOpenssl = pkgs:
-    if pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform
+    if pkgs.stdenv.hostPlatform.libc == "musl"
+    then pkgs.openssl.override {
+      static = true;
+    }
+    else if pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform
     then pkgs.openssl
     else (pkgs.openssl.override {
       # We only need `perl` at build time. It's also used as the interpreter for one
