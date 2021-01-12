@@ -10,7 +10,6 @@ rec {
     let
       inherit (buildPackages) runCommand jq remarshal;
       repo = builtins.fetchGit {
-        name = "${name}-${version}-src";
         inherit url rev;
       };
     in
