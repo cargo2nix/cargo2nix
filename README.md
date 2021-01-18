@@ -115,26 +115,47 @@ the overlay builds the crate, cutting out guess work.
    `overlay/overrides.nix` for patterns of common solutions for fixing up
    specific deps.
    
+   To provide your own override, pass a modified `packageOverrides` to
+   `pkgs.rustBuilder.makePackageSet'`:
+   
+   ```nix
+     rustPkgs = pkgs.rustBuilder.makePackageSet' {
+       # ... required arguments not shown
+     
+       # Use the existing all list of overrides and append your override
+       packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
+       
+         # parentheses disambiguate each makeOverride call as a single list element
+         (pkgs.rustBuilder.rustLib.makeOverride {
+             name = "fantasy-zlib-sys";
+             overrideAttrs = drv: {
+               propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+                 pkgs.zlib.dev
+               ];
+             };
+         })
+         
+       ];
+     };
+   ```
+   
+1. When re-vendoring nixpkgs-mozilla or cargo2nix, pay attention to the revs of
+   nixpkgs, the nixpkgs-mozilla overlay, and the cargo2nix overlay. Certain
+   non-release versions of nixpkgs-mozilla have shipped with a `rustc` that
+   doesn't include zlib in its runtime dependencies.
+   
 1. Many `crates.io` public crates may not build using the current Rust compiler,
    unless a lint cap is put on these crates. For instance, `cargo2nix` caps all
    lints to `warn` by default.
 
-1. Nix 2.1.3 ships with a broken `builtins.fromTOML` function which is unable to
-   parse lines of TOML that look like this:
-
-   ```toml
-   [target.'cfg(target_os = "linux")'.dependencies.rscam]
-   ```
-
-   If Nix fails to parse your project's `Cargo.toml` manifest with an error
-   similar to the one below, please upgrade to a newer version of Nix. Versions
-   2.3.1 and newer are not affected by this bug. If upgrading is not an option,
-   removing the inner whitespace from the problematic keys should work around
-   this issue.
-
-   ```text
-   error: while parsing a TOML string at /nix/store/.../overlay/mkcrate.nix:31:14: Bare key 'cfg(target_os = "linux")' cannot contain whitespace at line 45
-   ```
+1. Toml parsing / conversion issues `Error: Cannot convert data to TOML (Invalid
+   type <class 'NoneType'>)`
+   
+   `jq` and `remarshal` are used to read & modify toml files in some
+   cases. Lines of the form: ```[key."cfg(foo = \"a\", bar = \"b\"))".path]```
+   could produce breakage when `jq` output was fed back to `remarshal`. There
+   are workarounds in place to catch many cases. See #149 for more information
+   and report any newly found breakage until a total solution is in place.
 
 1. Git dependencies and crates from alternative Cargo registries rely on
    `builtins.fetchGit` to support fetching from private Git repositories. This

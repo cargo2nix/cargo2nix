@@ -167,6 +167,19 @@ let
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
       mv Cargo.toml Cargo.original.toml
+      # Remarshal was failing on table names of the form:
+      # [key."cfg(foo = \"a\", bar = \"b\"))".path]
+      # The regex to find or deconstruct these strings must find, in order,
+      # these components: open bracket, open quote, open escaped quote, and
+      # their closing pairs.  Because each quoted path can contain multiple
+      # quote escape pairs, a loop is employed to match the first quote escape,
+      # which the sed will replace with a single quote equivalent until all
+      # escaped quote pairs are replaced.  The grep regex is identical to the
+      # sed regex but does not destructure the match into groups for
+      # restructuring in the replacement.
+      while grep '\[[^"]*"[^\\"]*\\"[^\\"]*\\"[^"]*[^]]*\]' Cargo.original.toml; do
+        sed -i -r 's/\[([^"]*)"([^\\"]*)\\"([^\\"]*)\\"([^"]*)"([^]]*)\]/[\1"\2'"'"'\3'"'"'\4"\5]/g' Cargo.original.toml
+      done;
       remarshal -if toml -of json Cargo.original.toml \
         | jq "{ package: .package
               , lib: .lib
@@ -174,7 +187,9 @@ let
               , test: .test
               , example: .example
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-              } + $manifestPatch" \
+              } | with_entries(select( .value != null ))
+              + $manifestPatch" \
+        | jq "del(.[][] | nulls)" \
         | remarshal -if json -of toml > Cargo.toml
     '';
 
