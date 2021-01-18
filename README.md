@@ -115,6 +115,35 @@ the overlay builds the crate, cutting out guess work.
    `overlay/overrides.nix` for patterns of common solutions for fixing up
    specific deps.
    
+   To provide your own override, pass a modified `packageOverrides` to
+   `pkgs.rustBuilder.makePackageSet'`:
+   
+   ```nix
+     rustPkgs = pkgs.rustBuilder.makePackageSet' {
+       # ... required arguments not shown
+     
+       # Use the existing all list of overrides and append your override
+       packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
+       
+         # parentheses disambiguate each makeOverride call as a single list element
+         (pkgs.rustBuilder.rustLib.makeOverride {
+             name = "fantasy-zlib-sys";
+             overrideAttrs = drv: {
+               propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+                 pkgs.zlib.dev
+               ];
+             };
+         })
+         
+       ];
+     };
+   ```
+   
+1. When re-vendoring nixpkgs-mozilla or cargo2nix, pay attention to the revs of
+   nixpkgs, the nixpkgs-mozilla overlay, and the cargo2nix overlay. Certain
+   non-release versions of nixpkgs-mozilla have shipped with a `rustc` that
+   doesn't include zlib in its runtime dependencies.
+   
 1. Many `crates.io` public crates may not build using the current Rust compiler,
    unless a lint cap is put on these crates. For instance, `cargo2nix` caps all
    lints to `warn` by default.
