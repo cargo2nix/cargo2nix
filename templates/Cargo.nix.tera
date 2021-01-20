@@ -56,6 +56,9 @@ in
       name = "{{ crate.name }}";
       version = "{{ crate.version }}";
       rev = "{{ crate.source.Git.rev }}";
+      {%- if crate.source.Git.branch %}
+      ref = "{{ crate.source.Git.branch }}";
+      {%- endif -%}
     };
     {%- elif crate.source.Local.path %}
     {%- if crate.source.Local.path == "." %}
