@@ -29,7 +29,12 @@
           };
       in
       {
-        defaultPackage = rustPkgs.workspace.cargo2nix { };
+        packages = {
+          cargo2nix = rustPkgs.workspace.cargo2nix { };
+          ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix { };
+        };
+
+        defaultPackage = self.packages.${system}.cargo2nix;
         defaultApp = {
           type = "app";
           program = "${self.defaultPackage.${system}}/bin/cargo2nix";

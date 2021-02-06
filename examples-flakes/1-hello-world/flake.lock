@@ -7,18 +7,13 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1612614731,
-        "narHash": "sha256-MgPPXE03adivP3WAsAVYbCTpA8EOFAyYqbviEmPZGUU=",
-        "owner": "onsails",
-        "repo": "cargo2nix",
-        "rev": "5c0dc93a43638d4a3bdcdcb257fe767fd3f2d0ff",
-        "type": "github"
+        "narHash": "sha256-IKM6QBIuvaRAzCAi87ovk6s3N8o3stZGmfYCuZS37rM=",
+        "path": "../../",
+        "type": "path"
       },
       "original": {
-        "owner": "onsails",
-        "ref": "flake",
-        "repo": "cargo2nix",
-        "type": "github"
+        "path": "../../",
+        "type": "path"
       }
     },
     "nixpkgs": {

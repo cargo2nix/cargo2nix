@@ -1,7 +1,7 @@
 {
   inputs = {
     nixpkgs-mozilla = { url = github:mozilla/nixpkgs-mozilla; flake = false; };
-    cargo2nix.url = github:onsails/cargo2nix/flake;
+    cargo2nix.url = "path:../../";
     utils.url = github:numtide/flake-utils;
   };
 

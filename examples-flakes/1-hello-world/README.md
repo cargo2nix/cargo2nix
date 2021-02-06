@@ -155,7 +155,7 @@ build instructions:
   inputs = {
     nixpkgs-mozilla = { url = github:mozilla/nixpkgs-mozilla; flake = false; };
     utils.url = github:numtide/flake-utils;
-    <b>cargo2nix.url = github:onsails/cargo2nix/flake;</b>
+    <b>cargo2nix.url = github:cargo2nix/cargo2nix/flake;</b>
   };
 
   outputs = { nixpkgs, utils, nixpkgs-mozilla, ... }: utils.lib.eachDefaultSystem (system:
