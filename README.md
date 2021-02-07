@@ -56,10 +56,12 @@ down to the following steps:
    Cargo workspace.
 2. Create a `flake.nix` file with nixpkgs, [cargo2nix] and [nixpkgs-mozilla] inputs
    imports nixpkgs with nixpkgs-mozilla and cargo2nix overlays and builds your project using the `Cargo.nix` file
-   from earlier.
+   from earlier. You can use [rust-overlay] alternative to [nixpkgs-mozilla] which contains pre-fetched toolchain
+   hashes.
 3. Run `nix build` to compile and/or test your project.
 
 [nixpkgs-mozilla]: https://github.com/mozilla/nixpkgs-mozilla#rust-overlay
+[rust-overlay]: https://github.com/oxalica/rust-overlay
 [cargo2nix]: ./flake.nix
 
 Check out our [example flake](./examples-flakes/1-hello-world) which showcases how to use
