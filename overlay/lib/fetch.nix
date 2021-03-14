@@ -6,11 +6,11 @@ rec {
     inherit sha256;
   };
 
-  fetchCrateGit = { url, name, version, rev }:
+  fetchCrateGit = { url, name, version, rev, ref ? "HEAD" }:
     let
       inherit (buildPackages) runCommand jq remarshal;
       repo = builtins.fetchGit {
-        inherit url rev;
+        inherit url rev ref;
       };
     in
       /. + builtins.readFile (runCommand "find-crate-${name}-${version}"
