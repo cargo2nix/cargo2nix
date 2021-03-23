@@ -71,6 +71,5 @@ lib.fix' (self:
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
-  } // (if rustChannelSha256 != null then {
-    sha256 = rustChannelSha256;
-  } else {}))
+  }
+)
