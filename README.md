@@ -38,11 +38,11 @@ down to the following steps:
 1. Generate a `Cargo.nix` file by running `cargo2nix -f` at the root of your
    Cargo workspace.
 2. Create a `default.nix` file which imports Nixpkgs with the [cargo2nix] and
-   [nixpkgs-mozilla] overlays and builds your project using the `Cargo.nix` file
+   [rust-overlay] overlays and builds your project using the `Cargo.nix` file
    from earlier.
 3. Run `nix-build` to compile and/or test your project.
 
-[nixpkgs-mozilla]: https://github.com/mozilla/nixpkgs-mozilla#rust-overlay
+[rust-overlay]: https://github.com/oxalica/rust-overlay
 [cargo2nix]: ./overlay
 
 Check out our series of [example projects](./examples) which showcase how to use
@@ -139,9 +139,9 @@ the overlay builds the crate, cutting out guess work.
      };
    ```
    
-1. When re-vendoring nixpkgs-mozilla or cargo2nix, pay attention to the revs of
-   nixpkgs, the nixpkgs-mozilla overlay, and the cargo2nix overlay. Certain
-   non-release versions of nixpkgs-mozilla have shipped with a `rustc` that
+1. When re-vendoring rust-overlay or cargo2nix, pay attention to the revs of
+   nixpkgs, the rust-overlay, and the cargo2nix overlay. Certain non-release
+   versions of nixpkgs-mozilla (no longer used) have shipped with a `rustc` that
    doesn't include zlib in its runtime dependencies.
    
 1. Many `crates.io` public crates may not build using the current Rust compiler,

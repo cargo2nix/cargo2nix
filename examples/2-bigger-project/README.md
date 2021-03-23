@@ -120,10 +120,10 @@ following arguments:
 ```nix
 {
   system ? builtins.currentSystem,
-  nixpkgsMozilla ? builtins.fetchGit {
-    url = https://github.com/mozilla/nixpkgs-mozilla;
-    rev = "50bae918794d3c283aeb335b209efd71e75e3954";
-  },
+  rust-overlay ? builtins.fetchTarball {
+    url = https://github.com/oxalica/rust-overlay/archive/a9309152e39974309a95f3350ccb1337734c3fe5.tar.gz;
+    sha256 = "04428wpwc5hyaa4cvc1bx52i9m62ipavj0y7qs0h9cq9a7dl1zki";
+  },  
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/cargo2nix/cargo2nix;
     ref = "v0.9.0";
@@ -136,7 +136,7 @@ Likewise, we define the function body with almost identical contents as well:
 
 ```nix
 let
-  rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
+  rustOverlay = import rust-overlay;
   cargo2nixOverlay = import "${cargo2nix}/overlay";
 
   pkgs = import <nixpkgs> {
@@ -153,7 +153,7 @@ in
   rustPkgs.workspace.bigger-project {}
 ```
 
-Again, we import Nixpkgs using our `nixpkgsMozilla` and `cargo2nix` overlays
+Again, we import Nixpkgs using our `rust-overlay` and `cargo2nix` overlays
 and build the `Cargo.nix` for the project with the `rustBuilder.makePackageSet'`
 function. The only real difference between the Hello World project and
 this new project is that we are building `rustPkgs.workspace.bigger-project`
