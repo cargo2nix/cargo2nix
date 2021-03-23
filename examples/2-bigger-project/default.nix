@@ -1,8 +1,8 @@
 {
   system ? builtins.currentSystem,
-  nixpkgsMozilla ? builtins.fetchGit {
-    url = https://github.com/mozilla/nixpkgs-mozilla;
-    rev = "18cd4300e9bf61c7b8b372f07af827f6ddc835bb";
+  rust-overlay ? builtins.fetchTarball {
+    url = https://github.com/oxalica/rust-overlay/archive/a9309152e39974309a95f3350ccb1337734c3fe5.tar.gz;
+    sha256 = "04428wpwc5hyaa4cvc1bx52i9m62ipavj0y7qs0h9cq9a7dl1zki";
   },
   cargo2nix ? builtins.fetchGit {
     url = https://github.com/cargo2nix/cargo2nix;
@@ -10,7 +10,7 @@
   },
 }:
 let
-  rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
+  rustOverlay = import rust-overlay;
   cargo2nixOverlay = import "${cargo2nix}/overlay";
 
   pkgs = import <nixpkgs> {
@@ -19,7 +19,7 @@ let
   };
 
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "1.46.0";
+    rustChannel = "1.50.0";
     # rustChannelSha256 is not nessesary, just for example
     rustChannelSha256 = "xSLeZaUdE5l58YXyv772GQmmvn2W51wGNwrVP7d4qeo=";
     packageFun = import ./Cargo.nix;
