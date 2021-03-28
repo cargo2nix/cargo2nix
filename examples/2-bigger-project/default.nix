@@ -20,8 +20,6 @@ let
 
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
     rustChannel = "1.50.0";
-    # rustChannelSha256 is not nessesary, just for example
-    rustChannelSha256 = "xSLeZaUdE5l58YXyv772GQmmvn2W51wGNwrVP7d4qeo=";
     packageFun = import ./Cargo.nix;
     # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
   };
