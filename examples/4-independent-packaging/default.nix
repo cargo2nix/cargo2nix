@@ -4,19 +4,19 @@
     url = https://github.com/NixOS/nixpkgs/archive/e34208e10033315fddf6909d3ff68e2d3cf48a23.tar.gz;
     sha256 = "0ngkx5ny7bschmiwc5q9yza8fdwlc3zg47avsywwp8yn96k2cpmg";
   },
-  nixpkgsMozilla ? builtins.fetchTarball {
-    url = https://github.com/mozilla/nixpkgs-mozilla/archive/18cd4300e9bf61c7b8b372f07af827f6ddc835bb.tar.gz;
-    sha256 = "1s0d1l5y7a3kygjbibssjnj7fcc87qaa5s9k4kda0j13j9h4zwgr";
+  rust-overlay ? builtins.fetchTarball {
+    url = https://github.com/oxalica/rust-overlay/archive/a9309152e39974309a95f3350ccb1337734c3fe5.tar.gz;
+    sha256 = "04428wpwc5hyaa4cvc1bx52i9m62ipavj0y7qs0h9cq9a7dl1zki";
   },
   cargo2nix ? ../../.,
-  rustChannel ? "1.48.0",
+  rustChannel ? "1.50.0",
 }:
 let
   pkgs = import nixpkgs {
     inherit system;
     overlays =
       let
-        rustOverlay = import "${nixpkgsMozilla}/rust-overlay.nix";
+        rustOverlay = import rust-overlay;
         cargo2nixOverlay = import "${cargo2nix}/overlay";
       in
         [ cargo2nixOverlay rustOverlay ];
@@ -29,8 +29,8 @@ let
     workspaceSrc = pkgs.fetchFromGitHub {
       owner = "rust-analyzer";
       repo = "rust-analyzer";
-      rev = "cadf0e9fb630d04367ef2611383865963d84ab54";
-      sha256 = "0w5q8srjhv510398ay5m3rih3nkwcf4f2grb55f1gc2kd7m6bfww";
+      rev = "5ba7852cf153688d5b5035a9a2a2145aa7334d79";
+      sha256 = "150gydm0mg72bbhgjjks8qc5ldiqyzhai9z4yfh4f1s2bwdfh3yf";
     };
 
     # You can also use local paths for local development with a checked out copy
