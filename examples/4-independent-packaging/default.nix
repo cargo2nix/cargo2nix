@@ -35,8 +35,6 @@ let
 
     # You can also use local paths for local development with a checked out copy
     # workspaceSrc = ../../../rust-analyzer;
-
-    localPatterns = [ ''^(src|tests|crates|xtask|assets|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };
 
 in {
