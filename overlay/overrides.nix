@@ -165,6 +165,13 @@ in rec {
     };
   };
 
+  libsqlite3-sys = pkgs.rustBuilder.rustLib.makeOverride {
+    name = "libsqlite3-sys";
+    overrideAttrs = drv: {
+      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.sqlite ];
+    };
+  };
+
   openssl-sys = makeOverride {
     name = "openssl-sys";
     overrideAttrs = drv: {
