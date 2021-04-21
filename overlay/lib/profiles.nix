@@ -12,7 +12,7 @@ in
   # Decides which profile to use based on compile mode and whether release is enabled.
   # Ported from https://github.com/rust-lang/cargo/blob/rust-1.38.0/src/cargo/core/profiles.rs#L86.
   decideProfile = compileMode: release:
-    if compileMode == "test" || compileMode == "bench"
+    if compileMode == "test" || compileMode == "bench" || compileMode == "doctest"
       then if release then "bench" else "test"
     else if compileMode == "build" || compileMode == null
       then if release then "release" else "dev"
