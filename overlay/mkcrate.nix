@@ -78,10 +78,31 @@ let
         then ""
         else "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
-      ''
+      if compileMode != "doctest" then ''
         cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
           --message-format=json | tee .cargo-build-output
+      ''
+      # Note: Doctest doesn't yet support no-run https://github.com/rust-lang/rust/pull/83857
+      # So instead of persiting the binaries with
+      # RUSTDOCFLAGS="-Zunstable-options --persist-doctests $(pwd)/target/rustdoctest -o $(pwd)/target/rustdoctest" cargo test --doc | tee .cargo-doctest-output
+      # we just introduce a new compile mode
+      #
+      # We also filter -l linkage flags, as rustdoc doesn't support them
+      #
+      # And _also_ detect if there are no lib crates, in which case skip, because thats an error for rustdoc
+      #
+      # This does not abort on failure. The output should be inspected for failures
+      else ''
+        echo "Performing Doctests"
+        export NIX_RUST_LINK_FLAGS=$(echo "$NIX_RUST_LINK_FLAGS" | sed 's/ \-l \w*//g')
+        cargo read-manifest | jq -e '.targets | .[] | select(.crate_types[] | contains ("lib")) | any' >/dev/null && \
+          ( cargo test --doc --no-fail-fast \
+              ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
+              -- -Z unstable-options --format json \
+              | tee results.json \
+          || true) \
+          || echo "No lib crate detected"
       '';
 
   inherit
@@ -89,7 +110,7 @@ let
       (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
         (concatLists [
           (attrValues dependencies)
-          (optionals (compileMode == "test" || compileMode == "bench") (attrValues devDependencies))
+          (optionals (compileMode != "build") (attrValues devDependencies))
           (attrValues buildDependencies)
         ])))
     runtimeDependencies buildtimeDependencies;
@@ -125,7 +146,7 @@ let
 
     dependencies = depMapToList dependencies;
     buildDependencies = depMapToList buildDependencies;
-    devDependencies = depMapToList (optionalAttrs (compileMode == "test" || compileMode == "bench") devDependencies);
+    devDependencies = depMapToList (optionalAttrs (compileMode != "build") devDependencies);
 
     extraRustcFlags =
       optionals (hostPlatformCpu != null) ([("-Ctarget-cpu=" + hostPlatformCpu)]) ++
@@ -260,7 +281,7 @@ let
 
     outputs = ["out" "bin"];
 
-    installPhase = ''
+    installPhase = if compileMode != "doctest" then ''
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
@@ -268,6 +289,11 @@ let
       else
         install_crate2 ${host-triple}
       fi
+    '' else ''
+      mkdir -p $out/share
+      mkdir -p $bin
+      touch results.json
+      mv results.json $out/share/
     '';
   };
 in
