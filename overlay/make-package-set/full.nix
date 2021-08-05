@@ -57,7 +57,7 @@ lib.fix' (self:
       ${ if release == null then null else "release" } = release;
       ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
       ${ if hostPlatformCpu == null then null else "hostPlatformCpu" } = hostPlatformCpu;
-      ${ if hostPlatformFeatures == null then null else "hostPlatformFeatures" } = hostPlatformFeatures;
+      ${ if hostPlatformFeatures == [] then null else "hostPlatformFeatures" } = hostPlatformFeatures;
     });
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
