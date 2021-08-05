@@ -3,7 +3,10 @@
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
-    flakes-compat.url = "github:edolstra/flakes-compat";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
   };
   
   outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
@@ -61,7 +64,7 @@
         # `cargo build` with in the shell should just work.
         devShell = pkgs.mkShell {
           inputsFrom = pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
-          nativeBuildInputs = with rustPkgs; [ cargo rustc ];
+          nativeBuildInputs = with rustPkgs; [ cargo rustc ] ++ (with pkgs; [cacert]);
           RUST_SRC_PATH = "${rustPkgs.rust-src}/lib/rustlib/src/rust/library";
         };
 
@@ -106,7 +109,7 @@
           shell = devShell;
         };
 
-        defaultPackage = packages.cargo2nix;
+        defaultPackage = packages.package;
         overlay = cargo2nixOverlay;
       }
     );
