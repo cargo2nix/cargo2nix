@@ -17,6 +17,8 @@
   rustcBuildFlags ? [ ],
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  codegenOpts,
+  profileOpts,
 }:
 with lib; with builtins;
 let

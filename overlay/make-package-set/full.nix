@@ -19,6 +19,8 @@
   rootFeatures ? null,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  codegenOpts ? null,
+  profileOpts ? null,
 }:
 lib.fix' (self:
   let
@@ -45,7 +47,7 @@ lib.fix' (self:
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
     packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib workspaceSrc;
+      inherit rustPackages buildRustPackages lib workspaceSrc profileOpts codegenOpts;
       inherit (stdenv) hostPlatform;
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {

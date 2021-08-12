@@ -19,6 +19,8 @@
   buildDependencies ? { },
   compileMode ? "build",
   profile,
+  profileOpts ? null,
+  codegenOpts ? null,
   meta ? { },
   rustcflags ? [ ],
   rustcBuildFlags ? [ ],
@@ -160,10 +162,27 @@ let
       cat > .cargo/config <<'EOF'
       [target."${realHostTriple stdenv.buildPlatform}"]
       linker = "${ccForBuild}"
-    '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false)) ''
+    '' + optionalString (codegenOpts != null && codegenOpts ? "${realHostTriple stdenv.buildPlatform}") (''
+      rustflags = [
+    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${realHostTriple stdenv.buildPlatform}") + "\n" + ''
+      ]
+
+    '') + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false)) (''
       [target."${host-triple}"]
       linker = "${ccForHost}"
-    '' + ''
+    ''+ optionalString (codegenOpts != null && codegenOpts ? "${host-triple}") (''
+      rustflags = [
+    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${host-triple}") + "\n" + ''
+      ]
+
+    '')) + optionalString (profileOpts != null && profileOpts."${decideProfile compileMode release}" != null) (''
+      [profile.${decideProfile compileMode release}]
+    '' + concatStringsSep "\n" (mapAttrsToList (n: a: "${n} = " + (
+        if isInt a then "${toString a}"
+        else (if isBool a then (if a then "true" else "false")
+        else ''"${a}"'')))
+        (profileOpts."${decideProfile compileMode release}"))
+     ) + "\n" + ''
       EOF
     '';
 
