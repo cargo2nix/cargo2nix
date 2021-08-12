@@ -3,6 +3,7 @@
 
 args@{
   release ? true,
+  static ? false,
   rootFeatures ? [
   {%- for feature in root_features %}
     "{{ feature }}"
@@ -13,6 +14,12 @@ args@{
   hostPlatform,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  profile-opts ? {
+    bench   = {};
+    test    = {};
+    dev     = {};
+    release = {};
+  },
   mkRustCrate,
   rustLib,
   lib,
@@ -30,7 +37,7 @@ in let
   rootFeatures' = expandFeatures rootFeatures;
   overridableMkRustCrate = f:
     let
-      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures; } // (f profileName)));
+      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release static profile hostPlatformCpu hostPlatformFeatures profile-opts; } // (f profileName)));
     in { compileMode ? null, profileName ? decideProfile compileMode release }:
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in

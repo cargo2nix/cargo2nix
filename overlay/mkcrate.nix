@@ -20,6 +20,13 @@
   buildDependencies ? { },
   compileMode ? "build",
   profile,
+  profile-opts ? {
+    bench   = {};
+    test    = {};
+    dev     = {};
+    release = {};
+  },
+  static ? false,
   meta ? { },
   rustcflags ? [ ],
   rustcBuildFlags ? [ ],
@@ -161,10 +168,18 @@ let
       cat > .cargo/config <<'EOF'
       [target."${realHostTriple stdenv.buildPlatform}"]
       linker = "${ccForBuild}"
+      rustflags = [
+        ${if static then ''"-C" "target-feature=+crt-static" '' else ""}
+        ]
+
     '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false)) ''
       [target."${host-triple}"]
       linker = "${ccForHost}"
-    '' + ''
+
+    '' + optionalString (profile-opts."${decideProfile compileMode release}" != {}) (''
+      [profile.${decideProfile compileMode release}]
+    '' + concatStringsSep "\n" (mapAttrsToList (n:a: "${n} = ${a}") profile-opts."${decideProfile compileMode release}")
+     ) + ''
       EOF
     '';
 
