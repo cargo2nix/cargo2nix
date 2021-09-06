@@ -11,6 +11,7 @@
   packageFun,
   workspaceSrc ? null,
   rustChannel,
+  target,
   buildRustPackages ? null,
   localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? rustBuilder.overrides.all,
@@ -45,7 +46,7 @@ lib.fix' (self:
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
     packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib workspaceSrc;
+      inherit rustPackages buildRustPackages lib workspaceSrc target;
       inherit (stdenv) hostPlatform;
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {

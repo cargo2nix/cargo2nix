@@ -26,6 +26,7 @@
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
   NIX_DEBUG ? 0,
+  target
 }:
 with builtins; with lib;
 let
@@ -59,7 +60,6 @@ let
   cc = stdenv.cc;
   ccForHost="${cc}/bin/${targetPrefix}cc";
   cxxForHost="${cc}/bin/${targetPrefix}c++";
-  host-triple = realHostTriple stdenv.hostPlatform;
   depMapToList = deps:
     flatten
       (sort (a: b: elemAt a 0 < elemAt b 0)
@@ -79,7 +79,7 @@ let
         else "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
       ''
-        cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
+        cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${target} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
           --message-format=json | tee .cargo-build-output
       '';
@@ -141,7 +141,7 @@ let
       [target."${realHostTriple stdenv.buildPlatform}"]
       linker = "${ccForBuild}"
     '' + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false)) ''
-      [target."${host-triple}"]
+      [target."${target}"]
       linker = "${ccForHost}"
     '' + ''
       EOF
@@ -245,8 +245,8 @@ let
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${host-triple}"="${ccForHost}" \
-          "CXX_${host-triple}"="${cxxForHost}" \
+          "CC_${target}"="${ccForHost}" \
+          "CXX_${target}"="${cxxForHost}" \
           "''${depKeys[@]}" \
           ${buildCmd}
       )
@@ -264,9 +264,9 @@ let
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
-        install_crate ${host-triple} ${if release then "release" else "debug"}
+        install_crate ${target} ${if release then "release" else "debug"}
       else
-        install_crate2 ${host-triple}
+        install_crate2 ${target}
       fi
     '';
   };

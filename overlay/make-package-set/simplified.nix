@@ -9,6 +9,7 @@ args@{
   packageFun,
   workspaceSrc ? null,
   packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
+  target ? (rustBuilder.rustLib.realHostTriple stdenv.targetPlatform),
   ...
 }:
 let
@@ -18,17 +19,18 @@ let
   inherit (rustChannel') cargo;
   rustc = rustChannel'.rust.override {
     targets = [
-      (rustBuilder.rustLib.realHostTriple stdenv.targetPlatform)
+      target
     ];
   };
-  extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" ];
+  extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" "target" ];
 in let
   rustChannel = rustChannel' // {inherit rustc cargo;};
 in rustBuilder.makePackageSet (extraArgs // {
-  inherit rustChannel packageFun workspaceSrc;
+  inherit rustChannel packageFun workspaceSrc target;
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
     inherit rustChannel packageFun;
+    target = (rustBuilder.rustLib.realHostTriple stdenv.hostPlatform);
     packageOverrides = packageOverrides buildPackages;
   });
 })
