@@ -11,6 +11,18 @@ pub fn to_expr(p: &Platform, platform_var: &str) -> BoolExpr {
     }
 }
 
+fn platform_single(platform: &str, nix_cpu: &str) -> BoolExpr {
+    BoolExpr::Single(format!("{}.parsed.cpu.name == {:?}", platform, nix_cpu))
+
+}
+fn target_arch_to_nix(platform: &str, target_arch: &str) -> BoolExpr {
+    match target_arch {
+        "arm" => BoolExpr::ors(vec![platform_single(platform, "armv6l"), platform_single(platform, "armv7l")]),
+        "x86" => platform_single(platform, "i686"),
+        _ => platform_single(platform, target_arch),
+    }
+}
+
 fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
     use self::BoolExpr::{False, Single};
     use cargo_platform::Cfg;
@@ -25,7 +37,7 @@ fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
             _ => False,
         },
         CfgExpr::Value(Cfg::KeyPair(k, v)) => match (k.as_str(), v.as_str()) {
-            ("target_arch", v) => Single(format!("{}.parsed.cpu.name == {:?}", platform_var, v)),
+            ("target_arch", v) => target_arch_to_nix(platform_var, v),
             ("target_os", "macos") => Single(format!(
                 "{}.parsed.kernel.name == {:?}",
                 platform_var, "darwin"
