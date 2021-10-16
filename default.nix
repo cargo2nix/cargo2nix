@@ -93,7 +93,7 @@ rec {
       ];
       importExprsInDir = with pkgs.lib; dir:
         mapAttrsToList
-          (name: _: import (dir + "/${name}") { inherit cargo2nix; })
+          (name: _: import (dir + "/${name}") { inherit cargo2nix rustOverlay; })
           (pkgs.lib.filterAttrs
             (name: kind: kind == "directory")
             (builtins.readDir dir)
