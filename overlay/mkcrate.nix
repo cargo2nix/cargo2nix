@@ -1,6 +1,5 @@
 {
-  cargo,
-  rustc,
+  rustChannel,
 
   lib,
   pkgs,
@@ -50,7 +49,7 @@ let
     fi
     touch invoke.log
     echo "''${args[@]}" >>invoke.log
-    exec ${rustc}/bin/${rustpkg} "''${args[@]}"
+    exec ${rustChannel}/bin/${rustpkg} "''${args[@]}"
   '';
 
   ccForBuild="${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc";
@@ -79,7 +78,7 @@ let
         else "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
       ''
-        cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
+        ${rustChannel}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
           --message-format=json | tee .cargo-build-output
       '';
@@ -99,7 +98,7 @@ let
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
     buildInputs = runtimeDependencies;
     propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
-    nativeBuildInputs = [ cargo ] ++ buildtimeDependencies;
+    nativeBuildInputs = [ rustChannel ] ++ buildtimeDependencies;
 
     depsBuildBuild =
       let inherit (buildPackages.buildPackages) stdenv jq remarshal;
@@ -194,7 +193,7 @@ let
     '';
 
     setBuildEnv = ''
-      MINOR_RUSTC_VERSION="$(${rustc}/bin/rustc --version | cut -d . -f 2)"
+      MINOR_RUSTC_VERSION="$(${rustChannel}/bin/rustc --version | cut -d . -f 2)"
 
       if (( MINOR_RUSTC_VERSION < 41 )); then
         isProcMacro="$(

@@ -12,20 +12,15 @@ args@{
   ...
 }:
 let
-  rustChannel' = buildPackages.rustChannelOf ({
-    channel = args.rustChannel;
-  });
-  inherit (rustChannel') cargo;
-  rustc = rustChannel'.rust.override {
+  extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" ];
+  rustChannel = buildPackages.rust-bin.stable.${args.rustChannel}.minimal.override {
+    extensions = [ "rust-src" ];
     targets = [
       (rustBuilder.rustLib.realHostTriple stdenv.targetPlatform)
     ];
   };
-  extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" ];
-in let
-  rustChannel = rustChannel' // {inherit rustc cargo;};
 in rustBuilder.makePackageSet (extraArgs // {
-  inherit rustChannel packageFun workspaceSrc;
+  inherit packageFun workspaceSrc rustChannel;
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
     inherit rustChannel packageFun;
