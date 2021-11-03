@@ -62,7 +62,7 @@ lib.fix' (self:
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
     inherit rustPackages callPackage pkgs;
-    inherit (rustChannel) cargo rustc rust-src;
+    inherit rustChannel;
     noBuild = packageFunWith {
       mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
       buildRustPackages = buildRustPackages'.noBuild;
