@@ -2,6 +2,8 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    rust-overlay.inputs.flake-utils.follows = "flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -54,7 +56,7 @@
         #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           packageFun = import ./Cargo.nix;
-          rustChannel = "1.50.0";
+          rustChannel = "1.55.0";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
           localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
         };
