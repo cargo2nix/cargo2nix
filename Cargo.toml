@@ -1,12 +1,12 @@
 [package]
 name = "cargo2nix"
 version = "0.9.0"
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
-cargo = "0.55.0"
-cargo-platform = "0.1.1"
+cargo = "0.57.0"
+cargo-platform = "0.1.2"
 colorify = "0.2.3"
 anyhow = "1.0.28"
 pathdiff = "0.2.0"

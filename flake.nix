@@ -56,7 +56,7 @@
         #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           packageFun = import ./Cargo.nix;
-          rustChannel = "1.55.0";
+          rustChannel = "1.56.1";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
           localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
         };
