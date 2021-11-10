@@ -18,7 +18,7 @@ jobs:
             USER=root cachix use cargo2nix
             cachix push cargo2nix -w &
             nix-build -A packages.x86_64-linux.ci --show-trace
-            nix-build -A packages.x86_64-linux.examples -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/e34208e10033315fddf6909d3ff68e2d3cf48a23.tar.gz --show-trace
+            nix-build -A packages.x86_64-linux.examples -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/e74894146a42ba552ebafa19ab2d1df7ccbc1738.tar.gz --show-trace
             nix-shell --show-trace --run exit
           no_output_timeout: 5h
       - save_cache:
