@@ -1,7 +1,7 @@
 # Independent Packaging
 
 This is how to use cargo2nix to package Rust software indpenendently of its
-hosting repository.
+hosting repository.  This example uses flakes and flake-compat.
 
 ## Introduction
 
@@ -15,7 +15,7 @@ First clone the target repository at the commit you wish to generate a build
 for:
 
 ```shell
-git clone --depth 1 --branch 2020-11-30 git@github.com:rust-analyzer/rust-analyzer.git 
+git clone --depth 1 --branch 2021-11-08 git@github.com:rust-analyzer/rust-analyzer.git 
 ```
 
 Inside the clone, generate / update the lock file and then create a `Cargo.nix`
@@ -31,19 +31,19 @@ called `packageFun`). The main difference is that we will also pass a
 `workspaceSrc` argument to `makePackageSet'`.
 
 ```nix
+
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    inherit rustChannel;
+    rustChannel = "1.56.1";
     packageFun = import ./Cargo.nix;
-    
+
     workspaceSrc = pkgs.fetchFromGitHub {
       owner = "rust-analyzer";
       repo = "rust-analyzer";
-      rev = "ac30710ada112984c9cf79c4af39ad666d000171";
-      sha256 = "1ycnl9y7vhv7yd8w21904cyfik2y7jjzpb17xkdpiazw5riyyzh3";
+      rev = "2c0f433fd2e838ae181f87019b6f1fefe33c6f54";
+      sha256 = "sha256-nqRK5276uTKOfwd1HAp4iOucjka651MkOL58qel8Hug=";
     };
-    
     # You can also use local paths for local development with a checked out copy
-    # workspaceSrc = ~/vendor/rust-analyzer;
+    # workspaceSrc = ../../../upstream/rust-analyzer;
   };
 
 ```
@@ -53,11 +53,28 @@ argument because several of its crates are not in locations picked up by the
 default.
 
 ```nix
-  rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    # ... the other arguments
-  
+  rustPkgs = pkgs.rustBuilder.makePackageSet' {  
     localPatterns = [ ''^(src|tests|crates|xtask|assets|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
   };
+```
+
+The latest version of Rust Analyzer requires a library that we can provide via
+an inline override
+
+```nix
+
+    # Provide the gperfools lib for linking the final rust-analyzer binary
+    packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
+      (pkgs.rustBuilder.rustLib.makeOverride {
+        name = "rust-analyzer";
+        overrideAttrs = drv: {
+          propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+            pkgs.gperftools
+          ];
+        };
+      })
+    ];
+    
 ```
 
 Nix will by default build packages that contain some extra outputs (which
@@ -67,16 +84,25 @@ install finished software into a profile. We can expose just the `bin` output by
 selecting it explicitly in the final expression of our `default.nix`:
 
 ```nix
-#... previously expressed rustPkgs
-in {
-  rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
-}
+  #... previously expressed rustPkgs
+  
+  in rec {
+    packages = {
+      rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+    };
+
+    defaultPackage = packages.rust-analyzer;
+  }
 ```
 
 You can test that this package builds like so:
 
 ```
-nix-build -A rust-analyzer
+# with flakes
+nix build
+
+# legacy style nix
+nix-build -A default
 ```
 
 You will now see a clean binary output at `result-bin/bin/rust-analyzer`
