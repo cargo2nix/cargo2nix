@@ -77,7 +77,9 @@
           ];
           importExprsInDir = with pkgs.lib; dir:
             mapAttrsToList
-              (name: _: import (dir + "/${name}") { inherit cargo2nix; })
+              (name: _: if name == "4-independent-packaging"
+                        then import (dir + "/${name}")
+                        else import (dir + "/${name}") { inherit cargo2nix rust-overlay; })
               (pkgs.lib.filterAttrs
                 (name: kind: kind == "directory")
                 (builtins.readDir dir)
