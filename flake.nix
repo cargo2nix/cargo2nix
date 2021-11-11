@@ -96,9 +96,15 @@
       #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "bench"; }`.
       # For convenience, you can also refer to the crates in the workspace using
       #   `rustPkgs.workspace.<crate>`.
+      #
+      # When a crate is not associated with any registry, such as when building
+      # locally, the registry is "unknown" as shown below:
+      # rustPkgs.unknown.cargo2nix."0.9.0"
+      # An example of a crates.io path:
+      # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
       in rec {
         # We re-export the overlays here so that other projects can import them as well.
-        inherit devShell overlays; 
+        inherit devShell overlays;
 
         packages = {
           inherit examples rustPkgs;

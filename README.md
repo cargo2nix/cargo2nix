@@ -55,18 +55,18 @@ advantage of this shell is that in this environment users can develop their
 crates and be sure that their crates builds in the same way that `cargo2nix`
 overlay will build them.
 
-To do this, first run `nix-shell -A 'rustPkgs.<registry>.<crate>."x.y.z"'
-default.nix`.  For instance, the following command being invoked in this
-repository root drops you into such a development shell.
+To do this, first find the .drv for your dependency by using, for example, `nix
+show-derivation | grep cargo`
 
 ```bash
-# When a crate is not associated with any registry, such as when building locally,
-# the registry is "unknown" as shown below:
-nix-shell -A 'rustPkgs.unknown.cargo2nix."0.9.0"' default.nix
+nix show-derivation | rg -o "/nix.*crate.*serde.*drv"
+/nix/store/ql6bj0w83bh1ilny0k0iq6d6jq64bjsh-crate-serde-1.0.127.drv
 
-# This crate is a dependency that we may be debugging. Use the --pure switch if
-# impurities from your current environment may be polluting the nix build:
-nix-shell --pure -A 'rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"' default.nix
+nix develop --ignore-environment /nix/store/ql6bj0w83bh1ilny0k0iq6d6jq64bjsh-crate-serde-1.0.127.drv
+
+# the environment is now as it is when nix builds the package
+echo $src 
+/nix/store/xci6vnk5fixxgpiwswp8f3vpmc7rwmhk-serde-1.0.127.tar.gz
 
 # If you are working on a dependency and need the source (or a fresh copy) you
 # can unpack the $src variable. Through nix stdenv, tar is available in pure 
@@ -105,8 +105,8 @@ runHook runCargo
 If `runCargo` succeeds, you will have a completed output ready for the (usually)
 less interesting `$installPhase`. If there's a problem, inspecting the `env` or
 reading the generated `Cargo.lock` etc should yield clues.  If you've unpacked a
-fresh source and are using the `--pure switch`, everything is identical to how
-the overlay builds the crate, cutting out guess work.
+fresh source and are using the `--ignore-environment` switch, everything is
+identical to how the overlay builds the crate, cutting out guess work.
 
 ## Common issues
 
