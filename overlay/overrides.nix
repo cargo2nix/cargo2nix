@@ -97,6 +97,7 @@ in rec {
       overrideAttrs = drv: {
         propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
           pkgs.xcbuild
+          pkgs.libiconv
         ];
       };
     }
