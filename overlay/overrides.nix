@@ -66,6 +66,7 @@ in rec {
 
   # Don't forget to add new overrides here.
   all = [
+    anyhow
     capLints
     cc
     curl-sys
@@ -85,6 +86,17 @@ in rec {
     ring
     zmq-sys
   ];
+
+  anyhow = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "anyhow";
+      overrideAttrs = drv: {
+        propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+          pkgs.libiconv
+        ];
+      };
+    }
+    else nullOverride;
 
   capLints = makeOverride {
     registry = "registry+https://github.com/rust-lang/crates.io-index";
