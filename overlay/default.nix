@@ -1,8 +1,8 @@
-self: super:
+final: prev:
 let
-  inherit (self) lib newScope;
-  pkgs = self;
-  scope = self: let inherit (self) callPackage; in
+  inherit (final) lib newScope;
+  pkgs = final;
+  scope = final: let inherit (final) callPackage; in
   {
     mkLocalRegistry = callPackage ./local-registry.nix {};
 
