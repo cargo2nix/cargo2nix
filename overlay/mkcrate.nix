@@ -119,8 +119,9 @@ let
   drvAttrs = {
     inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
-    buildInputs = runtimeDependencies;
-    propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
+
+    buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
+    propagatedBuildInputs = (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
     nativeBuildInputs = [ rustChannel ] ++ buildtimeDependencies;
 
     depsBuildBuild =
