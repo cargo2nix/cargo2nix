@@ -110,8 +110,8 @@ identical to how the overlay builds the crate, cutting out guess work.
 
 ## Common issues
 
-1. When building `sys` crates, native dependencies that `build.rs` scripts may
-   themselves attempt to provide could be missing. See the
+1. When building `sys` crates, `build.rs` scripts may themselves attempt to
+   provide native dependencies that could be missing. See the
    `overlay/overrides.nix` for patterns of common solutions for fixing up
    specific deps.
    
@@ -139,11 +139,16 @@ identical to how the overlay builds the crate, cutting out guess work.
      };
    ```
    
+1. Features in the Cargo.lock may not match what's used in `cargo build`.  You
+   can configure features for each dependency manually without much effort by
+   finding it in the generated code.  The root cause is likely to be found in
+   build.rs setting features that don't make it into the lock file.
+
 1. When re-vendoring rust-overlay or cargo2nix, pay attention to the revs of
    nixpkgs, the rust-overlay, and the cargo2nix overlay. Certain non-release
    versions of nixpkgs-mozilla (no longer used) have shipped with a `rustc` that
    doesn't include zlib in its runtime dependencies.
-   
+      
 1. Many `crates.io` public crates may not build using the current Rust compiler,
    unless a lint cap is put on these crates. For instance, `cargo2nix` caps all
    lints to `warn` by default.
