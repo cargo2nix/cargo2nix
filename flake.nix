@@ -60,6 +60,20 @@
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
           localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
         };
+        # `rustPkgs` now contains all crates in the dependency graph.
+        # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.
+        # To build test binaries (equivalent to `cargo build --tests`), use
+        #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "test"; }`.
+        # To build bench binaries (equivalent to `cargo build --benches`), use
+        #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "bench"; }`.
+        # For convenience, you can also refer to the crates in the workspace using
+        #   `rustPkgs.workspace.<crate>`.
+        #
+        # When a crate is not associated with any registry, such as when building
+        # locally, the registry is "unknown" as shown below:
+        # rustPkgs.unknown.cargo2nix."0.9.0"
+        # An example of a crates.io path:
+        # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 
         # `noBuild` is a special crate set used to create a development shell
         # containing all native dependencies provided by the overrides above.
@@ -70,39 +84,40 @@
           RUST_SRC_PATH = "${rustPkgs.rustChannel}/lib/rustlib/src/rust/library";
         };
 
-      # `rustPkgs` now contains all crates in the dependency graph.
-      # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.
-      # To build test binaries (equivalent to `cargo build --tests`), use
-      #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "test"; }`.
-      # To build bench binaries (equivalent to `cargo build --benches`), use
-      #   `rustPkgs.<registry>.<crate>.<version>{ compileMode = "bench"; }`.
-      # For convenience, you can also refer to the crates in the workspace using
-      #   `rustPkgs.workspace.<crate>`.
-      #
-      # When a crate is not associated with any registry, such as when building
-      # locally, the registry is "unknown" as shown below:
-      # rustPkgs.unknown.cargo2nix."0.9.0"
-      # An example of a crates.io path:
-      # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
       in rec {
-        # We re-export the overlays here so that other projects can import them as well.
-        inherit devShell overlays;
 
+        # nix develop
+        inherit devShell;
+
+        # nix run
+        defaultApp = { type = "app"; program = "cargo2nix";};
+
+        # the packages in:
+        # nix build .#packages.x86_64-linux.cargo2nix
         packages = {
-          inherit examples rustPkgs;
-          package = rustPkgs.workspace.cargo2nix {};
 
-          # `runTests` runs all tests for a crate inside a Nix derivation.
-          # This may be problematic as Nix may restrict filesystem, network access,
-          # socket creation, ... which the test binary may need.
-          # If you run to those problems, build test binaries (as shown above) and run them
-          # manually outside a Nix derivation.
+          # nix build .#cargo2nix
+          cargo2nix = rustPkgs.workspace.cargo2nix {};
+
+          # `runTests` runs all tests for a crate inside a Nix derivation.  This
+          # may be problematic as Nix may restrict filesystem, network access,
+          # socket creation, which the test binary may need.
+          # If you run to those problems, build test binaries (as shown above in
+          # workspace derivation arguments) and run them manually outside a Nix
+          # derivation.
           ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix { };
+
           shell = devShell;
         };
 
-        defaultPackage = packages.package;
+        # nix build
+        defaultPackage = packages.cargo2nix;
+
+        # for downstream importer who wants to provide rust themselves
         overlay = cargo2nixOverlay;
+
+        # for downstream importer to create nixpkgs the same way
+        inherit overlays;
       }
     );
 }
