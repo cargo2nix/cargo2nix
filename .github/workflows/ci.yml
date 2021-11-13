@@ -45,6 +45,7 @@ jobs:
 
       - name: build examples
         run: nix build ./examples/1-hello-world#
+        run: nix build ./examples/4-independent-packaging#
 
       - name: use dev shell
         # enter the shell with no environment paths and verify that toolchain is available

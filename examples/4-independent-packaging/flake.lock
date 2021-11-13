@@ -122,7 +122,25 @@
         "flake-compat": "flake-compat_2",
         "flake-utils": "flake-utils_2",
         "nixpkgs": "nixpkgs_2",
+        "rust-analyzer-src": "rust-analyzer-src",
         "rust-overlay": "rust-overlay_2"
+      }
+    },
+    "rust-analyzer-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1636283595,
+        "narHash": "sha256-nqRK5276uTKOfwd1HAp4iOucjka651MkOL58qel8Hug=",
+        "owner": "rust-analyzer",
+        "repo": "rust-analyzer",
+        "rev": "2c0f433fd2e838ae181f87019b6f1fefe33c6f54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rust-analyzer",
+        "repo": "rust-analyzer",
+        "rev": "2c0f433fd2e838ae181f87019b6f1fefe33c6f54",
+        "type": "github"
       }
     },
     "rust-overlay": {

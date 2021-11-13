@@ -1,7 +1,7 @@
 # Independent Packaging
 
 This is how to use cargo2nix to package Rust software indpenendently of its
-hosting repository.  This example uses flakes and flake-compat.
+hosting repository.  This example uses flakes.
 
 ## Introduction
 
@@ -26,9 +26,23 @@ cargo2nix -f
 ```
 
 Copy just the generated `Cargo.nix` to the repository you wish to host the new
-package. Now we need to make a `default.nix` to consume the `Cargo.nix` (also
-called `packageFun`). The main difference is that we will also pass a
-`workspaceSrc` argument to `makePackageSet'`.
+package. Now we need to make a `flake.nix` to consume the `Cargo.nix` (also
+called `packageFun`).
+
+In flakes, we cannot just use a `fetchGit` etc to insert dependencies ad hoc.
+The proper way to get our source is to create a flake input and pass it into the
+outputs function.  (remember to add this to the argument list)
+
+```nix
+# in the inputs
+rust-analyzer-src = {
+  url = "github:rust-analyzer/rust-analyzer?rev=2c0f433fd2e838ae181f87019b6f1fefe33c6f54";
+  flake = false;
+};
+
+```
+
+We will also pass a `workspaceSrc` argument to `makePackageSet'`.
 
 ```nix
 
@@ -36,12 +50,7 @@ called `packageFun`). The main difference is that we will also pass a
     rustChannel = "1.56.1";
     packageFun = import ./Cargo.nix;
 
-    workspaceSrc = pkgs.fetchFromGitHub {
-      owner = "rust-analyzer";
-      repo = "rust-analyzer";
-      rev = "2c0f433fd2e838ae181f87019b6f1fefe33c6f54";
-      sha256 = "sha256-nqRK5276uTKOfwd1HAp4iOucjka651MkOL58qel8Hug=";
-    };
+    workspaceSrc = rust-analyzer-src
     # You can also use local paths for local development with a checked out copy
     # workspaceSrc = ../../../upstream/rust-analyzer;
   };
@@ -100,9 +109,12 @@ You can test that this package builds like so:
 ```
 # with flakes
 nix build
-
-# legacy style nix
-nix-build -A default
 ```
 
 You will now see a clean binary output at `result-bin/bin/rust-analyzer`
+
+### Errata
+
+The version of Rust Analyzer built here will generate a Cargo.nix that enables
+both allocators.  Search the [Cargo.nix](./Cargo.nix) for `mimalloc` to see
+where this erroneously enabled feature was commented out by hand.
