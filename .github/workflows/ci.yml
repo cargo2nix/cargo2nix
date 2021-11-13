@@ -46,7 +46,7 @@ jobs:
         run: nix build .#ci
 
       - name: build examples
-        run: nix build .#examples
+        run: nix build ./examples/1-hello-world#
 
       - name: use dev shell
         run: nix develop "rustc" "--version"

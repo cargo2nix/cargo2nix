@@ -70,24 +70,6 @@
           RUST_SRC_PATH = "${rustPkgs.rustChannel}/lib/rustlib/src/rust/library";
         };
 
-        examples = let
-          cargo2nix = pkgs.lib.sourceByRegex ./. [
-            ''^(overlay|src|tests|templates)(/.*)?''
-            ''[^/]*\.(nix|rs|toml)$''
-          ];
-          importExprsInDir = with pkgs.lib; dir:
-            mapAttrsToList
-              (name: _: if name == "4-independent-packaging"
-                        then import (dir + "/${name}")
-                        else import (dir + "/${name}") { inherit cargo2nix rust-overlay; })
-              (pkgs.lib.filterAttrs
-                (name: kind: kind == "directory")
-                (builtins.readDir dir)
-              );
-          in
-            importExprsInDir ./examples;
-
-
       # `rustPkgs` now contains all crates in the dependency graph.
       # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.
       # To build test binaries (equivalent to `cargo build --tests`), use
