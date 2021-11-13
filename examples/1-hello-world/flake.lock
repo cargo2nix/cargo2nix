@@ -2,34 +2,22 @@
   "nodes": {
     "cargo2nix": {
       "inputs": {
-        "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "narHash": "sha256-N9NTsNMmGPXJnOgI3FoWkAfwLkQx5fnG+aFRZCtlxZU=",
-        "path": "../../",
-        "type": "path"
-      },
-      "original": {
-        "path": "../../",
-        "type": "path"
-      }
-    },
-    "flake-compat": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1627913399,
-        "narHash": "sha256-hY8g6H2KFL8ownSiFeMOjwPC8P0ueXpCVEbxgda3pko=",
-        "owner": "edolstra",
-        "repo": "flake-compat",
-        "rev": "12c64ca55c1014cdc1b16ed5a804aa8576601ff2",
+        "lastModified": 1636801096,
+        "narHash": "sha256-fn+2BGv2kAJy8HH1HgjkHEuncp23bxUyPFPBa7wSI5U=",
+        "owner": "cargo2nix",
+        "repo": "cargo2nix",
+        "rev": "43bbe62b3926c56343e6518f6cd3d62e6d210f57",
         "type": "github"
       },
       "original": {
-        "owner": "edolstra",
-        "repo": "flake-compat",
+        "owner": "cargo2nix",
+        "ref": "master",
+        "repo": "cargo2nix",
         "type": "github"
       }
     },
