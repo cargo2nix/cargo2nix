@@ -21,7 +21,7 @@ foo-project
 ├── tests
 │   └── my_tests.rs
 ├── build.rs
-├── default.nix
+├── flake.nix
 ├── Cargo.lock
 ├── Cargo.nix
 ├── Cargo.toml
@@ -53,40 +53,19 @@ Let's begin by creating a new Cargo crate called `static-resources`.
 
 ## Generating the project
 
-As with the previous examples, we will generate a new binary project with Cargo
-using `cargo new <name>`. This requires us to have some version of the Rust
-toolchain installed on our system. If Cargo isn't present on your machine, you
-can use `nix-shell` to drop into a temporary shell with Cargo present, like so:
-
-```bash
-nix-shell -p cargo
-```
-
-Now that we're inside this shell, let's create the `static-resources` Cargo
-project:
-
-```bash
-cargo new static-resources
-```
-
-Since [Cargo 0.26.0](https://github.com/rust-lang/cargo/pull/5029), the default
-project type should be `--bin` if unspecified. You should see the following
-output in your terminal:
-
-```text
-     Created binary (application) `static-resources` package
-```
+As described in the hello-world example, fire up a Rust bin crate project with
+`cargo new static-resources`
 
 This should create a new directory called `static-resources` containing a mostly
-empty `Cargo.toml` and `src/main.rs` file. Change into that directory with `cd`
-and create a new subdirectory called `templates`, like so:
+empty `Cargo.toml` and `src/main.rs` file. Make a subdirectory for called `templates`
 
 ```bash
+cd static-resources
 mkdir templates
 ```
 
-This directory will hold our `ructe` template files. Let's create a template
-file in this location named `test.rs.html`:
+The `templates` directory will hold our `ructe` template files. Let's create a
+template file in this location named `test.rs.html`:
 
 ```text
 @(test: &str)
@@ -141,72 +120,89 @@ Unfortunately, this project will not build under `cargo2nix` by default because
 the build script will not be able to locate the `templates` directory. Let's fix
 that when we wrap our project with `cargo2nix`, shall we?
 
-## Wrapping with cargo2nix
 
-The process for wrapping up our crate with `cargo2nix` should be very similar to
-the previous examples, with one notable difference.
+## Generating a Cargo.nix
 
-### Generating a Cargo.nix
-
-First, we generate a `Cargo.lock` and `Cargo.nix` for our crate by running the
-two commands below:
+Like the previous example, we generate a `Cargo.lock` and `Cargo.nix` for our
+crate by running the two commands below:
 
 ```bash
 cargo generate-lockfile
 cargo2nix -f
 ```
 
-### Creating a default.nix
+## Writing the Flake.nix
 
-Let's create a new file called [`default.nix`] and declare a function with the
+Let's create a new file called [`flake.nix`] and declare a function with the
 following arguments:
 
-[`default.nix`]: ./default.nix
+[`flake.nix`]: ./flake.nix
 
 ```nix
 {
-  system ? builtins.currentSystem,
-  rust-overlay ? builtins.fetchTarball {
-    url = https://github.com/oxalica/rust-overlay/archive/a9309152e39974309a95f3350ccb1337734c3fe5.tar.gz;
-    sha256 = "04428wpwc5hyaa4cvc1bx52i9m62ipavj0y7qs0h9cq9a7dl1zki";
-  },  
-  cargo2nix ? builtins.fetchGit {
-    url = https://github.com/cargo2nix/cargo2nix;
-    ref = "v0.9.0";
-  },
-}:
-```
-
-This should be identical to what we did in the previous two examples. The
-function body is slightly different, however:
-
-```nix
-let
-  rustOverlay = import rust-overlay;
-  cargo2nixOverlay = import "${cargo2nix}/overlay";
-
-  pkgs = import <nixpkgs> {
-    inherit system;
-    overlays = [ cargo2nixOverlay rustOverlay ];
+  inputs = {
+    cargo2nix.url = "path:../../";
+    # Use the github URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
+    flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    rust-overlay.inputs.flake-utils.follows = "flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
   };
 
-  rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "stable";
-    packageFun = import ./Cargo.nix;
-    localPatterns = [
-      ''^(src|tests|templates)(/.*)?''
-      ''[^/]*\.(rs|toml)$''
-    ];
-  };
-in
-  rustPkgs.workspace.static-resources {}
+  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, ... }:
+
+    # Build the output set for each default system and map system sets into
+    # attributes, resulting in paths such as:
+    # nix build .#packages.x86_64-linux.<name>
+    flake-utils.lib.eachDefaultSystem (system:
+
+      # let-in expressions, very similar to Rust's let bindings.  These names
+      # are used to express the output but not themselves paths in the output.
+      let
+
+        # create nixpkgs that contains rustBuilder from cargo2nix overlay
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [(import "${cargo2nix}/overlay")
+                      rust-overlay.overlay];
+        };
+
+        # create the workspace & dependencies package set
+        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+          rustChannel = "1.56.1";
+          packageFun = import ./Cargo.nix;
+
+          # Be sure our templates are not excluded from the sources used by nix
+          # for the workspace packages
+          localPatterns = [
+            ''^(src|tests|templates)(/.*)?''
+            ''[^/]*\.(rs|toml)$''
+          ];
+        };
+
+      in rec {
+        # this is the output (recursive) set (expressed for each system)
+
+        # the packages in `nix build .#packages.<system>.<name>`
+        packages = {
+          # nix build .#static-resources
+          # nix build .#packages.x86_64-linux.static-resources
+          static-resources = (rustPkgs.workspace.static-resources {}).bin;
+        };
+
+        # nix build
+        defaultPackage = packages.static-resources;
+      }
+    );
+}
 ```
 
-Again, we import Nixpkgs using our `rust-overlay` and `cargo2nix` overlays
-and build the `Cargo.nix` for the project with the `rustBuilder.makePackageSet'`
-function. The biggest difference is the addition of a new `localPatterns`
-argument. This allows you to override the default file and directory filtering
-and specify your own.
+
+The biggest difference is the addition of a new `localPatterns` argument. This
+allows you to override the default file and directory filtering and specify your
+own.
 
 As mentioned in the introduction, if `localPatterns` is not specified by the
 user, it defaults to:
@@ -220,28 +216,45 @@ user, it defaults to:
 
 The first regex pattern allows all files inside the `(src|tests)` directories,
 and the second regex allows all `*.(rs|toml)` files present in the crate root
-directory. In our project's case, we copied this pattern into our `default.nix`
+directory. In our project's case, we copied this pattern into our `flake.nix`
 verbatim and expanded it to allow the `templates` directory as well.
 
-Save the `default.nix` file and quit. Let's verify this works as expected by
+Save the `flake.nix` file and quit. Let's verify this works as expected by
 building it!
+
+### :warning: Remember to Add Flake to Version Control
+
+ Remember to add the flake to version control (and `Cargo.nix` and `flake.lock`
+while you're at it)
+
+```bash
+git init
+git add flake.nix
+flake check
+# generate the flake.lock
+git add flake.lock
+git add Cargo.nix
+```
 
 ## Building
 
 As always, to compile the `static-resources` binary with Nix, run:
 
 ```bash
-nix-build
+nix build
 ```
 
 This will create a `result` symlink in the current directory with the following
 structure:
 
 ```text
-/nix/store/8r9yp1apjsrrpwmws17f0pmb0anns62a-crate-static-resources-0.1.0
-├── bin
-│   └── static-resources
-└── lib
+ls -al result-bin
+result-bin -> /nix/store/xfhfa9pshhix98qlxmjmhf9200k4r7id-crate-static-resources-0.1.0-bin
+
+tree result-bin
+result-bin
+└── bin
+    └── static-resources
 ```
 
 Running the `static-resources` binary will print the templated string to the
