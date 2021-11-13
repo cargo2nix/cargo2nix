@@ -1,7 +1,6 @@
 # A bigger project
 
-This is a larger `bin` project which requires some dependencies from Crates.io
-and is compiled using the latest release of Rust.
+This is a larger `bin` project which requires some dependencies from Crates.io.
 
 ## Introduction
 
@@ -17,34 +16,10 @@ system dependencies.
 
 ## Generating the Cargo project
 
-As described in the previous example, the canonical way to generate a new binary
-project with Cargo is to run `cargo new <name>`. However, this requires us to
-have some version of the Rust toolchain installed on our system. If Cargo isn't
-present on your machine, you can use `nix-shell` to drop into a temporary shell
-with Cargo present, like so:
+As described in the previous example, fire up a Rust bin crate project with
+`cargo new bigger-project`
 
-```bash
-nix-shell -p cargo
-```
-
-Now that we're inside this shell, let's create the `bigger-project` crate we
-wish to build:
-
-```bash
-cargo new bigger-project
-```
-
-Since [Cargo 0.26.0](https://github.com/rust-lang/cargo/pull/5029), the default
-project type should be `--bin` if unspecified. You should see the following
-output in your terminal:
-
-```text
-     Created binary (application) `bigger-project` package
-```
-
-This should create a new directory called `bigger-project` containing a mostly
-empty `Cargo.toml` and `src/main.rs` file. Change into that directory with `cd`
-and replace the existing contents of `src/main.rs` with the following Rust code:
+Edit your `src/main.rs` with the following Rust code:
 
 ```rust
 //! A simple HTTP client using `reqwest`.
@@ -70,11 +45,96 @@ reqwest = "0.10"
 tokio = { version = "0.2", features = ["macros"] }
 ```
 
-As you might be able to tell by now, the `bigger-project` crate depends on both
-[`reqwest`] and [`tokio`], providing a simple asynchronous HTTP client. By
-default, `reqwest` relies on the [`native-tls`] crate for SSL support, which
-requires certain system dependencies depending on the host platform.
-Specifically:
+## Generating a Cargo.nix
+
+Like the previous example, we generate a `Cargo.lock` and `Cargo.nix` for our
+crate by running the two commands below:
+
+```bash
+cargo generate-lockfile
+cargo2nix -f
+```
+
+## Writing the Flake.nix
+
+Let's create a new file called [`flake.nix`] and declare a function with the
+following arguments:
+
+[`flake.nix`]: ./flake.nix
+
+```nix
+{
+  inputs = {
+    cargo2nix.url = "path:../../";
+    # Use the github URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
+    flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    rust-overlay.inputs.flake-utils.follows = "flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
+  };
+
+  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, ... }:
+
+    # Build the output set for each default system and map system sets into
+    # attributes, resulting in paths such as:
+    # nix build .#packages.x86_64-linux.<name>
+    flake-utils.lib.eachDefaultSystem (system:
+
+      # let-in expressions, very similar to Rust's let bindings.  These names
+      # are used to express the output but not themselves paths in the output.
+      let
+
+        # create nixpkgs that contains rustBuilder from cargo2nix overlay
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [(import "${cargo2nix}/overlay")
+                      rust-overlay.overlay];
+        };
+
+        # create the workspace & dependencies package set
+        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+          rustChannel = "1.56.1";
+          packageFun = import ./Cargo.nix;
+          # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
+        };
+
+      in rec {
+        # this is the output (recursive) set (expressed for each system)
+
+        # the packages in `nix build .#packages.<system>.<name>`
+        packages = {
+          # nix build .#bigger-project
+          # nix build .#packages.x86_64-linux.bigger-project
+          bigger-project = (rustPkgs.workspace.bigger-project {}).bin;
+        };
+
+        # nix build
+        defaultPackage = packages.bigger-project;
+      }
+    );
+}
+```
+
+:warning: Remember to add the flake to version control (and `Cargo.nix` and
+`flake.lock` while you're at it)
+
+```bash
+git init
+git add flake.nix
+flake check
+# generate the flake.lock
+git add flake.lock
+git add Cargo.nix
+```
+
+### About Overrides
+
+Our `bigger-project` crate depends on both [`reqwest`] and [`tokio`], providing
+a simple asynchronous HTTP client. By default, `reqwest` relies on the
+[`native-tls`] crate for SSL support, which requires certain system dependencies
+depending on the host platform.  Specifically:
 
 * On Linux and NixOS, we depend on OpenSSL (via the [`openssl`] crate).
 * On macOS, we depend on Secure Transport (via the [`security-framework`]
@@ -86,79 +146,9 @@ Specifically:
 [`openssl`]: https://github.com/sfackler/rust-openssl
 [`security-framework`]: https://github.com/kornelski/rust-security-framework
 
-As we will see shortly, the required system dependencies will be magically
-injected into the build by `cargo2nix` using the `packageOverrides` argument for
-`makePackageSet'` without needing any extra work, but we will get into what that
-means later on.
-
-For now, let's focus on wrapping our project with `cargo2nix`!
-
-## Wrapping with cargo2nix
-
-The process for wrapping up our crate with `cargo2nix` should be identical to
-that of the Hello World project from earlier.
-
-### Generating a Cargo.nix
-
-Like the previous example, we generate a `Cargo.lock` and `Cargo.nix` for our
-crate by running the two commands below:
-
-```bash
-cargo generate-lockfile
-cargo2nix -f
-```
-
-Pretty smooth sailing so far.
-
-### Creating a default.nix
-
-Let's create a new file called [`default.nix`] and declare a function with the
-following arguments:
-
-[`default.nix`]: ./default.nix
-
-```nix
-{
-  system ? builtins.currentSystem,
-  rust-overlay ? builtins.fetchTarball {
-    url = https://github.com/oxalica/rust-overlay/archive/a9309152e39974309a95f3350ccb1337734c3fe5.tar.gz;
-    sha256 = "04428wpwc5hyaa4cvc1bx52i9m62ipavj0y7qs0h9cq9a7dl1zki";
-  },  
-  cargo2nix ? builtins.fetchGit {
-    url = https://github.com/cargo2nix/cargo2nix;
-    ref = "v0.9.0";
-  },
-}:
-```
-
-This should be identical to what we did in the Hello World project from earlier.
-Likewise, we define the function body with almost identical contents as well:
-
-```nix
-let
-  rustOverlay = import rust-overlay;
-  cargo2nixOverlay = import "${cargo2nix}/overlay";
-
-  pkgs = import <nixpkgs> {
-    inherit system;
-    overlays = [ rustOverlay cargo2nixOverlay ];
-  };
-
-  rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "stable";
-    packageFun = import ./Cargo.nix;
-    # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if unspecified
-  };
-in
-  rustPkgs.workspace.bigger-project {}
-```
-
-Again, we import Nixpkgs using our `rust-overlay` and `cargo2nix` overlays
-and build the `Cargo.nix` for the project with the `rustBuilder.makePackageSet'`
-function. The only real difference between the Hello World project and
-this new project is that we are building `rustPkgs.workspace.bigger-project`
-this time. As before, you can review the full `default.nix` file in its entirety
-[here](./default.nix).
+The required system dependencies will be magically injected into the build by
+`cargo2nix` using the `packageOverrides` argument for `makePackageSet'` without
+needing any extra work, but we will get into what that means later on.
 
 You might have noticed that we did not specify any external dependencies to be
 used in our build, such as `openssl` or `darwin.apple_sdk.frameworks.Security`.
@@ -179,7 +169,7 @@ aware that the option exists.
 
 [feel free to open a pull request]: ./../../CONTRIBUTING.md
 
-Save the `default.nix` file and quit. Your `cargo2nix` project is ready for
+Save the `flake.nix` file and quit. Your `cargo2nix` project is ready for
 building!
 
 ## Building
@@ -187,21 +177,21 @@ building!
 To compile the `bigger-project` binary with Nix, simply run:
 
 ```bash
-nix-build
+nix build
 ```
 
 This will create a `result` symlink in the current directory with the following
 structure:
 
 ```text
-/nix/store/97k0hg8r3641pyqwy07h92mpyn3p3dps-crate-bigger-project-0.1.0
-├── .cargo-info
-├── bin
-│   └── bigger-project
-├── lib
-│   └── .link-flags
-└── nix-support
-    └── propagated-build-inputs
+ls -al result-bin
+result-bin -> /nix/store/kkx76zvrm02hsh09kw694r5ma5f4wrjf-crate-bigger-project-0.1.0-bin
+
+tree result-bin
+result-bin
+└── bin
+    └── bigger-project
+
 ```
 
 Running the `bigger-project` binary will print the following output to the
