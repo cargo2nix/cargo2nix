@@ -255,8 +255,8 @@ let
       export CARGO_HOME=`pwd`/.cargo
 
       mkdir -p deps build_deps
-      linkFlags=(`makeExternCrateFlags $dependencies $devDependencies`)
-      buildLinkFlags=(`makeExternCrateFlags $buildDependencies`)
+      linkFlags=(`makeExternCrateFlags $dependencies $devDependencies | sort -u`)
+      buildLinkFlags=(`makeExternCrateFlags $buildDependencies | sort -u`)
       linkExternCrateToDeps `realpath deps` $dependencies $devDependencies
       linkExternCrateToDeps `realpath build_deps` $buildDependencies
 
