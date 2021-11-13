@@ -44,6 +44,8 @@ args@{
   hostPlatform,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  codegenOpts ? null,
+  profileOpts ? null,
   mkRustCrate,
   rustLib,
   lib,
@@ -60,7 +62,7 @@ in let
   rootFeatures' = expandFeatures rootFeatures;
   overridableMkRustCrate = f:
     let
-      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures; } // (f profileName)));
+      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures profileOpts codegenOpts; } // (f profileName)));
     in { compileMode ? null, profileName ? decideProfile compileMode release }:
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in
@@ -1802,6 +1804,8 @@ in
       [ "force-always-assert" ]
       [ "jemalloc" ]
       [ "jemallocator" ]
+      # The second allocator should be exclusive
+      # [ "mimalloc" ]
     ];
     dependencies = {
       always_assert = rustPackages."registry+https://github.com/rust-lang/crates.io-index".always-assert."0.1.2" { inherit profileName; };
