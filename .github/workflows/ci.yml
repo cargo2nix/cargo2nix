@@ -47,4 +47,5 @@ jobs:
         run: nix build ./examples/1-hello-world#
 
       - name: use dev shell
-        run: nix develop "rustc" "--version"
+        # enter the shell with no environment paths and verify that toolchain is available
+        run: nix develop --ignore-environment --command "rustc" "--version"
