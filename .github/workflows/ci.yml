@@ -35,6 +35,7 @@ jobs:
         with:
           name: cargo2nix-gh
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          pushFilter: "(.drv.chroot$)"
 
       # Runs a single command using the runners shell
       - name: build cargo2nix
