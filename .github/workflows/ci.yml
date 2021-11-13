@@ -46,10 +46,10 @@ jobs:
 
       - name: build examples
         run: |
-          nix build ./examples/1-hello-world#
-          nix build ./examples/2-bigger-project#
-          nix build ./examples/3-static-resources#
-          nix build ./examples/4-independent-packaging#
+          nix build ./examples/1-hello-world# --update-input cargo2nix
+          nix build ./examples/2-bigger-project# --update-input cargo2nix
+          nix build ./examples/3-static-resources# --update-input cargo2nix
+          nix build ./examples/4-independent-packaging# --update-input cargo2nix
 
       - name: use dev shell
         # enter the shell with no environment paths and verify that toolchain is available
