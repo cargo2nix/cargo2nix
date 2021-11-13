@@ -49,7 +49,7 @@ loadExternCrateLinkFlags() {
 
       local crate_name=$(jq -r '.name' "$crate/.cargo-info")
       if [ -f "$crate/lib/.link-flags" ]; then
-        cat "$crate/lib/.link-flags"
+        cat "$crate/lib/.link-flags" | sort -u
       fi
     done
 }
@@ -142,8 +142,7 @@ install_crate2() {
   jq -rR 'fromjson?
     | select(.reason == "build-script-executed")
     | (.linked_libs | map("-l \(.)")) + (.linked_paths | map("-L \(.)"))
-    | .[]' < .cargo-build-output \
-    | tr '\n' ' ' >> "$out/lib/.link-flags"
+    | .[]' < .cargo-build-output >> "$out/lib/.link-flags"
 
   mkdir -p "$bin/bin"
   mkdir -p "$out/bin"
@@ -190,6 +189,7 @@ install_crate2() {
     --arg metadata "$NIX_RUST_METADATA" \
     --arg procmacro "$(basename "$(jq -rR 'fromjson? | select(.target.kind[0] == "proc-macro") | .filenames[0]' < .cargo-build-output)")" \
     --arg version "$version" > "$out/.cargo-info"
+
 }
 
 install_crate() {
