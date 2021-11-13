@@ -44,10 +44,11 @@ jobs:
         run: nix build .#ci
 
       - name: build examples
-        run: nix build ./examples/1-hello-world#
-        run: nix build ./examples/2-bigger-project#
-        run: nix build ./examples/3-static-resources#
-        run: nix build ./examples/4-independent-packaging#
+        run: |
+          nix build ./examples/1-hello-world#
+          nix build ./examples/2-bigger-project#
+          nix build ./examples/3-static-resources#
+          nix build ./examples/4-independent-packaging#
 
       - name: use dev shell
         # enter the shell with no environment paths and verify that toolchain is available
