@@ -85,9 +85,6 @@
         # nix develop
         inherit devShell;
 
-        # nix run
-        defaultApp = { type = "app"; program = "cargo2nix";};
-
         # the packages in:
         # nix build .#packages.x86_64-linux.cargo2nix
         packages = {
@@ -108,6 +105,9 @@
 
         # nix build
         defaultPackage = packages.cargo2nix;
+
+        # nix run
+        defaultApp = { type = "app"; program = "${defaultPackage}/bin/cargo2nix";};
 
         # for downstream importer who wants to provide rust themselves
         overlay = cargo2nixOverlay;

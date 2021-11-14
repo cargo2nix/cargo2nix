@@ -71,7 +71,7 @@ Generate the `Cargo.nix` file
 cargo2nix -f
 
 # Alternatively you can run cargo2nix directly
-nix run github:cargo2nix/cargo2nix
+nix run github:cargo2nix/cargo2nix -- -f
 ```
 
 
