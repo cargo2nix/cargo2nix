@@ -34,8 +34,6 @@
           rustChannel = "1.56.1";
           # nixified Cargo.lock
           packageFun = import ./Cargo.nix;
-          # include xpath, crates, and other paths that might otherwise be omitted
-          localPatterns = [ ''^(src|crates|xpath|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
 
           # Provide the gperfools lib for linking the final rust-analyzer binary
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [

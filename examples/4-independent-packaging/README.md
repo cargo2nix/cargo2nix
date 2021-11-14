@@ -57,16 +57,6 @@ We will also pass a `workspaceSrc` argument to `makePackageSet'`.
 
 ```
 
-In Rust Analyzer's case, we also need to pass a custom optional `localPatterns`
-argument because several of its crates are not in locations picked up by the
-default.
-
-```nix
-  rustPkgs = pkgs.rustBuilder.makePackageSet' {  
-    localPatterns = [ ''^(src|tests|crates|xtask|assets|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
-  };
-```
-
 The latest version of Rust Analyzer requires a library that we can provide via
 an inline override
 

@@ -42,9 +42,8 @@ into executables.
 [`include_str!()`]: https://doc.rust-lang.org/std/macro.include_str.html
 [`include_bytes!()`]: https://doc.rust-lang.org/std/macro.include_bytes.html
 
-This example project will demonstrate how to use the `localPatterns` argument to
-customize which files should be included in the `cargo2nix` build. For the sake
-of demonstration, this project will use the [`ructe`] template engine to
+This example uses some templates that must be included in the source. For the
+sake of demonstration, this project will use the [`ructe`] template engine to
 generate text according to a statically-embedded template file.
 
 [`ructe`]: https://github.com/kaj/ructe
@@ -173,13 +172,6 @@ following arguments:
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           rustChannel = "1.56.1";
           packageFun = import ./Cargo.nix;
-
-          # Be sure our templates are not excluded from the sources used by nix
-          # for the workspace packages
-          localPatterns = [
-            ''^(src|tests|templates)(/.*)?''
-            ''[^/]*\.(rs|toml)$''
-          ];
         };
 
       in rec {
@@ -198,26 +190,6 @@ following arguments:
     );
 }
 ```
-
-
-The biggest difference is the addition of a new `localPatterns` argument. This
-allows you to override the default file and directory filtering and specify your
-own.
-
-As mentioned in the introduction, if `localPatterns` is not specified by the
-user, it defaults to:
-
-```nix
-[
-  ''^(src|tests)(/.*)?''
-  ''[^/]*\.(rs|toml)$''
-]
-```
-
-The first regex pattern allows all files inside the `(src|tests)` directories,
-and the second regex allows all `*.(rs|toml)` files present in the crate root
-directory. In our project's case, we copied this pattern into our `flake.nix`
-verbatim and expanded it to allow the `templates` directory as well.
 
 Save the `flake.nix` file and quit. Let's verify this works as expected by
 building it!

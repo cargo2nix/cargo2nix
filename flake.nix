@@ -31,10 +31,6 @@
         #     Overrides are introduced to provide native inputs to build the crates generated in `Cargo.nix`.
         #     See `overlay/lib/overrides.nix` on how to create overrides and `overlay/overrides.nix` for a list of predefined overrides.
         #     Most of the time, you can just use `overrides.all`. You can hand-pick overrides later if your build becomes too slow.
-        # - `localPatterns` (optional):
-        #     A list of regular expressions that specify what should be included in the sources of your workspace's crates.
-        #     The expressions are relative to each crate's manifest directory.
-        #     This argument is optional and defaults to include the `src` directory and all `toml` files at the root of the manifest directory.
         # - `rootFeatures` (optional):
         #     A list of activated features on your workspace's crates.
         #     Each feature should be of the form `<crate_name>[/<feature>]`.
@@ -54,7 +50,6 @@
           packageFun = import ./Cargo.nix;
           rustChannel = "1.56.1";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
-          localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
         };
         # `rustPkgs` now contains all crates in the dependency graph.
         # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.

@@ -12,7 +12,6 @@
   workspaceSrc ? null,
   rustChannel,
   buildRustPackages ? null,
-  localPatterns ? [ ''^(src|tests)(/.*)?'' ''[^/]*\.(rs|toml)$'' ],
   packageOverrides ? rustBuilder.overrides.all,
   fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
   release ? null,
@@ -52,9 +51,7 @@ lib.fix' (self:
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {
         inherit fetchCrateAlternativeRegistry;
-        fetchCrateLocal = path: if builtins.typeOf(path) == "path"
-                                then (lib.sourceByRegex path localPatterns).outPath
-                                else path; # skip filtering for non-path types
+        fetchCrateLocal = path: path;
       };
       ${ if release == null then null else "release" } = release;
       ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
