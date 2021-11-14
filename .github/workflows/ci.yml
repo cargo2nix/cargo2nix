@@ -50,7 +50,7 @@ jobs:
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
           nix build ./examples/2-bigger-project# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
-          nix build ./examples/3-static-resources# \
+          nix build ./examples/3-cross-compiling# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
           # nix build ./examples/4-independent-packaging# \
           #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA

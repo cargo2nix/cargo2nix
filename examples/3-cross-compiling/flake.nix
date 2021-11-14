@@ -1,13 +1,13 @@
 {
   inputs = {
-    # cargo2nix.url = "path:../../";
+    cargo2nix.url = "path:../../";
     # Use the github URL for real packages
-    cargo2nix.url = "github:cargo2nix/cargo2nix/master";
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
     rust-overlay.inputs.flake-utils.follows = "flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
+    nixpkgs.url = "github:nixos/nixpkgs/master";
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, ... }:
@@ -24,6 +24,25 @@
         # create nixpkgs that contains rustBuilder from cargo2nix overlay
         pkgs = import nixpkgs {
           inherit system;
+
+          # crossSystem = {
+          #   config = "aarch64-unknown-linux-gnu";
+          # };
+
+          # crossSystem = {
+          #   config = "aarch64-unknown-linux-gnu";
+          # };
+
+          # crossSystem = {
+          #   config = "x86_64-unknown-linux-musl";
+          # };
+
+          crossSystem = {
+            config = "wasm32-unknown-wasi";
+            # Nixpkgs currently only supports LLVM lld linker for wasm32-wasi.
+            useLLVM = true;
+          };
+
           overlays = [(import "${cargo2nix}/overlay")
                       rust-overlay.overlay];
         };
@@ -32,6 +51,12 @@
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           rustChannel = "1.56.1";
           packageFun = import ./Cargo.nix;
+
+          # If your specific build target requires a difference between Rust and
+          # nixpkgs, set this target
+          # target = "aarch64-unknown-linux-gnu";
+          # target = "x86_64-unknown-linux-musl";
+          # target = "wasm32-wasi";
         };
 
       in rec {
@@ -39,13 +64,13 @@
 
         # the packages in `nix build .#packages.<system>.<name>`
         packages = {
-          # nix build .#static-resources
-          # nix build .#packages.x86_64-linux.static-resources
-          static-resources = (rustPkgs.workspace.static-resources {}).bin;
+          # nix build .#cross-compiling
+          # nix build .#packages.x86_64-linux.cross-compiling
+          cross-compiling = (rustPkgs.workspace.cross-compiling {}).bin;
         };
 
         # nix build
-        defaultPackage = packages.static-resources;
+        defaultPackage = packages.cross-compiling;
       }
     );
 }

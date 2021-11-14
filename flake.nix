@@ -19,6 +19,7 @@
         # 1. Setup nixpkgs with rust and cargo2nix overlays.
         pkgs = import nixpkgs {
           inherit system overlays;
+          # set `crossSystem` (see examples/3-cross-compiling) for configuring cross
         };
 
         # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.

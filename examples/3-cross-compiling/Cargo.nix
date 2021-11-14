@@ -4,7 +4,7 @@
 args@{
   release ? true,
   rootFeatures ? [
-    "static-resources/default"
+    "cross-compiling/default"
   ],
   rustPackages,
   buildRustPackages,
@@ -34,7 +34,7 @@ in
 {
   cargo2nixVersion = "0.10.0";
   workspace = {
-    static-resources = rustPackages.unknown.static-resources."0.1.0";
+    cross-compiling = rustPackages.unknown.cross-compiling."0.1.0";
   };
   "registry+https://github.com/rust-lang/crates.io-index".arrayvec."0.5.2" = overridableMkRustCrate (profileName: rec {
     name = "arrayvec";
@@ -189,8 +189,8 @@ in
     src = fetchCratesIo { inherit name version; sha256 = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"; };
   });
   
-  "unknown".static-resources."0.1.0" = overridableMkRustCrate (profileName: rec {
-    name = "static-resources";
+  "unknown".cross-compiling."0.1.0" = overridableMkRustCrate (profileName: rec {
+    name = "cross-compiling";
     version = "0.1.0";
     registry = "unknown";
     src = fetchCrateLocal workspaceSrc;
