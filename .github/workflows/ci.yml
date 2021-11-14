@@ -46,10 +46,14 @@ jobs:
 
       - name: build examples
         run: |
-          nix build ./examples/1-hello-world# --update-input cargo2nix
-          nix build ./examples/2-bigger-project# --update-input cargo2nix
-          nix build ./examples/3-static-resources# --update-input cargo2nix
-          # nix build ./examples/4-independent-packaging# --update-input cargo2nix
+          nix build ./examples/1-hello-world# \
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+          nix build ./examples/2-bigger-project# \
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+          nix build ./examples/3-static-resources# \
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+          # nix build ./examples/4-independent-packaging# \
+          #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
 
       - name: use dev shell
         # enter the shell with no environment paths and verify that toolchain is available

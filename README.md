@@ -1,6 +1,8 @@
 # cargo2nix
 
-[![build](https://github.com/cargo2nix/cargo2nix/actions/workflows/ci.yml/badge.svg)](https://github.com/cargo2nix/cargo2nix/actions/)
+[![all builds & CI](https://github.com/cargo2nix/cargo2nix/actions/workflows/ci.yml/badge.svg)](https://github.com/cargo2nix/cargo2nix/actions/?workflow=CI)
+[![build on Linux](https://badgen.net/github/checks/cargo2nix/cargo2nix/master/ubuntu)](https://github.com/cargo2nix/cargo2nix/actions/?workflow=CI)
+[![build on Darwin](https://badgen.net/github/checks/cargo2nix/cargo2nix/master/mac)](https://github.com/cargo2nix/cargo2nix/actions/?workflow=CI)
 [![flakes supported](https://img.shields.io/badge/flake-supported-green)](https://nixos.wiki/wiki/Flakes)
 
 [Nixify](https://nixos.org/nix) your Rust projects today with `cargo2nix`,
