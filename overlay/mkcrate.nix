@@ -24,6 +24,7 @@
   meta ? { },
   rustcflags ? [ ],
   rustcBuildFlags ? [ ],
+  target ? null,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
   NIX_DEBUG ? 0,
@@ -31,7 +32,6 @@
 with builtins; with lib;
 let
   inherit (rustLib) realHostTriple decideProfile;
-
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
     #!${stdenv.shell}
     . ${./utils.sh}
@@ -60,7 +60,7 @@ let
   cc = stdenv.cc;
   ccForHost="${cc}/bin/${targetPrefix}cc";
   cxxForHost="${cc}/bin/${targetPrefix}c++";
-  host-triple = realHostTriple stdenv.hostPlatform;
+  host-triple = if (target != null) then target else realHostTriple stdenv.hostPlatform;
   depMapToList = deps:
     flatten
       (sort (a: b: elemAt a 0 < elemAt b 0)
