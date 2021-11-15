@@ -11,6 +11,7 @@ args@{
   hostPlatform,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  target ? null,
   codegenOpts ? null,
   profileOpts ? null,
   mkRustCrate,
@@ -27,7 +28,7 @@ in let
   rootFeatures' = expandFeatures rootFeatures;
   overridableMkRustCrate = f:
     let
-      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures profileOpts codegenOpts; } // (f profileName)));
+      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures target profileOpts codegenOpts; } // (f profileName)));
     in { compileMode ? null, profileName ? decideProfile compileMode release }:
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in
@@ -79,6 +80,16 @@ in
     version = "1.0.0";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
     src = fetchCratesIo { inherit name version; sha256 = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"; };
+  });
+  
+  "unknown".cross-compiling."0.1.0" = overridableMkRustCrate (profileName: rec {
+    name = "cross-compiling";
+    version = "0.1.0";
+    registry = "unknown";
+    src = fetchCrateLocal workspaceSrc;
+    buildDependencies = {
+      ructe = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".ructe."0.9.2" { profileName = "__noProfile"; };
+    };
   });
   
   "registry+https://github.com/rust-lang/crates.io-index".either."1.6.1" = overridableMkRustCrate (profileName: rec {
@@ -187,16 +198,6 @@ in
     version = "1.0.5";
     registry = "registry+https://github.com/rust-lang/crates.io-index";
     src = fetchCratesIo { inherit name version; sha256 = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"; };
-  });
-  
-  "unknown".cross-compiling."0.1.0" = overridableMkRustCrate (profileName: rec {
-    name = "cross-compiling";
-    version = "0.1.0";
-    registry = "unknown";
-    src = fetchCrateLocal workspaceSrc;
-    buildDependencies = {
-      ructe = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".ructe."0.9.2" { profileName = "__noProfile"; };
-    };
   });
   
   "registry+https://github.com/rust-lang/crates.io-index".static_assertions."1.1.0" = overridableMkRustCrate (profileName: rec {
