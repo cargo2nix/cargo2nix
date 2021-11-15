@@ -66,19 +66,14 @@
         # An example of a crates.io path:
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 
-        # `noBuild` is a special crate set used to create a development shell
-        # containing all native dependencies provided by the overrides above.
-        # `cargo build` with in the shell should just work.
-        devShell = pkgs.mkShell {
-          inputsFrom = pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
-          nativeBuildInputs = [ rustPkgs.rustChannel ] ++ (with pkgs; [cacert]);
-          RUST_SRC_PATH = "${rustPkgs.rustChannel}/lib/rustlib/src/rust/library";
-        };
+        # The workspace defines a development shell with all of the dependencies
+        # and environment settings necessary for a regular `cargo build`
+        workspaceShell = rustPkgs.workspaceShell {};
 
       in rec {
 
         # nix develop
-        inherit devShell;
+        devShell = workspaceShell;
 
         # the packages in:
         # nix build .#packages.x86_64-linux.cargo2nix

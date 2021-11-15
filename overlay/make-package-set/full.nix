@@ -6,6 +6,7 @@
   stdenv,
   mkRustCrate,
   mkRustCrateNoBuild,
+  workspaceShell,
 }:
 {
   packageFun,
@@ -59,13 +60,14 @@ lib.fix' (self:
       ${ if hostPlatformFeatures == [] then null else "hostPlatformFeatures" } = hostPlatformFeatures;
     });
 
-  in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
-    inherit rustPackages callPackage pkgs;
-    inherit rustChannel;
     noBuild = packageFunWith {
       mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
       buildRustPackages = buildRustPackages'.noBuild;
     };
+
+  in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
+    inherit rustPackages callPackage pkgs rustChannel noBuild;
+    workspaceShell = workspaceShell { inherit pkgs noBuild rustChannel; };
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
