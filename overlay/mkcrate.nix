@@ -31,7 +31,7 @@
 }:
 with builtins; with lib;
 let
-  inherit (rustLib) realHostTriple decideProfile;
+  inherit (rustLib) rustTriple decideProfile;
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
     #!${stdenv.shell}
     . ${./utils.sh}
@@ -60,7 +60,8 @@ let
   cc = stdenv.cc;
   ccForHost="${cc}/bin/${targetPrefix}cc";
   cxxForHost="${cc}/bin/${targetPrefix}c++";
-  host-triple = if (target != null) then target else realHostTriple stdenv.hostPlatform;
+  rustBuildTriple = rustTriple stdenv.buildPlatform;
+  rustHostTriple = if (target != null) then target else rustTriple stdenv.hostPlatform;
   depMapToList = deps:
     flatten
       (sort (a: b: elemAt a 0 < elemAt b 0)
@@ -80,7 +81,7 @@ let
         else "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
       if compileMode != "doctest" then ''
-        ${rustChannel}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${host-triple} ${buildMode} \
+        ${rustChannel}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${rustHostTriple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
           --message-format=json | tee .cargo-build-output
       ''
@@ -161,19 +162,19 @@ let
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
-      [target."${realHostTriple stdenv.buildPlatform}"]
+      [target."${rustBuildTriple}"]
       linker = "${ccForBuild}"
-    '' + optionalString (codegenOpts != null && codegenOpts ? "${realHostTriple stdenv.buildPlatform}") (''
+    '' + optionalString (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") (''
       rustflags = [
-    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${realHostTriple stdenv.buildPlatform}") + "\n" + ''
+    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustBuildTriple}") + "\n" + ''
       ]
 
-    '') + optionalString (stdenv.buildPlatform != stdenv.hostPlatform && !(stdenv.hostPlatform.isWasi or false)) (''
-      [target."${host-triple}"]
+    '') + optionalString (rustBuildTriple != rustHostTriple) (''
+      [target."${rustHostTriple}"]
       linker = "${ccForHost}"
-    ''+ optionalString (codegenOpts != null && codegenOpts ? "${host-triple}") (''
+    ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
       rustflags = [
-    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${host-triple}") + "\n" + ''
+    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustHostTriple}") + "\n" + ''
       ]
 
     '')) + optionalString (profileOpts != null && profileOpts."${decideProfile compileMode release}" != null) (''
@@ -285,8 +286,8 @@ let
         env \
           "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${host-triple}"="${ccForHost}" \
-          "CXX_${host-triple}"="${cxxForHost}" \
+          "CC_${rustHostTriple}"="${ccForHost}" \
+          "CXX_${rustHostTriple}"="${cxxForHost}" \
           "''${depKeys[@]}" \
           ${buildCmd}
       )
@@ -304,9 +305,9 @@ let
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
-        install_crate ${host-triple} ${if release then "release" else "debug"}
+        install_crate ${rustHostTriple} ${if release then "release" else "debug"}
       else
-        install_crate2 ${host-triple}
+        install_crate2 ${rustHostTriple}
       fi
     '' else ''
       mkdir -p $out/share

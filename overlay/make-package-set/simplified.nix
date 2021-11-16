@@ -16,16 +16,16 @@ let
   extraArgs = builtins.removeAttrs args [ "rustChannel" "packageFun" "packageOverrides" "target"];
   rustChannel = buildPackages.rust-bin.stable.${args.rustChannel}.minimal.override {
     extensions = [ "rust-src" ];
-    targets = [
-      (if (target != null) then target else (rustBuilder.rustLib.realHostTriple stdenv.hostPlatform))
-    ];
+    # targets = [
+    # (rustBuilder.rustLib.rustTriple stdenv.buildPlatform)
+    # ];
   };
 in rustBuilder.makePackageSet (extraArgs // {
   inherit packageFun workspaceSrc rustChannel target;
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
-    inherit rustChannel packageFun;
-    target = (rustBuilder.rustLib.realHostTriple stdenv.buildPlatform);
+    inherit packageFun rustChannel;
+    target = (rustBuilder.rustLib.rustTriple stdenv.buildPlatform);
     packageOverrides = packageOverrides buildPackages;
   });
 })
