@@ -85,7 +85,7 @@
         packages = {
 
           # nix build .#cargo2nix
-          cargo2nix = rustPkgs.workspace.cargo2nix {};
+          cargo2nix = (rustPkgs.workspace.cargo2nix {}).bin;
 
           # `runTests` runs all tests for a crate inside a Nix derivation.  This
           # may be problematic as Nix may restrict filesystem, network access,
