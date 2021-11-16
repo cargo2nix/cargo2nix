@@ -29,9 +29,6 @@
           #   config = "aarch64-unknown-linux-gnu";
           # };
 
-          # crossSystem = {
-          #   config = "aarch64-unknown-linux-gnu";
-          # };
 
           # crossSystem = {
           #   config = "x86_64-unknown-linux-musl";
