@@ -92,8 +92,10 @@
           # socket creation, which the test binary may need.
           # If you run to those problems, build test binaries (as shown above in
           # workspace derivation arguments) and run them manually outside a Nix
-          # derivation.
-          ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix { };
+          # derivation.s
+          ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix {
+            /* Add `depsBuildBuild` test-only deps here, if any. */
+          };
 
           shell = devShell;
         };
