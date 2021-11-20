@@ -31,10 +31,6 @@
         #     Overrides are introduced to provide native inputs to build the crates generated in `Cargo.nix`.
         #     See `overlay/lib/overrides.nix` on how to create overrides and `overlay/overrides.nix` for a list of predefined overrides.
         #     Most of the time, you can just use `overrides.all`. You can hand-pick overrides later if your build becomes too slow.
-        # - `localPatterns` (optional):
-        #     A list of regular expressions that specify what should be included in the sources of your workspace's crates.
-        #     The expressions are relative to each crate's manifest directory.
-        #     This argument is optional and defaults to include the `src` directory and all `toml` files at the root of the manifest directory.
         # - `rootFeatures` (optional):
         #     A list of activated features on your workspace's crates.
         #     Each feature should be of the form `<crate_name>[/<feature>]`.
@@ -54,7 +50,6 @@
           packageFun = import ./Cargo.nix;
           rustChannel = "1.56.1";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
-          localPatterns = [ ''^(src|tests|templates)(/.*)?'' ''[^/]*\.(rs|toml)$'' ];
         };
         # `rustPkgs` now contains all crates in the dependency graph.
         # To build normal binaries, use `rustPkgs.<registry>.<crate>.<version> { }`.
@@ -71,19 +66,14 @@
         # An example of a crates.io path:
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 
-        # `noBuild` is a special crate set used to create a development shell
-        # containing all native dependencies provided by the overrides above.
-        # `cargo build` with in the shell should just work.
-        devShell = pkgs.mkShell {
-          inputsFrom = pkgs.lib.mapAttrsToList (_: pkg: pkg { }) rustPkgs.noBuild.workspace;
-          nativeBuildInputs = [ rustPkgs.rustChannel ] ++ (with pkgs; [cacert]);
-          RUST_SRC_PATH = "${rustPkgs.rustChannel}/lib/rustlib/src/rust/library";
-        };
+        # The workspace defines a development shell with all of the dependencies
+        # and environment settings necessary for a regular `cargo build`
+        workspaceShell = rustPkgs.workspaceShell {};
 
       in rec {
 
         # nix develop
-        inherit devShell;
+        devShell = workspaceShell;
 
         # the packages in:
         # nix build .#packages.x86_64-linux.cargo2nix

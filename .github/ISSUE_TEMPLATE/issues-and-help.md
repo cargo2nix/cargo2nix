@@ -1,8 +1,3 @@
-# Contributing
-
-This is a project that only succeeds through use.  Every build brings us closer
-to being a general tool for packaging and distributing Rust software with nix.
-
 ## Issues
 
 When opening an issue, you can help us and help yourself.
@@ -87,51 +82,3 @@ logic used to resolve crate feature flags or the code generation of the
 investigated thoroughly and may result in either a patch or minor version bump
 to `cargo2nix`, depending on whether the fix results in a breaking change to the
 `Cargo.nix` file format or the `mkRustCrate` logic.
-
-## Usage Help
-
-Using cargo2nix is about 5% running the cargo2nix tool and 95% figuring out how
-to construct the right nix expressions.  The cargo feature you need may or may
-not be supported yet by our overlay or cargo2nix's ability to comprehend your
-`Cargo.toml`
-
-### Cargo2nix overlay API
-
-Some of the features our overlay supports may be difficult to find.  There's
-some documentation in the [nix flake].  The [examples] contain some more hints.
-Ultimately, arguments to `rustBuilder.makePackageSet'` are consumed in
-[make-package-set/simplified.nix], which calls into `full.nix`
-
-[nix flake]: /cargo2nix/cargo2nix/blob/master/flake.nix
-[examples]: /cargo2nix/cargo2nix/tree/master/examples
-[make-package-set/simplified.nix]: cargo2nix/cargo2nix/blob/master/overlay/make-package-set/simplified.nix
-
-Each output in `rustPkgs.workspace.<name>` supports arguments.  Many are
-demonstrated in the [nix flake] comments, but check [mkcrate.nix] for how they
-are used.
-
-[mkcrate.nix]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
-[nix flake]: /cargo2nix/cargo2nix/blob/master/flake.nix
-
-## Pull Requests
-
-Many files are generated.  When you draft your changes, please separate out
-commits that affect:
-
-- Cargo.lock
-- Cargo.nix
-- flake.lock
-
-Keeping these changes isolated in specific commits makes it much easier to pull
-in your changes in parallel with other features.  Maintainers may harvest your
-changes.  We only guarantee to preserve authorship in the git log (when we
-remember to do so).
-
-### Creating pull requests
-
-1. Fork this repository into the personal GitHub account
-2. Make changes on the personal fork
-3. Make a Pull Request against this repository
-4. **Allow maintainers to make changes to your pull request** (there's a checkbox)
-5. Once the pull request has been approved, you will be thanked and observe your
-   changes applied with authorship preserved (if we remember)

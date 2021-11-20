@@ -32,13 +32,6 @@
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           rustChannel = "1.56.1";
           packageFun = import ./Cargo.nix;
-
-          # Be sure our templates are not excluded from the sources used by nix
-          # for the workspace packages
-          localPatterns = [
-            ''^(src|tests|templates)(/.*)?''
-            ''[^/]*\.(rs|toml)$''
-          ];
         };
 
       in rec {

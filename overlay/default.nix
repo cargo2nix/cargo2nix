@@ -18,11 +18,11 @@ let
 
     mkRustCrateNoBuild = callPackage ./mkcrate-nobuild.nix;
 
-    makeShell = callPackage ./make-shell.nix;
-
     overrides = callPackage ./overrides.nix { };
 
     runTests = callPackage ./run-tests.nix { };
+
+    workspaceShell = import ./workspace-shell.nix;
   };
 in
 {
