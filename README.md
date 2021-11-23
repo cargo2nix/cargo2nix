@@ -33,7 +33,7 @@ cargo2nix --version
 # In directory with Cargo.lock & Cargo.toml files
 cargo2nix -f
 # Results in Cargo.nix
-# See exmaples for how to write a flake that consumes this file for commands
+# See examples for how to write a flake that consumes this file for commands
 # such as:
 # nix develop
 # nix build
