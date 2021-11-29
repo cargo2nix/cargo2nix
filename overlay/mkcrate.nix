@@ -158,7 +158,6 @@ let
 
     extraRustcBuildFlags = rustcBuildFlags;
 
-    # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
@@ -169,7 +168,8 @@ let
     '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustBuildTriple}") + "\n" + ''
       ]
 
-    '') + optionalString (rustBuildTriple != rustHostTriple) (''
+    # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
+    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi") (''
       [target."${rustHostTriple}"]
       linker = "${ccForHost}"
     ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
