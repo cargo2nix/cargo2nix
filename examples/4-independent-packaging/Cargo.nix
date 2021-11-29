@@ -44,6 +44,7 @@ args@{
   hostPlatform,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  target ? null,
   codegenOpts ? null,
   profileOpts ? null,
   mkRustCrate,

@@ -17,6 +17,7 @@
   rustcBuildFlags ? [ ],
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
+  target ? null,
   codegenOpts,
   profileOpts,
 }:

@@ -1,8 +1,8 @@
 {
   inputs = {
-    # cargo2nix.url = "path:../../";
+    cargo2nix.url = "path:../../";
     # Use the github URL for real packages
-    cargo2nix.url = "github:cargo2nix/cargo2nix?rev=1de0ee0a0a7396c09b17cae1d90862490bcd4b67";
+    # cargo2nix.url = "github:cargo2nix/cargo2nix?rev=1de0ee0a0a7396c09b17cae1d90862490bcd4b67";
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";

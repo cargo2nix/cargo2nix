@@ -6,5 +6,5 @@
   inherit (callPackage ./profiles.nix { }) decideProfile genDrvsByProfile;
   inherit (callPackage ./overrides.nix { }) makeOverride combineOverrides runOverride nullOverride;
 
-  realHostTriple = import ./real-host-triple.nix;
+  rustTriple = import ./rust-triple.nix;
 }

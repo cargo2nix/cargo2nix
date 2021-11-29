@@ -19,6 +19,7 @@
         # 1. Setup nixpkgs with rust and cargo2nix overlays.
         pkgs = import nixpkgs {
           inherit system overlays;
+          # set `crossSystem` (see examples/3-cross-compiling) for configuring cross
         };
 
         # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
@@ -46,6 +47,10 @@
         #     flags used for compilation of the package set. The value should be a list of the features to be turned on, without the leading "+",
         #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
         #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
+        # - `target` (optional):
+        #     Set an explicit Rust output target.  Overrides the translation
+        #     from Nix targets to Rust targets.  See overlay/lib/rust-triple.nix
+        #     for more info.
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           packageFun = import ./Cargo.nix;
           rustChannel = "1.56.1";
@@ -80,15 +85,17 @@
         packages = {
 
           # nix build .#cargo2nix
-          cargo2nix = rustPkgs.workspace.cargo2nix {};
+          cargo2nix = (rustPkgs.workspace.cargo2nix {}).bin;
 
           # `runTests` runs all tests for a crate inside a Nix derivation.  This
           # may be problematic as Nix may restrict filesystem, network access,
           # socket creation, which the test binary may need.
           # If you run to those problems, build test binaries (as shown above in
           # workspace derivation arguments) and run them manually outside a Nix
-          # derivation.
-          ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix { };
+          # derivation.s
+          ci = pkgs.rustBuilder.runTests rustPkgs.workspace.cargo2nix {
+            /* Add `depsBuildBuild` test-only deps here, if any. */
+          };
 
           shell = devShell;
         };

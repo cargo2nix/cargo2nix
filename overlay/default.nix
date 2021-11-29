@@ -4,10 +4,6 @@ let
   pkgs = final;
   scope = final: let inherit (final) callPackage; in
   {
-    mkLocalRegistry = callPackage ./local-registry.nix {};
-
-    mkCrate = callPackage ./crate.nix {};
-
     rustLib = callPackage ./lib { };
 
     makePackageSet = callPackage ./make-package-set/full.nix { };

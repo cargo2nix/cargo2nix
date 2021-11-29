@@ -28,9 +28,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # nix flakes do not work on shallow clones
-      - uses: cachix/install-nix-action@v14.1
+      - uses: cachix/install-nix-action@v15
         with:
-          extra_nix_config: experimental-features = nix-command flakes
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/cachix-action@v10
         with:
           name: cargo2nix-gh
@@ -46,14 +47,29 @@ jobs:
 
       - name: build examples
         run: |
+          if [[ $RUNNER_OS == Linux ]]; then
           nix build ./examples/1-hello-world# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
           nix build ./examples/2-bigger-project# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
-          nix build ./examples/3-static-resources# \
+          nix build ./examples/3-cross-compiling# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
-          # nix build ./examples/4-independent-packaging# \
-          #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+          nix build ./examples/4-independent-packaging# \
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+          else
+          nix build ./examples/1-hello-world# --no-update-lock-file \
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
+          nix build ./examples/2-bigger-project# --no-update-lock-file \
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
+          # nix build ./examples/3-cross-compiling# --no-update-lock-file
+          #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
+          # nix build ./examples/4-independent-packaging# --no-update-lock-file
+          #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
+          fi
 
       - name: use dev shell
         # enter the shell with no environment paths and verify that toolchain is available
