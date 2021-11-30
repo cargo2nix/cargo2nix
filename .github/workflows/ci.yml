@@ -40,7 +40,13 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: build cargo2nix
-        run: nix build
+        run: |
+          if [[ $RUNNER_OS == Linux ]]; then
+            nix build
+          else
+            nix build \
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
+          fi
 
       - name: build tests
         run: nix build .#ci
@@ -57,16 +63,16 @@ jobs:
           nix build ./examples/4-independent-packaging# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
           else
-          nix build ./examples/1-hello-world# --no-update-lock-file \
+          nix build ./examples/1-hello-world#
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
             --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
-          nix build ./examples/2-bigger-project# --no-update-lock-file \
+          nix build ./examples/2-bigger-project#
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
             --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
-          # nix build ./examples/3-cross-compiling# --no-update-lock-file
+          # nix build ./examples/3-cross-compiling#
           #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
           #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
-          # nix build ./examples/4-independent-packaging# --no-update-lock-file
+          # nix build ./examples/4-independent-packaging#
           #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
           #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
           fi
