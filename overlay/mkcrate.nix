@@ -168,7 +168,7 @@ let
       ]
 
     # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
-    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi") (''
+    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown") (''
       [target."${rustHostTriple}"]
       linker = "${ccForHost}"
     ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
