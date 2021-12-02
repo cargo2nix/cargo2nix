@@ -183,7 +183,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let ws = Workspace::new(&root_manifest_path, &config)?;
     let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
     let specs = Packages::All.to_package_id_specs(&ws)?;
-    let resolve = resolve_ws_with_opts(
+    let resolved = resolve_ws_with_opts(
         &ws,
         &rtd,
         &[CompileKind::Host],
