@@ -193,19 +193,19 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         ForceAllTargets::Yes,
     )?;
 
-    let pkgs_by_id = resolve
+    let pkgs_by_id = resolved
         .pkg_set
-        .get_many(resolve.pkg_set.package_ids())?
+        .get_many(resolved.pkg_set.package_ids())?
         .iter()
         .map(|pkg| (pkg.package_id(), *pkg))
         .collect();
 
-    let mut rpkgs_by_id = resolve
+    let mut rpkgs_by_id = resolved
         .pkg_set
-        .get_many(resolve.pkg_set.package_ids())?
+        .get_many(resolved.pkg_set.package_ids())?
         .iter()
         .map(|pkg| {
-            ResolvedPackage::new(pkg, &pkgs_by_id, &resolve.targeted_resolve)
+            ResolvedPackage::new(pkg, &pkgs_by_id, &resolved.targeted_resolve)
                 .map(|res| (pkg.package_id(), res))
         })
         .collect::<Result<_>>()?;
