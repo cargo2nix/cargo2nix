@@ -72,7 +72,9 @@
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 
         # The workspace defines a development shell with all of the dependencies
-        # and environment settings necessary for a regular `cargo build`
+        # and environment settings necessary for a regular `cargo build`.
+        # Passes through all arguments to pkgs.mkShell for adding supplemental
+        # dependencies.
         workspaceShell = rustPkgs.workspaceShell {};
 
       in rec {
