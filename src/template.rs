@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, Result};
-use cargo::core::{dependency::DepKind, Package, PackageId, SourceId, source::GitReference};
+use cargo::core::{dependency::DepKind, source::GitReference, Package, PackageId, SourceId};
 use serde::Serialize;
 
 use crate::manifest::TomlProfile;
@@ -90,10 +90,21 @@ pub struct Crate {
 
 #[derive(Debug, Serialize)]
 pub enum Source {
-    CratesIo { sha256: String },
-    Git { url: String, rev: String, branch: Option<String> },
-    Local { path: PathBuf },
-    Registry { index: String, sha256: String },
+    CratesIo {
+        sha256: String,
+    },
+    Git {
+        url: String,
+        rev: String,
+        branch: Option<String>,
+    },
+    Local {
+        path: PathBuf,
+    },
+    Registry {
+        index: String,
+        sha256: String,
+    },
 }
 
 #[derive(Debug, Serialize)]
@@ -134,9 +145,7 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
                 .ok_or(anyhow!("checksum is required for crates.io package {}", id))?,
         }
     } else if id.source_id().is_git() {
-        let branch = if let Some(GitReference::Branch(branch)) =
-            id.source_id().git_reference()
-        {
+        let branch = if let Some(GitReference::Branch(branch)) = id.source_id().git_reference() {
             Some(branch.to_owned())
         } else {
             None
