@@ -13,11 +13,13 @@ pub fn to_expr(p: &Platform, platform_var: &str) -> BoolExpr {
 
 fn platform_single(platform: &str, nix_cpu: &str) -> BoolExpr {
     BoolExpr::Single(format!("{}.parsed.cpu.name == {:?}", platform, nix_cpu))
-
 }
 fn target_arch_to_nix(platform: &str, target_arch: &str) -> BoolExpr {
     match target_arch {
-        "arm" => BoolExpr::ors(vec![platform_single(platform, "armv6l"), platform_single(platform, "armv7l")]),
+        "arm" => BoolExpr::ors(vec![
+            platform_single(platform, "armv6l"),
+            platform_single(platform, "armv7l"),
+        ]),
         "x86" => platform_single(platform, "i686"),
         _ => platform_single(platform, target_arch),
     }
