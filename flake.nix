@@ -8,17 +8,18 @@
   };
   
   outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let 
-        cargo2nixOverlay = import ./overlay;
-        overlays = [
-          cargo2nixOverlay
-          rust-overlay.overlay
-        ];
+    let
+      cargo2nixOverlay = import ./overlay;
 
+    in flake-utils.lib.eachDefaultSystem (system:
+      let
         # 1. Setup nixpkgs with rust and cargo2nix overlays.
         pkgs = import nixpkgs {
-          inherit system overlays;
+          inherit system;
+          overlays = [
+            cargo2nixOverlay
+            rust-overlay.overlay
+          ];
           # set `crossSystem` (see examples/3-cross-compiling) for configuring cross
         };
 
@@ -107,12 +108,21 @@
 
         # nix run
         defaultApp = { type = "app"; program = "${defaultPackage}/bin/cargo2nix";};
-
-        # for downstream importer who wants to provide rust themselves
-        overlay = cargo2nixOverlay;
-
-        # for downstream importer to create nixpkgs the same way
-        inherit overlays;
       }
-    );
+    ) // {
+      # The above outputs are mapped over system for `nix run` and `nix develop`
+      # workflows.  They are merged with these system-independent attributes,
+      # which are top level attributes can be used directly in downstream
+      # flakes.  If `cargo2nix` is your flake input, `cargo2nix.overlay` is the
+      # overlay.
+
+      # for downstream importer who wants to provide rust themselves
+      overlay = cargo2nixOverlay;
+
+      # for downstream importer using whatever rust-overlay this cargo2nix uses
+      overlays = {
+        inherit cargo2nixOverlay;
+        rust-overlay = rust-overlay.overlay;
+      };
+    };
 }
