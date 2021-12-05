@@ -385,6 +385,7 @@ pub struct ResolvedPackage<'a> {
     pkg: &'a Package,
     deps: BTreeMap<(PackageId, DepKind), ResolvedDependency<'a>>,
     features: BTreeMap<Feature<'a>, Optionality<'a>>,
+    links: Option<&'a str>,
     checksum: Option<&'a str>,
 }
 
@@ -441,10 +442,13 @@ impl<'a> ResolvedPackage<'a> {
             .get(&pkg.package_id())
             .and_then(|opt| opt.as_ref().map(|s| s.as_str()));
 
+        let links = pkg.manifest().links();
+
         Ok(Self {
             pkg,
             deps,
             features,
+            links,
             checksum,
         })
     }

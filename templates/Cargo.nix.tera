@@ -111,7 +111,9 @@ in
     {%- endfor %}
     };
     {%- endif %}
-
+    {%- if crate.links %}
+    tryLinks = "{{ crate.links }}";
+    {%- endif %}
     {%- if crate.dev_dependencies | length > 0 %}
     devDependencies = {
     {%- for dep in crate.dev_dependencies %}

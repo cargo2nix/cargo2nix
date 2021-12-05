@@ -18,6 +18,7 @@
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
   target ? null,
+  tryLinks ? null,
   codegenOpts,
   profileOpts,
 }:

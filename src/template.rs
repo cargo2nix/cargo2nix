@@ -56,6 +56,10 @@ impl BuildPlan {
                     dependencies: deps,
                     dev_dependencies: dev_deps,
                     build_dependencies: build_deps,
+                    links: match &resolved_pkg.links {
+                        Some(links) => Some(links.to_string()),
+                        None => None,
+                    },
                 })
             })
             .collect::<Result<_>>()?;
@@ -86,6 +90,7 @@ pub struct Crate {
     pub dependencies: Vec<Dependency>,
     pub dev_dependencies: Vec<Dependency>,
     pub build_dependencies: Vec<Dependency>,
+    pub links: Option<String>,
 }
 
 #[derive(Debug, Serialize)]

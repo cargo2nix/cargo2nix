@@ -14,6 +14,7 @@
   src,
   features ? [ ],
   dependencies ? { },
+  tryLinks ? null,
   devDependencies ? { },
   buildDependencies ? { },
   compileMode ? "build",
@@ -120,7 +121,9 @@ let
     inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
 
-    buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
+    buildInputs = runtimeDependencies
+                  ++ (rustLib.rustLinksToNixpkgs tryLinks pkgs)
+                  ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
     propagatedBuildInputs = (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
     nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
 
