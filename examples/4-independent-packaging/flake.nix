@@ -4,9 +4,6 @@
     # Use the github URL for real packages
     # cargo2nix.url = "github:cargo2nix/cargo2nix?rev=1de0ee0a0a7396c09b17cae1d90862490bcd4b67";
     flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-    rust-overlay.inputs.flake-utils.follows = "flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
     rust-analyzer-src = {
       url = "github:rust-analyzer/rust-analyzer?rev=2c0f433fd2e838ae181f87019b6f1fefe33c6f54";
@@ -14,7 +11,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, rust-analyzer-src, ... }:
+  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-analyzer-src, ... }:
 
     # Build the output set for each default system, resulting in paths such as:
     # nix build .#pkgs.x86_64-linux.<name>
@@ -24,8 +21,7 @@
         # create nixpkgs that contains rustBuilder from cargo2nix overlay
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [(import "${cargo2nix}/overlay")
-                      rust-overlay.overlay];
+          overlays = [ cargo2nix.overlay ];
         };
 
         # create the workspace & dependencies package set

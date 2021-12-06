@@ -113,17 +113,12 @@ to use to do their work.
     # we need the overlay at cargo2nix/overlay
     cargo2nix.url = "github:cargo2nix/cargo2nix/master";
     
-    # we will need a rust toolchain at least to build our project
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-    rust-overlay.inputs.flake-utils.follows = "flake-utils";
-    
     # convenience functions for writing flakes
     flake-utils.url = "github:numtide/flake-utils";
   };
 
   # outputs is a function that unsurprisingly consumes the inputs
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, ... }:
+  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -137,8 +132,7 @@ to use to do their work.
         # create nixpkgs that contains rustBuilder from cargo2nix overlay
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [(import "${cargo2nix}/overlay")
-                      rust-overlay.overlay];
+          overlays = [cargo2nix.overlay];
         };
 
         # create the workspace & dependencies package set
