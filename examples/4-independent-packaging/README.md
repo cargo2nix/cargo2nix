@@ -47,7 +47,7 @@ We will also pass a `workspaceSrc` argument to `makePackageSet'`.
 ```nix
 
   rustPkgs = pkgs.rustBuilder.makePackageSet' {
-    rustChannel = "1.56.1";
+    rustVersion = "1.56.1";
     packageFun = import ./Cargo.nix;
 
     workspaceSrc = rust-analyzer-src
