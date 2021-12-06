@@ -155,13 +155,10 @@ Create a new file called [`flake.nix`]:
     # Use the github URL for real packages
     # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
     flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-    rust-overlay.inputs.flake-utils.follows = "flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/master";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, ... }:
+  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -193,8 +190,7 @@ Create a new file called [`flake.nix`]:
             useLLVM = true;
           };
 
-          overlays = [(import "${cargo2nix}/overlay")
-                      rust-overlay.overlay];
+          overlays = [ cargo2nix.overlay ];
         };
 
         # create the workspace & dependencies package set

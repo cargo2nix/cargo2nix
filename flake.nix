@@ -9,7 +9,8 @@
   
   outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
     let
-      cargo2nixOverlay = import ./overlay;
+      overlays = import ./overlay rust-overlay.overlay;
+      combinedOverlay = overlays.combined;
 
     in flake-utils.lib.eachDefaultSystem (system:
       let
@@ -17,8 +18,7 @@
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
-            cargo2nixOverlay
-            rust-overlay.overlay
+            combinedOverlay
           ];
           # set `crossSystem` (see examples/3-cross-compiling) for configuring cross
         };
@@ -120,12 +120,9 @@
       # overlay.
 
       # for downstream importer who wants to provide rust themselves
-      overlay = cargo2nixOverlay;
+      overlay = combinedOverlay;
 
       # for downstream importer using whatever rust-overlay this cargo2nix uses
-      overlays = {
-        inherit cargo2nixOverlay;
-        rust-overlay = rust-overlay.overlay;
-      };
+      inherit overlays;
     };
 }
