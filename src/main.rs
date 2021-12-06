@@ -19,7 +19,7 @@ use cargo::{
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
-    util::important_paths::find_root_manifest_for_wd,
+    util::{important_paths::find_root_manifest_for_wd, interning::InternedString},
 };
 use cargo_platform::Platform;
 use colorify::colorify;
@@ -219,7 +219,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         }
     }
 
-    simplify_optionality(rpkgs_by_id.values_mut(), root_pkgs.len());
+    simplify_optionality(rpkgs_by_id.values_mut(), &root_pkgs);
     let root_manifest = fs::read(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
@@ -238,9 +238,15 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
 
 fn simplify_optionality<'a, 'b: 'a>(
     rpkgs: impl IntoIterator<Item = &'a mut ResolvedPackage<'b>>,
-    n_root_pkgs: usize,
+    root_pkgs: &Vec<&Package>,
 ) {
+    let n_root_pkgs = root_pkgs.len();
+    let root_pkgs_names = BTreeSet::from_iter(root_pkgs.iter().map(|p| p.name()));
     for rpkg in rpkgs.into_iter() {
+        if root_pkgs_names.contains(&rpkg.pkg.name()) {
+            // don't simplify workspace package features
+            continue;
+        }
         for optionality in rpkg.iter_optionality_mut() {
             if let Optionality::Optional {
                 ref required_by_pkgs,
