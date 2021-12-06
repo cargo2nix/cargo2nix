@@ -72,11 +72,11 @@ let
 
 in rustBuilder.makePackageSet (extraArgs // {
   inherit packageFun workspaceSrc target;
-  rustChannel = rustToolchain';
+  rustToolchain = rustToolchain';
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
     inherit packageFun;
-    rustChannel = rustToolchain';
+    rustToolchain = rustToolchain';
     target = null;
     packageOverrides = packageOverrides buildPackages;
   });

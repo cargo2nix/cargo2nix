@@ -1,6 +1,5 @@
 {
-  rustChannel,
-
+  rustToolchain,
   lib,
   pkgs,
   buildPackages,
@@ -51,7 +50,7 @@ let
     fi
     touch invoke.log
     echo "''${args[@]}" >>invoke.log
-    exec ${rustChannel}/bin/${rustpkg} "''${args[@]}"
+    exec ${rustToolchain}/bin/${rustpkg} "''${args[@]}"
   '';
 
   ccForBuild="${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc";
@@ -81,7 +80,7 @@ let
         else "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
       if compileMode != "doctest" then ''
-        ${rustChannel}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${rustHostTriple} ${buildMode} \
+        ${rustToolchain}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${rustHostTriple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
           --message-format=json | tee .cargo-build-output
       ''
@@ -98,8 +97,8 @@ let
       else ''
         echo "Performing Doctests"
         export NIX_RUST_LINK_FLAGS=$(echo "$NIX_RUST_LINK_FLAGS" | sed 's/ \-l \w*//g')
-        ${rustChannel}/bin/cargo read-manifest | jq -e '.targets | .[] | select(.crate_types[] | contains ("lib")) | any' >/dev/null && \
-          ( ${rustChannel}/bin/cargo test --doc --no-fail-fast \
+        ${rustToolchain}/bin/cargo read-manifest | jq -e '.targets | .[] | select(.crate_types[] | contains ("lib")) | any' >/dev/null && \
+          ( ${rustToolchain}/bin/cargo test --doc --no-fail-fast \
               ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
               -- -Z unstable-options --format json \
               | tee results.json \
@@ -123,7 +122,7 @@ let
 
     buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
     propagatedBuildInputs = (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
-    nativeBuildInputs = [ rustChannel ] ++ buildtimeDependencies;
+    nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
 
     depsBuildBuild =
       let inherit (buildPackages.buildPackages) stdenv jq remarshal;
@@ -235,7 +234,7 @@ let
     '';
 
     setBuildEnv = ''
-      MINOR_RUSTC_VERSION="$(${rustChannel}/bin/rustc --version | cut -d . -f 2)"
+      MINOR_RUSTC_VERSION="$(${rustToolchain}/bin/rustc --version | cut -d . -f 2)"
 
       if (( MINOR_RUSTC_VERSION < 41 )); then
         isProcMacro="$(

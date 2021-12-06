@@ -11,7 +11,7 @@
 {
   packageFun,
   workspaceSrc ? null,
-  rustChannel,
+  rustToolchain,
   buildRustPackages ? null,
   packageOverrides ? rustBuilder.overrides.all,
   fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
@@ -38,7 +38,7 @@ lib.fix' (self:
           pkgsHostTarget = scope;
           pkgsTargetTarget = {};
         } // {
-          inherit (scope) pkgs buildRustPackages rustChannel config __splicedPackages;
+          inherit (scope) pkgs buildRustPackages rustToolchain config __splicedPackages;
         };
       in
         prevStage // prevStage.xorg // prevStage.gnome2 // { inherit stdenv; } // scopeSpliced;
@@ -67,8 +67,8 @@ lib.fix' (self:
     };
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
-    inherit rustPackages callPackage pkgs rustChannel noBuild;
-    workspaceShell = workspaceShell { inherit pkgs noBuild rustChannel; };
+    inherit rustPackages callPackage pkgs rustToolchain noBuild;
+    workspaceShell = workspaceShell { inherit pkgs noBuild rustToolchain; };
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
