@@ -27,7 +27,10 @@
         # `makePackageSet'` accepts the following arguments:
         # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
         # - `workspaceSrc` (optional): Sources for the workspace can be provided or default to the current directory.
-        # - `rustChannel` (required): The Rust channel used to build the package set.
+        # You must set some combination of `rustChannel` + `rustVersion` or `rustToolchain`.
+        # - `rustToolchain` (optional): Completely override the toolchain.  Must provide rustc, cargo, rust-std, and rust-src components
+        # - `rustChannel` (optional): "nightly" "stable" "beta".  To support legacy use, this can be a version when supplied alone.  If unspecified, defaults to "stable".
+        # - `rustVersion` (optional): "1.56.0" "2020-12-30".  If not supplied, "latest" will be assumed.
         # - `packageOverrides` (optional):
         #     A function taking a package set and returning a list of overrides.
         #     Overrides are introduced to provide native inputs to build the crates generated in `Cargo.nix`.
@@ -54,7 +57,7 @@
         #     for more info.
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           packageFun = import ./Cargo.nix;
-          rustChannel = "1.56.1";
+          rustVersion = "1.56.1";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
         };
         # `rustPkgs` now contains all crates in the dependency graph.

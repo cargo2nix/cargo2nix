@@ -143,7 +143,7 @@ to use to do their work.
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
-          rustChannel = "1.56.1";
+          rustVersion = "1.56.1";
           packageFun = import ./Cargo.nix;
         };
         
@@ -268,8 +268,10 @@ such as `"x86_64-linux"` or `"x86_64-darwin"`.
 
 The [Rust Overlay] is a flake that provides a Rust toolchain for use as a
 dependency during build.  You can use other versions of Rust by setting
-`rustChannel` to `nightly` or `1.55.0` for example.
+`rustVersion` to `1.55.0` for example.  `rustChannel` can also be set.  See the
+oxalica Rust Overlay [reference] for a list of all public attributes.
 
+[reference]: https://github.com/oxalica/rust-overlay/blob/master/docs/reference.md
 [Rust Overlay]: https://github.com/oxalica/rust-overlay
 [handy Nixpkgs overlay for Rust]: https://github.com/oxalica/rust-overlay
 [release channels]: https://doc.rust-lang.org/edition-guide/rust-2018/rustup-for-managing-rust-versions.html

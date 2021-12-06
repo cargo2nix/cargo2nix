@@ -199,7 +199,7 @@ Create a new file called [`flake.nix`]:
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
-          rustChannel = "1.56.1";
+          rustVersion = "1.56.1";
           packageFun = import ./Cargo.nix;
           
           # If your specific build target requires a difference between Rust and
