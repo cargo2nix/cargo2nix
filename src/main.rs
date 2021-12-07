@@ -213,13 +213,13 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let root_pkgs: Vec<_> = ws.members().collect();
     for pkg in root_pkgs.iter() {
         let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
-        mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
-        for feature in all_features(&pkg) {
-            activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id)?;
-        }
+        // mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
+        // for feature in all_features(&pkg) {
+        //     activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id)?;
+        // }
     }
 
-    simplify_optionality(rpkgs_by_id.values_mut(), &root_pkgs);
+    // simplify_optionality(rpkgs_by_id.values_mut(), &root_pkgs);
     let root_manifest = fs::read(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
