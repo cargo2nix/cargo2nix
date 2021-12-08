@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use std::{
-    collections::{BTreeMap, BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     fs,
     io::{self, BufRead, Write},
     path::Path,
@@ -19,7 +19,7 @@ use cargo::{
         Package, PackageId, PackageIdSpec, Workspace,
     },
     ops::{resolve_ws_with_opts, Packages},
-    util::{important_paths::find_root_manifest_for_wd, interning::InternedString},
+    util::important_paths::find_root_manifest_for_wd,
 };
 use cargo_platform::Platform;
 use colorify::colorify;
@@ -211,15 +211,21 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         .collect::<Result<_>>()?;
 
     let root_pkgs: Vec<_> = ws.members().collect();
+
     for pkg in root_pkgs.iter() {
         let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
-        // mark_required(pkg, &pkg_ws, &mut rpkgs_by_id)?;
-        // for feature in all_features(&pkg) {
-        //     activate(pkg, feature, &pkg_ws, &mut rpkgs_by_id)?;
-        // }
+        mark_required_by_root(pkg, &pkg_ws, &mut rpkgs_by_id)?;
     }
 
-    // simplify_optionality(rpkgs_by_id.values_mut(), &root_pkgs);
+    for pkg in root_pkgs.iter() {
+        let pkg_ws = Workspace::new(pkg.manifest_path(), &config)?;
+        mark_feature_activations(pkg, &pkg_ws, &mut rpkgs_by_id)?;
+    }
+
+    dbg!(&rpkgs_by_id);
+
+    simplify_optionality(rpkgs_by_id.values_mut(), &root_pkgs);
+
     let root_manifest = fs::read(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
@@ -240,21 +246,17 @@ fn simplify_optionality<'a, 'b: 'a>(
     rpkgs: impl IntoIterator<Item = &'a mut ResolvedPackage<'b>>,
     root_pkgs: &Vec<&Package>,
 ) {
-    let n_root_pkgs = root_pkgs.len();
     let root_pkgs_names = BTreeSet::from_iter(root_pkgs.iter().map(|p| p.name()));
     for rpkg in rpkgs.into_iter() {
-        if root_pkgs_names.contains(&rpkg.pkg.name()) {
-            // don't simplify workspace package features
-            continue;
-        }
         for optionality in rpkg.iter_optionality_mut() {
             if let Optionality::Optional {
                 ref required_by_pkgs,
                 ..
             } = optionality
             {
-                if required_by_pkgs.len() == n_root_pkgs {
-                    // This dependency/feature of this package is required by any of the root packages.
+                if required_by_pkgs.len() > 0 {
+                    // This dependency/feature of this package is required by at
+                    // least one of the root packages.
                     *optionality = Optionality::Required;
                 }
             }
@@ -266,30 +268,15 @@ fn simplify_optionality<'a, 'b: 'a>(
             .filter(|((_, kind), _)| *kind == DepKind::Development)
             .for_each(|(_, d)| d.optionality = Optionality::Required);
 
-        if all_eq(rpkg.iter_optionality_mut()) {
-            // This package is always required by a subset of the root packages with the same set of features.
-            rpkg.iter_optionality_mut()
-                .for_each(|o| *o = Optionality::Required);
-        }
+        // If a package's dependencies or features are activated identically to
+        // the features it is activated by, reduce that dependency or feature
+        // logic to required
+        // TODO
+        // Gather up the optionality of the package.
+        // Calculate the sum of optionality (feature unification).
+        // If a dependency or feature has equivalent optionality to the above
+        // sum, mark it required.
     }
-}
-
-fn all_features(pkg: &Package) -> impl Iterator<Item = Feature> + '_ {
-    let features = pkg.summary().features();
-    features
-        .keys()
-        .map(|k| k.as_str())
-        .chain(
-            pkg.dependencies()
-                .iter()
-                .filter(|d| d.is_optional())
-                .map(|d| d.name_in_toml().as_str()),
-        )
-        .chain(if features.contains_key("default") {
-            None
-        } else {
-            Some("default")
-        })
 }
 
 fn is_proc_macro(pkg: &Package) -> bool {
@@ -305,19 +292,27 @@ fn is_proc_macro(pkg: &Package) -> bool {
         .any(|k| *k == CrateType::ProcMacro)
 }
 
-/// Traverses the whole dependency graph starting at `pkg` and marks required packages and features.
-fn mark_required(
+/// Traverse the whole dependency graph starting at `pkg` and mark required packages & features.
+fn mark_required_by_root(
     root_pkg: &Package,
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage>,
 ) -> Result<()> {
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
     let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
+
+    let features = CliFeatures::from_command_line(
+        &[],   // no features
+        false, // don't use all features
+        false, // don't use default features
+    )?;
+
+    // resolve the workspace with no features activated
     let resolve = resolve_ws_with_opts(
         ws,
         &rtd,
         &[CompileKind::Host],
-        &CliFeatures::new_all(true),
+        &features,
         &[spec],
         HasDevUnits::Yes,
         ForceAllTargets::Yes,
@@ -344,42 +339,102 @@ fn mark_required(
     Ok(())
 }
 
-fn activate<'a>(
-    pkg: &'a Package,
-    feature: Feature<'a>,
+/// Traverse the whole dependency graph starting at `pkg` and mark packages &
+/// features enabled by each feature of `pkg`.
+fn mark_feature_activations<'a>(
+    root_pkg: &'a Package,
     ws: &Workspace,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
 ) -> Result<()> {
-    let spec = PackageIdSpec::from_package_id(pkg.package_id());
-    let (features, uses_default) = match feature {
-        "default" => (vec![], true),
-        other => (vec![other.to_string()], false),
-    };
+    let root_pkg_name = root_pkg.name().as_str();
+    let root_pkg_features = root_pkg.summary().features();
+
+    let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
     let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
-    let resolve = resolve_ws_with_opts(
+
+    let no_features = CliFeatures::from_command_line(
+        &[],   // no features
+        false, // don't use all features
+        false, // don't use default features
+    )?;
+
+    // resolve the workspace with no features activated
+    let no_features_ws = resolve_ws_with_opts(
         ws,
         &rtd,
         &[CompileKind::Host],
-        &CliFeatures::from_command_line(&features[..], false, uses_default)?,
-        &[spec],
+        &no_features,
+        &[spec.clone()],
         HasDevUnits::Yes,
         ForceAllTargets::Yes,
     )?;
 
-    let root_feature = (pkg.name().as_str(), feature);
-    for id in resolve.targeted_resolve.iter() {
-        let rpkg = rpkgs_by_id.get_mut(&id).unwrap();
-        for feature in resolve.targeted_resolve.features(id).iter() {
-            rpkg.features
-                .get_mut(feature.as_str())
-                .unwrap()
-                .activated_by(root_feature);
-        }
+    for (feature, _) in root_pkg_features {
+        // resolve ws with just the target feature activated
+        let just_this_feature = CliFeatures::from_command_line(
+            &[feature.to_string()], // no features
+            false,                  // don't use all features
+            false,                  // don't use default features
+        )?;
 
-        for (dep_id, _) in resolve.targeted_resolve.deps(id) {
-            for dep in rpkg.iter_deps_with_id_mut(dep_id) {
-                dep.optionality.activated_by(root_feature)
-            }
+        let just_feature_ws = resolve_ws_with_opts(
+            ws,
+            &rtd,
+            &[CompileKind::Host],
+            &just_this_feature,
+            &[spec.clone()],
+            HasDevUnits::Yes,
+            ForceAllTargets::Yes,
+        )?;
+
+        for rpkg in rpkgs_by_id.values_mut() {
+            let deps_no_features: HashSet<_> = no_features_ws
+                .targeted_resolve
+                .deps(rpkg.pkg.package_id())
+                .map(|(dep, _)| dep)
+                .collect();
+
+            let deps_just_feature: HashSet<_> = just_feature_ws
+                .targeted_resolve
+                .deps(rpkg.pkg.package_id())
+                .map(|(dep, _)| dep)
+                .collect();
+
+            rpkg.deps
+                .iter_mut()
+                .map(|(_, rpkg)| rpkg)
+                .filter(|rpkg| {
+                    !deps_no_features.contains(&rpkg.pkg.package_id())
+                        && deps_just_feature.contains(&rpkg.pkg.package_id())
+                })
+                .for_each(|rpkg| rpkg.optionality.activated_by((&root_pkg_name, feature)));
+
+            let features_no_features: HashSet<_> = no_features_ws
+                .targeted_resolve
+                .features(rpkg.pkg.package_id())
+                .iter()
+                .map(|feature| feature.to_string())
+                .collect();
+
+            let features_just_feature: HashSet<_> = just_feature_ws
+                .targeted_resolve
+                .features(rpkg.pkg.package_id())
+                .iter()
+                .map(|feature| feature.to_string())
+                .collect();
+
+            rpkg.features
+                .iter_mut()
+                .filter(|(f, _)| {
+                    dbg!(&root_pkg_name);
+                    dbg!(&feature);
+                    dbg!(&f);
+                    dbg!(&features_no_features);
+                    dbg!(&features_just_feature);
+                    !features_no_features.contains(&f.to_string())
+                        && features_just_feature.contains(&f.to_string())
+                })
+                .for_each(|(_f, optionality)| optionality.activated_by((&root_pkg_name, feature)));
         }
     }
 
@@ -504,24 +559,22 @@ impl<'a> Default for Optionality<'a> {
 }
 
 impl<'a> Optionality<'a> {
-    fn activated_by(&mut self, (pkg_name, feature): RootFeature<'a>) {
+    fn activated_by(&mut self, (root_pkg_name, feature): RootFeature<'a>) {
         if let Optionality::Optional {
             required_by_pkgs,
             activated_by_features,
         } = self
         {
-            if !required_by_pkgs.contains(pkg_name) {
-                activated_by_features.insert((pkg_name, feature));
-            }
+            activated_by_features.insert((root_pkg_name, feature));
         }
     }
 
-    fn required_by(&mut self, pkg_name: PackageName<'a>) {
+    fn required_by(&mut self, root_pkg_name: PackageName<'a>) {
         if let Optionality::Optional {
             required_by_pkgs, ..
         } = self
         {
-            required_by_pkgs.insert(pkg_name);
+            required_by_pkgs.insert(root_pkg_name);
         }
     }
 
@@ -557,16 +610,16 @@ fn display_root_feature((pkg_name, feature): RootFeature) -> String {
     format!("{}/{}", pkg_name, feature)
 }
 
-fn all_eq<T, I>(i: I) -> bool
-where
-    I: IntoIterator<Item = T>,
-    T: PartialEq,
-{
-    let mut iter = i.into_iter();
-    let first = match iter.next() {
-        Some(x) => x,
-        None => return true,
-    };
+// fn all_eq<T, I>(i: I) -> bool
+// where
+//     I: IntoIterator<Item = T>,
+//     T: PartialEq,
+// {
+//     let mut iter = i.into_iter();
+//     let first = match iter.next() {
+//         Some(x) => x,
+//         None => return true,
+//     };
 
-    iter.all(|x| x == first)
-}
+//     iter.all(|x| x == first)
+// }
