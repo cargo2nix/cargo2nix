@@ -14,4 +14,4 @@ semver = "1.0.4"
 serde = { version = "1.0.130", features = ["derive"] }
 tempfile = "3.2.0"
 tera = { version = "1.15.0", default-features = false }
-toml = "0.5.8"
+toml = "0.5.7"
