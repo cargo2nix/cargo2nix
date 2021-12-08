@@ -250,6 +250,9 @@ in
       walkdir = rustPackages."registry+https://github.com/rust-lang/crates.io-index".walkdir."2.3.2" { inherit profileName; };
       ${ if hostPlatform.isWindows then "winapi" else null } = rustPackages."registry+https://github.com/rust-lang/crates.io-index".winapi."0.3.9" { inherit profileName; };
     };
+    features = builtins.concatLists [
+      [ "vendored-openssl" ]
+    ];
     buildDependencies = {
       flate2 = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".flate2."1.0.22" { profileName = "__noProfile"; };
       tar = buildRustPackages."registry+https://github.com/rust-lang/crates.io-index".tar."0.4.37" { profileName = "__noProfile"; };
