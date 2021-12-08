@@ -27,7 +27,7 @@
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
           # rust toolchain version
-          rustVersion = "1.56.1";
+          rustVersion = "1.57.0";
           # nixified Cargo.lock
           packageFun = import ./Cargo.nix;
 
