@@ -122,9 +122,9 @@ checksum = "6c58ec36aac5066d5ca17df51b3e70279f5670a72102f5752cb7e7c856adfc70"
 
 [[package]]
 name = "cargo"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "519db9ad1bc3bf61f2e753cc204ac37903cf0f33f551a03c260208271c1f875b"
+checksum = "cab77eea837b09297f6ad70921e465d77b60eb10380505abc02bd6e66b653704"
 dependencies = [
  "anyhow",
  "atty",
@@ -158,10 +158,11 @@ dependencies = [
  "memchr",
  "num_cpus",
  "opener",
+ "os_info",
  "percent-encoding",
  "rustc-workspace-hack",
  "rustfix",
- "semver 1.0.4",
+ "semver",
  "serde",
  "serde_ignored",
  "serde_json",
@@ -218,7 +219,7 @@ dependencies = [
  "cargo-platform",
  "colorify",
  "pathdiff",
- "semver 0.9.0",
+ "semver",
  "serde",
  "tempfile",
  "tera",
@@ -831,6 +832,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "os_info"
+version = "3.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5501659840950e918d046ad97ebe9702cbb4ec0097e47dbd27abf7692223181"
+dependencies = [
+ "log",
+ "serde",
+ "winapi",
+]
+
+[[package]]
 name = "pathdiff"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1056,27 +1068,12 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"
-dependencies = [
- "semver-parser",
-]
-
-[[package]]
-name = "semver"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "568a8e6258aa33c13358f81fd834adb854c6f7c9468520910a9b1e8fac068012"
 dependencies = [
  "serde",
 ]
-
-[[package]]
-name = "semver-parser"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
