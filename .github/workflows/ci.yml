@@ -72,9 +72,9 @@ jobs:
           # nix build ./examples/3-cross-compiling#
           #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
           #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
-          # nix build ./examples/4-independent-packaging#
-          #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
+          nix build ./examples/4-independent-packaging#
+            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.05-darwin
           fi
 
       - name: use dev shell
