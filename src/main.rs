@@ -439,11 +439,14 @@ impl<'a> ResolvedPackage<'a> {
                         extern_name,
                         pkg: dep_pkg,
                         optionality: Optionality::default(),
-                        platforms: Some(Vec::new()),
+                        platforms: Some(BTreeSet::new()),
                     });
 
                 match (dep.platform(), rdep.platforms.as_mut()) {
-                    (Some(platform), Some(platforms)) => platforms.push(platform),
+                    (Some(platform), Some(platforms)) => {
+                        platforms.insert(platform);
+                        () // match other branch type
+                    }
                     (None, _) => rdep.platforms = None,
                     _ => {}
                 }
@@ -483,7 +486,7 @@ struct ResolvedDependency<'a> {
     extern_name: String,
     pkg: &'a Package,
     optionality: Optionality<'a>,
-    platforms: Option<Vec<&'a Platform>>,
+    platforms: Option<BTreeSet<&'a Platform>>,
 }
 
 #[derive(PartialEq, Eq, Debug)]
