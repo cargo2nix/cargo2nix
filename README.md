@@ -172,10 +172,6 @@ identical to how the overlay builds the crate, cutting out guess work.
    versions of nixpkgs-mozilla (no longer used) have shipped with a `rustc` that
    doesn't include zlib in its runtime dependencies.
       
-1. Many `crates.io` public crates may not build using the current Rust compiler,
-   unless a lint cap is put on these crates. For instance, `cargo2nix` caps all
-   lints to `warn` by default.
-
 1. Toml parsing / conversion issues `Error: Cannot convert data to TOML (Invalid
    type <class 'NoneType'>)`
    
