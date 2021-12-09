@@ -52,7 +52,7 @@ crate by running the two commands below:
 
 ```bash
 cargo generate-lockfile
-cargo2nix -f
+cargo2nix
 ```
 
 ## Writing the Flake.nix

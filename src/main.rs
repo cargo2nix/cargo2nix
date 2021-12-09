@@ -53,14 +53,13 @@ fn main() {
 fn try_main(args: &[&str]) -> Result<()> {
     match &args[1..] {
         ["--stdout"] | ["-s"] => generate_cargo_nix(io::stdout().lock()),
-        ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
+        [] | ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
         ["--file", file] | ["-f", file] => write_to_file(file),
         ["--help"] | ["-h"] => print_help(),
         ["--version"] | ["-v"] => {
             println!("{}", version());
             Ok(())
         }
-        [] => print_help(),
         _ => {
             println!("Invalid arguments: {:?}", &args[1..]);
             println!("\nTry again, with help: \n");

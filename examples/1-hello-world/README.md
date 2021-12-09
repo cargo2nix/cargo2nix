@@ -68,10 +68,10 @@ nix shell github:cargo2nix/cargo2nix
 Generate the `Cargo.nix` file
 
 ```bash
-cargo2nix -f
+cargo2nix
 
 # Alternatively you can run cargo2nix directly
-nix run github:cargo2nix/cargo2nix -- -f
+nix run github:cargo2nix/cargo2nix
 ```
 
 
@@ -83,7 +83,7 @@ graph of your Cargo crate or [crate workspace].
 #### :warning: Keeping Cargo.nix Up to Date :warning:
 
 > Any time that you modify the `Cargo.toml` or `Cargo.lock` file for your
-> project, you should always remember to re-run `cargo2nix -f` to update the
+> project, you should always remember to re-run `cargo2nix` to update the
 > `Cargo.nix` as well.
 
 You will want both `Cargo.lock` and `Cargo.nix` under version control for
