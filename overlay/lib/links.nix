@@ -8,6 +8,9 @@ tryLinks: pkgs:
       linkOverrides = {
         curl = [ pkgs.curl.dev ];
         z = [ pkgs.zlib.dev ];
+        jemalloc = [ pkgs.jemalloc ];
+        mimalloc = [ pkgs.mimalloc ];
+        rayon-core = []; # seriously why is this considered "links"?
         # openssl = [ joinOpenssl ];
       };
       in if
