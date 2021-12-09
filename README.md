@@ -31,7 +31,7 @@ nix shell github:cargo2nix/cargo2nix/master
 cargo2nix --version
 
 # In directory with Cargo.lock & Cargo.toml files
-cargo2nix -f
+cargo2nix
 # Results in Cargo.nix
 # See exmaples for how to write a flake that consumes this file for commands
 # such as:
@@ -51,7 +51,7 @@ cargo2nix -f
 The basic process of converting an existing Cargo project to `cargo2nix` boils
 down to the following steps:
 
-1. Generate a `Cargo.nix` file by running `cargo2nix -f` at the root of your
+1. Generate a `Cargo.nix` file by running `cargo2nix` at the root of your
    Cargo workspace.
 2. Create a `default.nix` file which imports Nixpkgs with the [cargo2nix] and
    [rust-overlay] overlays and builds your project using the `Cargo.nix` file

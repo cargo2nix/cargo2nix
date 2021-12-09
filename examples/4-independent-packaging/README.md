@@ -22,7 +22,7 @@ Inside the clone, generate / update the lock file and then create a `Cargo.nix`
 
 ```shell
 cargo generate-lockfile
-cargo2nix -f
+cargo2nix
 ```
 
 Copy just the generated `Cargo.nix` to the repository you wish to host the new
