@@ -106,9 +106,11 @@ attribute in `flake.nix` to see how to prepare this kind of shell.
 
 `makePackageSet'` supports many options that control all of the crates that will
 be created. See [flake.nix](./flake.nix) for a more detailed listing.
-  
-- `rustVersion` - is either a string or date-string
-- `rustChannel` - "nightly" "beta" "stable"
+    
+- `rustVersion` - is either a version string or YYYY-MM-DD date-string
+- `rustChannel` - `"nightly"` `"beta"` `"stable"`
+- `rustProfile` - `"default"` or `"minimal"` usually
+- `extraRustComponents` - `["clippy" "miri"]` etc
 
 - `workspaceSrc` - override where the source is supplied relative to the
   Cargo.nix
