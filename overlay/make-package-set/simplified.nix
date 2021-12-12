@@ -8,6 +8,8 @@ args@{
   rustVersion ? null,
   rustChannel ? null,
   rustToolchain ? null,
+  rustProfile ? "minimal",
+  extraRustComponents ? [],
   packageFun,
   workspaceSrc ? null,
   packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
@@ -23,7 +25,7 @@ let
                                           "target"];
 
   toolchainArgs = {
-    extensions = [ "rust-src" ];
+    extensions = [ "rust-src" ] ++ extraRustComponents;
     targets = [(rustBuilder.rustLib.rustTriple stdenv.buildPlatform)] ++
               (if target != null
                then [ target ]
@@ -44,11 +46,11 @@ let
         then
           # don't use explicit "latest" attribute!  See oxalica README for more details.
           buildPackages.rust-bin.selectLatestNightlyWith
-            (toolchain: toolchain.minimal.override toolchainArgs)
+            (toolchain: toolchain.${rustProfile}.override toolchainArgs)
         else
           buildPackages.rust-bin.nightly
             .${args.rustVersion}
-            .minimal.override toolchainArgs
+            .${rustProfile}.override toolchainArgs
       else
         if ((rustChannel != null &&
              (builtins.match "[0-9]\.[0-9]{1,2}\.[0-9]{1,2}" rustChannel) != null))
@@ -60,7 +62,7 @@ let
             # rustChannel is actually a rustVersion.  Treat argument as legacy.
             buildPackages.rust-bin.stable
               .${args.rustChannel}
-              .minimal.override toolchainArgs
+              .${rustProfile}.override toolchainArgs
         else
           let
             rustChannel' = if rustChannel != null then rustChannel else "stable";
@@ -68,7 +70,7 @@ let
             buildPackages.rust-bin
               .${rustChannel'}
               .${args.rustVersion}
-              .minimal.override toolchainArgs;
+              .${rustProfile}.override toolchainArgs;
 
 in rustBuilder.makePackageSet (extraArgs // {
   inherit packageFun workspaceSrc target;
