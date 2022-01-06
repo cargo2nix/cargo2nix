@@ -3,7 +3,6 @@
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-    rust-overlay.inputs.flake-utils.follows = "flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
   };
   
