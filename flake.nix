@@ -6,10 +6,10 @@
     rust-overlay.inputs.flake-utils.follows = "flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
   };
-  
+
   outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
     flake-utils.lib.eachDefaultSystem (system:
-      let 
+      let
         cargo2nixOverlay = import ./overlay;
         overlays = [
           cargo2nixOverlay
@@ -75,19 +75,20 @@
         # and environment settings necessary for a regular `cargo build`.
         # Passes through all arguments to pkgs.mkShell for adding supplemental
         # dependencies.
-        workspaceShell = rustPkgs.workspaceShell {};
+        workspaceShell = rustPkgs.workspaceShell { };
 
-      in rec {
+      in
+      rec {
 
         # nix develop
         devShell = workspaceShell;
 
         # the packages in:
         # nix build .#packages.x86_64-linux.cargo2nix
-        packages = {
+        packages = rec {
 
           # nix build .#cargo2nix
-          cargo2nix = (rustPkgs.workspace.cargo2nix {}).bin;
+          cargo2nix = (rustPkgs.workspace.cargo2nix { }).bin;
 
           # `runTests` runs all tests for a crate inside a Nix derivation.  This
           # may be problematic as Nix may restrict filesystem, network access,
@@ -100,13 +101,19 @@
           };
 
           shell = devShell;
+          default = cargo2nix;
         };
 
         # nix build
-        defaultPackage = packages.cargo2nix;
+        defaultPackage = packages.default;
+
+        apps = rec {
+          cargo2nix = { type = "app"; program = "${defaultPackage}/bin/cargo2nix"; };
+          default = cargo2nix;
+        };
 
         # nix run
-        defaultApp = { type = "app"; program = "${defaultPackage}/bin/cargo2nix";};
+        defaultApp = apps.default;
 
         # for downstream importer who wants to provide rust themselves
         overlay = cargo2nixOverlay;
