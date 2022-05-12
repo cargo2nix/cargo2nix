@@ -51,7 +51,7 @@ A bare minimum flake.nix:
   inputs = {
     cargo2nix.url = "github:cargo2nix/cargo2nix/master";
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
@@ -63,7 +63,7 @@ A bare minimum flake.nix:
         };
 
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
-          rustVersion = "1.57.0";
+          rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
         };
 

@@ -69,7 +69,7 @@ following arguments:
     # Use the github URL for real packages
     # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
@@ -91,7 +91,7 @@ following arguments:
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
-          rustVersion = "1.56.1";
+          rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
           # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
         };

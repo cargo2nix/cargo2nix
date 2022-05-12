@@ -29,7 +29,7 @@
         # You must set some combination of `rustChannel` + `rustVersion` or `rustToolchain`.
         # - `rustToolchain` (optional): Completely override the toolchain.  Must provide rustc, cargo, rust-std, and rust-src components
         # - `rustChannel` (optional): "nightly" "stable" "beta".  To support legacy use, this can be a version when supplied alone.  If unspecified, defaults to "stable".
-        # - `rustVersion` (optional): "1.56.0" "2020-12-30".  If not supplied, "latest" will be assumed.
+        # - `rustVersion` (optional): "1.60.0" "2020-12-30".  If not supplied, "latest" will be assumed.
         # - `rustProfile` (optional): "minimal" or "default" usually.  "minimal" if not specified (for faster builds)
         # - `extraRustComponents` (optional): ["rustfmt" "clippy"].
         # - `packageOverrides` (optional):
