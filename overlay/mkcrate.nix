@@ -157,6 +157,17 @@ let
 
     extraRustcBuildFlags = rustcBuildFlags;
 
+    findCrate =  ''
+      if ! grep -lE 'name\s?=\s?"${name}"' Cargo.toml; then
+        shopt -s globstar
+        mv Cargo.toml Cargo.toml.workspace
+        if [[ -d .cargo ]]; then
+          mv .cargo .cargo.workspace
+        fi
+        cd $(grep -lE 'name\s?=\s?"${name}"' **/Cargo.toml | xargs dirname)
+      fi
+    '';
+
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
@@ -189,6 +200,7 @@ let
 
     configurePhase = ''
       runHook preConfigure
+      runHook findCrate
       runHook configureCargo
       runHook postConfigure
     '';

@@ -6,27 +6,9 @@ rec {
     inherit sha256;
   };
 
-  fetchCrateGit = { url, name, version, rev, ref ? "HEAD" }:
-    let
-      inherit (buildPackages) runCommand jq remarshal;
-      repo = builtins.fetchGit {
-        inherit url rev ref;
-      };
-    in
-      /. + builtins.readFile (runCommand "find-crate-${name}-${version}"
-        { nativeBuildInputs = [ jq remarshal ]; }
-        ''
-          shopt -s globstar
-          for f in ${repo}/**/Cargo.toml; do
-            if [[ "$(remarshal -if toml -of json "$f" | jq '.package.name == "${name}" and .package.version == "${version}"')" == "true" ]]; then
-              echo -n "''${f%/*}" > $out
-              exit 0
-            fi
-          done
-
-          echo Crate ${name}-${version} not found in ${url}
-          exit 1
-        '');
+  fetchCrateGit = { url, name, version, rev, ref ? "HEAD" }: builtins.fetchGit {
+    inherit url rev ref;
+  };
 
   # This implementation of `fetchCrateAlternativeRegistry` assumes that the download URL is updated frequently
   # on the registry index as a workaround for the lack of authentication for crate downloads. Each time a crate needs
