@@ -108,7 +108,7 @@ to use to do their work.
   inputs = {
     # we of course want nixpkgs to provide stdenv, dependency packages, and
     # various nix functions
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
   
     # we need the overlay at cargo2nix/overlay
     cargo2nix.url = "github:cargo2nix/cargo2nix/master";
@@ -137,7 +137,7 @@ to use to do their work.
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
-          rustVersion = "1.56.1";
+          rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
         };
         
@@ -262,7 +262,7 @@ such as `"x86_64-linux"` or `"x86_64-darwin"`.
 
 The [Rust Overlay] is a flake that provides a Rust toolchain for use as a
 dependency during build.  You can use other versions of Rust by setting
-`rustVersion` to `1.55.0` for example.  `rustChannel` can also be set.  See the
+`rustVersion` to `1.60.0` for example.  `rustChannel` can also be set.  See the
 oxalica Rust Overlay [reference] for a list of all public attributes.
 
 [reference]: https://github.com/oxalica/rust-overlay/blob/master/docs/reference.md
