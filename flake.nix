@@ -110,8 +110,13 @@
         # nix build
         defaultPackage = packages.cargo2nix;
 
+        apps = rec {
+          cargo2nix = { type = "app"; program = "${defaultPackage}/bin/cargo2nix"; };
+          default = cargo2nix;
+        };
+
         # nix run
-        defaultApp = { type = "app"; program = "${defaultPackage}/bin/cargo2nix";};
+        defaultApp = apps.default;
       }
     ) // {
       # The above outputs are mapped over system for `nix run` and `nix develop`
