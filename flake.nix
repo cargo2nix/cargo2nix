@@ -4,6 +4,10 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
+    flake-compat = {
+      url = github:edolstra/flake-compat;
+      flake = false;
+    };
   };
   
   outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
