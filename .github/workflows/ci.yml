@@ -32,6 +32,7 @@ jobs:
         with:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+            log-lines = 200
       - uses: cachix/cachix-action@v10
         with:
           name: cargo2nix-gh
