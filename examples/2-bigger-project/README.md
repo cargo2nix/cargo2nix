@@ -90,7 +90,7 @@ following arguments:
         };
 
         # create the workspace & dependencies package set
-        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
           rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
           # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
@@ -143,7 +143,7 @@ depending on the host platform.  Specifically:
 [`security-framework`]: https://github.com/kornelski/rust-security-framework
 
 The required system dependencies will be magically injected into the build by
-`cargo2nix` using the `packageOverrides` argument for `makePackageSet'` without
+`cargo2nix` using the `packageOverrides` argument for `makePackageSet` without
 needing any extra work, but we will get into what that means later on.
 
 You might have noticed that we did not specify any external dependencies to be

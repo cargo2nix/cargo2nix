@@ -27,7 +27,7 @@
         };
 
         # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
-        # `makePackageSet'` accepts the following arguments:
+        # `makePackageSet` accepts the following arguments:
         # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
         # - `workspaceSrc` (optional): Sources for the workspace can be provided or default to the current directory.
         # You must set some combination of `rustChannel` + `rustVersion` or `rustToolchain`.
@@ -60,7 +60,7 @@
         #     Set an explicit Rust output target.  Overrides the translation
         #     from Nix targets to Rust targets.  See overlay/lib/rust-triple.nix
         #     for more info.
-        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
           rustVersion = "1.60.0";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
