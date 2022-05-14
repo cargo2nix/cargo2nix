@@ -13,7 +13,8 @@ Check the [common issues] section.  Likely fixes:
 
 - A build override, perhaps modifying a value for `buildPhase` or `unpackPhase`
 - An override of dependencies such as in [overrides]
-- A modification of the build steps in [mkcrate.nix] or [utils.sh]
+- A modification of the build steps in [mkcrate.nix][mkcrate] or
+  [mkcrate-utils.sh][mkcrate-utils]
 
 You can [replicate the exact build environment] for a failing derivation and try
 to build it yourself.  This will allow you to make changes and develop phase
@@ -21,9 +22,9 @@ overrides or source patches.
 
 [common issues]: /cargo2nix/cargo2nix#common-issues
 [overrides]: /cargo2nix/cargo2nix/blob/master/overlay/overrides.nix
-[mkcrate.nix]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
-[utils.sh]: /cargo2nix/cargo2nix/blob/master/overlay/utils.sh
 [replicate the exact build environment]: /cargo2nix/cargo2nix#declarative-debug--development-shell
+[mkcrate]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
+[mkcrate-utils]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate-utils.sh
 
 ### Examples Builds We Maintain
 
@@ -98,13 +99,14 @@ not be supported yet by our overlay or cargo2nix's ability to comprehend your
 ### Cargo2nix overlay API
 
 Some of the features our overlay supports may be difficult to find.  There's
-some documentation in the [nix flake].  The [examples] contain some more hints.
-Ultimately, arguments to `rustBuilder.makePackageSet` are consumed in
-[make-package-set/simplified.nix], which calls into `full.nix`
+some documentation in the [nix flake][nix flake].  The [examples][examples]
+contain some more hints.  Ultimately, arguments to `rustBuilder.makePackageSet`
+are consumed in [make-package-set/user-facing.nix][user-facing], which calls
+into `make-package-set/internal.nix`
 
 [nix flake]: /cargo2nix/cargo2nix/blob/master/flake.nix
-[examples]: /cargo2nix/cargo2nix/tree/master/examples
-[make-package-set/simplified.nix]: cargo2nix/cargo2nix/blob/master/overlay/make-package-set/simplified.nix
+[examples]: /cargo2nix/cargo2nix/blob/master/examples
+[user-facing]: /cargo2nix/cargo2nix/blob/master/overlay/make-package-set/simplified.nix
 
 Each output in `rustPkgs.workspace.<name>` supports arguments.  Many are
 demonstrated in the [nix flake] comments, but check [mkcrate.nix] for how they
