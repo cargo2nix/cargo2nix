@@ -162,7 +162,7 @@ in rec {
   libssh2-sys = makeOverride {
     name = "libssh2-sys";
     overrideAttrs = drv: {
-      propogatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.openssl.dev pkgs.zlib.dev ];
+      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.openssl.dev pkgs.zlib.dev ];
     };
   };
 
