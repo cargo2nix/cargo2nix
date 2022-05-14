@@ -9,39 +9,39 @@ When opening an issue, you can help us and help yourself.
 
 ### How to Debug on Your Own
 
-Check the [common issues] section.  Likely fixes:
+Check the [common issues][common issues] section.  Likely fixes:
 
 - A build override, perhaps modifying a value for `buildPhase` or `unpackPhase`
-- An override of dependencies such as in [overrides]
+- An override of dependencies such as in [overrides][overrides]
 - A modification of the build steps in [mkcrate.nix][mkcrate] or
   [mkcrate-utils.sh][mkcrate-utils]
 
-You can [replicate the exact build environment] for a failing derivation and try
+You can [replicate the exact build environment][replicate] for a failing derivation and try
 to build it yourself.  This will allow you to make changes and develop phase
 overrides or source patches.
 
-[common issues]: /cargo2nix/cargo2nix#common-issues
-[overrides]: /cargo2nix/cargo2nix/blob/master/overlay/overrides.nix
-[replicate the exact build environment]: /cargo2nix/cargo2nix#declarative-debug--development-shell
-[mkcrate]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
-[mkcrate-utils]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate-utils.sh
+[common issues]: https://github.com/cargo2nix/cargo2nix#common-issues
+[overrides]: https://github.com/cargo2nix/cargo2nix/blob/master/overlay/overrides.nix
+[mkcrate]: https://github.com/cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
+[mkcrate-utils]: https://github.com/cargo2nix/cargo2nix/blob/master/overlay/mkcrate-utils.sh
+[replicate]: https://github.com/cargo2nix/cargo2nix#declarative-debug--development-shell
 
 ### Examples Builds We Maintain
 
-Check inside of [examples].  Can you build these examples?  Can you replicate your
-issue in a branch on one of our examples?
+Check inside of [examples][examples].  Can you build these examples?  Can you
+replicate your issue in a branch on one of our examples?
 
-[examples]: /cargo2nix/cargo2nix/tree/master/examples
+[examples]: https://github.com/cargo2nix/cargo2nix/tree/master/examples
 
-### Files We Can Use to Debug
+### Files We Sometimes Use in Debugging
 
 - Cargo.toml
-- Cargo.lock
+- flake.nix
+- build.rs
 - .cargo/config.toml
 - Cargo.nix
-- flake.nix
 - flake.lock
-- build.rs
+- Cargo.lock
 
 Please attach whichever files are present / relevant.  The build output from
 `nix log` as it instructs you to look at when a drv fails is also helpful.
@@ -104,16 +104,16 @@ contain some more hints.  Ultimately, arguments to `rustBuilder.makePackageSet`
 are consumed in [make-package-set/user-facing.nix][user-facing], which calls
 into `make-package-set/internal.nix`
 
-[nix flake]: /cargo2nix/cargo2nix/blob/master/flake.nix
-[examples]: /cargo2nix/cargo2nix/blob/master/examples
-[user-facing]: /cargo2nix/cargo2nix/blob/master/overlay/make-package-set/simplified.nix
+[nix flake]: https://github.com/cargo2nix/cargo2nix/blob/master/flake.nix
+[examples]: https://github.com/cargo2nix/cargo2nix/blob/master/examples
+[user-facing]: https://github.com/cargo2nix/cargo2nix/blob/master/overlay/make-package-set/simplified.nix
 
 Each output in `rustPkgs.workspace.<name>` supports arguments.  Many are
 demonstrated in the [nix flake] comments, but check [mkcrate.nix] for how they
 are used.
 
-[mkcrate.nix]: /cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
-[nix flake]: /cargo2nix/cargo2nix/blob/master/flake.nix
+[mkcrate.nix]: https://github.com/cargo2nix/cargo2nix/blob/master/overlay/mkcrate.nix
+[nix flake]: https://github.com/cargo2nix/cargo2nix/blob/master/flake.nix
 
 ## Pull Requests
 
