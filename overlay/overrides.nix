@@ -151,6 +151,7 @@ in rec {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
           pkgs.darwin.apple_sdk.frameworks.Security
           pkgs.darwin.apple_sdk.frameworks.CoreFoundation
+          pkgs.libgit2
         ];
         preferLocalBuild = true;
         allowSubstitutes = false;
