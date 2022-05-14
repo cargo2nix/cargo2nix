@@ -8,8 +8,8 @@
 
 Bring [Nix](https://nixos.org/nix) dependency management to your Rust project!
 
-- **Development Shell** - knowing all the dependencies means seamless direnv
-  integration.  `nix develop` or `direnv activate` in this repo and see!
+- **Development Shell** - knowing all the dependencies means easy creation of
+  complete shells.  Run `nix develop` or `direnv allow` in this repo and see!
 - **Caching** - CI & CD pipelines move faster when purity guarantees allow
   skipping more work!
 - **Reproducibility** - Pure builds.  Access to all of
@@ -22,27 +22,23 @@ With [nix](https://nixos.org/nix) (with flake support) installed, generate a
 `Cargo.nix` for your project:
 
 ```bash
-# Use nix to get it on your path
+# Use nix to get cargo2nix on your path
 nix shell github:cargo2nix/cargo2nix
 
 # In directory with Cargo.lock & Cargo.toml files
 cargo2nix
 
-# Or skip the shell and run it right off the flake
+# Or skip the shell and run it directly
 nix run github:cargo2nix/cargo2nix
 
 # You'll need this in version control
 git add Cargo.nix
 ```
 
-### Set up the rest!
+### Use what you generated!
 
 To consume your new `Cargo.nix`, write a nix expression like that found in the
-[hello world] example or for a more complete project with CI & CD mostly ready
-to go, check out [Unixsocks].
-
-[hello world]: https://github.com/cargo2nix/cargo2nix/blob/master/examples/1-hello-world/flake.nix
-[Unixsocks]: https://github.com/positron-solutions/unixsocks
+[hello world](./examples/1-hello-world/flake.nix) example.
 
 A bare minimum flake.nix:
 
@@ -78,10 +74,15 @@ A bare minimum flake.nix:
 }
 ```
 
+For a more complete project with CI & CD mostly ready to go, check out
+[Unixsocks][unixsocks] or cargo2nix's own [CI workflow.](./.github/workflows/ci.yml)
+
+[unixsocks]: https://github.com/positron-solutions/unixsocks
+
 #### Build with nix
 
 ```shell
-# these must be in version control
+# these must be in version control!
 git add flake.nix Cargo.nix
 
 nix build
@@ -97,12 +98,17 @@ Check out our series of [example projects](./examples) which showcase how to use
 
 ### Development environment
 
-In this repo, simply use `nix develop` and even if you are on a bare NixOS
-system or fresh OSX environment with no dependencies or toolchains installed,
-you will have everything you need to run `cargo build`.  See the `devShell`
-attribute in `flake.nix` to see how to prepare this kind of shell.
+In this repo, simply use `nix develop` or `direnv allow`.  Even if you are on
+a bare NixOS system or fresh OSX environment with no dependencies or toolchains
+installed, you will have everything you need to run `cargo build`.  See the
+`devShell` attribute in `flake.nix` to see how to prepare this kind of shell.
 
-### More Options
+The `workspaceShell` function accepts all the same options as the nix
+[`mkShell`] function.
+
+[`mkShell`]: https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell
+
+### Arguments & Options
 
 The `makePackageSet` function from [the
 overlay](./overlay/make-package-set/user-facing.nix) accepts arguments that
@@ -130,26 +136,25 @@ arguments.
 
 ## How it works
 
-- The `cargo2nix` utility reads the workspace configs and `Cargo.lock` and
-  generates nix expressions that encode some of the feature, platform, and
-  target logic into a `Cargo.nix`
+- The `cargo2nix` utility reads the Rust workspace configuration and
+  `Cargo.lock` and generates nix expressions that encode some of the feature,
+  platform, and target logic into a `Cargo.nix`
 
-- The cargo2nix [Nixpkgs](https://github.com/NixOS/nixpkgs) [overlay] consumes
-  the `Cargo.nix`, feeding it what you pass to `makePackageSet` to provide
-  workspace outputs you can expose in your nix flake
+- The cargo2nix [Nixpkgs](https://github.com/NixOS/nixpkgs) [overlay](./overlay)
+  consumes the `Cargo.nix`, feeding it what you pass to `makePackageSet` to
+  provide workspace outputs you can expose in your nix flake
   
 - Because we know all of the dependencies, it's easy to create a shell from those
-  dependencies as environment setup using the `workspaceShell` function and then
-  exposing it in your `devShell` flake output. 
-  
-[overlay]: ./overlay/
+  dependencies as environment setup using the `workspaceShell` function and
+  exposing the result in the `devShell` flake output
   
 ### Building crates isolated from each other
 
-Just like regular `cargo` builds, there is a DAG of dependencies, but purity
+Just like regular `cargo` builds, the Nix dependencies form a [DAG][DAG], but purity
 means we only expose essential information to dependencies and manually invoke
 `cargo`.  Communication from dependencies to dependents is handled by writing
-some extra outputs and then reading them inside the next build.
+some extra outputs and then reading those outputs inside the next dependent
+build.
 
 There's two broad categories of information that need to be transmitted when
 hand-building crates in isolation:
@@ -157,41 +162,48 @@ hand-building crates in isolation:
 - **Global information**
 
   - target such as `x86_64-unknown-linux-gnu`
-  - actions such as `build` or `test`
+  - cargo actions such as `build` or `test`
   - features which turn on optional dependencies & downstream features via logic
-    in the [`Cargo.nix`] expressions
+    in the [`Cargo.nix`](./Cargo.nix) expressions
+
+  This information is known before any of the crates are built.  It's used at
+  evaluation time to decide what will be built. See `nix show-derivation` results.
 
 - **Propagated information**
 
-  Linking information for dependents to consume dependency crates is written
-  after each build and then consumed before each build by dependents farther up
-  the DAG
-  
-  The linking, features, target, and other information is given to each
-  derivation's build shell, defined in `mkcrate.nix`
-  
-You send some information in.  Derivations are evaluated in Nix.  During the
-build, rlibs and dependency information are propagated back up the DAG.  Simple.
+  Each dependency writes information such as linker flags alongside its rlib and
+  other outputs.  When the dependent is going to consume the dependency, it
+  reads this information back.
 
-[`mkcrate.nix`]: ./overlay/mkcrate.nix
-[`Cargo.nix`]: ./Cargo.nix
+Derivations are evaluated in Nix with global information available.  During the
+build, rlibs and dependency information are propagated back up the DAG.  Each
+derivation's build shell combines the linking, features, target, and other
+information.  You can see how it's used in
+[`mkcrate.nix`](./overlay/mkcrate.nix)
+
+[DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
 ### Limitations implied by purity
 
 Evaluation of nix derivations doesn't require building anything.  If you want to
-build a specific crate in a workspace with Nix, we would have to know this when
-building all of the dependencies.  This means certain behavior to switch
-features and optional dependencies on and off depends on what _else_ is being
-built.  We could tell the workspace up front which crates will be built, but
-`cargo2nix` currently just builds dependencies as if every workspace crate might
-be built.  This actually improves caching but may rarely result in a long build
-for an unneeded dependency (which your workspace should put behind a top-level
-feature).  Cargo isn't any better at this aspect of caching vs rebuilding.
+build a specific variant of a crate in a workspace with Nix, we would have to
+know this when building all of its dependencies.  This means certain behavior to
+switch features and optional dependencies on or off depends on what _else_ is
+being built.  By default `cargo2nix` will build crates as if all other crates in
+the workspace _might_ be build.  This can be somewhat controlled with the
+`rootFeatures` argument.  (see `rootFeatures` in [Cargo.nix](./Cargo.nix)).
+This actually improves caching but may rarely result in a long build for an
+unneeded dependency (which your workspace should put behind a non-default
+top-level feature).  Cargo isn't any better at this aspect of caching vs
+rebuilding.
 
 ## Common issues
 
 1. Flakes require `flake.nix` and `Cargo.nix` to be in version control.  `git
-   add flake.nix Cargo.nix` etc.  Remember to keep them up to date!
+   add flake.nix Cargo.nix` etc.  Remember to keep them up to date!  Before
+   building the examples, you will usually need to update their pin of
+   cargo2nix: `nix flake lock --update-input cargo2nix` or nix may complane
+   about paths.
    
 1. Old versions of the `cargo2nix.overlay` usually cannot consume newer versions
    of the `Cargo.nix` that an updated cargo2nix will produce.  Update your
@@ -217,7 +229,7 @@ feature).  Cargo isn't any better at this aspect of caching vs rebuilding.
          (pkgs.rustBuilder.rustLib.makeOverride {
              name = "fantasy-zlib-sys";
              overrideAttrs = drv: {
-               propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
+               propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
                  pkgs.zlib.dev
                ];
              };
@@ -305,6 +317,7 @@ echo $configurePhase
 # runHook preConfigure runHook configureCargo runHook postConfigure
 
 runHook preConfigure # usually does nothing
+runHook findCrate
 runHook configureCargo
 runHook postConfigure # usually does nothing
 
