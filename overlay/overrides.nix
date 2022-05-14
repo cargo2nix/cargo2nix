@@ -82,6 +82,7 @@ in rec {
     rand
     rand_os
     rdkafka-sys
+    reqwest
     ring
     zmq-sys
   ];
@@ -115,6 +116,17 @@ in rec {
       overrideAttrs = drv: {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
           pkgs.darwin.apple_sdk.frameworks.CoreServices
+        ];
+      };
+    }
+    else  nullOverride;
+
+  reqwest = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "reqwest";
+      overrideAttrs = drv: {
+        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          pkgs.darwin.apple_sdk.frameworks.Security
         ];
       };
     }
