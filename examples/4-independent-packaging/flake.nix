@@ -6,7 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
     rust-analyzer-src = {
-      url = "github:rust-analyzer/rust-analyzer?rev=5d5bbec9b60010dd7389a084c56693baf6bda780";
+      url = "github:rust-analyzer/rust-analyzer?rev=5dce1ff0212e467271c9e895478670c74d847ee9";
       flake = false;
     };
   };
