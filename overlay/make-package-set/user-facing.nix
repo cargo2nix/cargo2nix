@@ -72,11 +72,11 @@ let
               .${args.rustVersion}
               .${rustProfile}.override toolchainArgs;
 
-in rustBuilder.makePackageSet (extraArgs // {
+in rustBuilder.makePackageSetInternal (extraArgs // {
   inherit packageFun workspaceSrc target;
   rustToolchain = rustToolchain';
   packageOverrides = packageOverrides pkgs;
-  buildRustPackages = buildPackages.rustBuilder.makePackageSet (extraArgs // {
+  buildRustPackages = buildPackages.rustBuilder.makePackageSetInternal (extraArgs // {
     inherit packageFun;
     rustToolchain = rustToolchain';
     target = null;

@@ -99,7 +99,7 @@ not be supported yet by our overlay or cargo2nix's ability to comprehend your
 
 Some of the features our overlay supports may be difficult to find.  There's
 some documentation in the [nix flake].  The [examples] contain some more hints.
-Ultimately, arguments to `rustBuilder.makePackageSet'` are consumed in
+Ultimately, arguments to `rustBuilder.makePackageSet` are consumed in
 [make-package-set/simplified.nix], which calls into `full.nix`
 
 [nix flake]: /cargo2nix/cargo2nix/blob/master/flake.nix

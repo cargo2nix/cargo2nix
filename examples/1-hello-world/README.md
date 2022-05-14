@@ -136,7 +136,7 @@ to use to do their work.
         };
 
         # create the workspace & dependencies package set
-        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
           rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
         };
@@ -190,7 +190,7 @@ than just flat declarations like a yaml file.
 
 The flake input for nixpkgs needs to be instantiated into an actual nixpkgs.
 The [overlays] inject some extras, like the `rust-bin` set of Rust toolchains
-and functions like `rustBuilder.makePackageSet'`.  **Note the single quote in
+and functions like `rustBuilder.makePackageSet`.  **Note the single quote in
 the name!**
 
 [overlays]: https://nixos.wiki/wiki/Overlays
@@ -205,7 +205,7 @@ the name!**
 
 #### Constructing the Workspace & Dependencies Set
 
-We use `makePackageSet'` to import our `Cargo.nix` file and build it using the
+We use `makePackageSet` to import our `Cargo.nix` file and build it using the
 `"stable"` release channel of Rust. The output of this function is a tree
 structure containing the entire dependency graph from our `Cargo.nix`, which we
 call `rustPkgs`.

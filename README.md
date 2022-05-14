@@ -62,7 +62,7 @@ A bare minimum flake.nix:
           overlays = [cargo2nix.overlay];
         };
 
-        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
           rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
         };
@@ -104,8 +104,10 @@ attribute in `flake.nix` to see how to prepare this kind of shell.
 
 ### More Options
 
-`makePackageSet'` supports many options that control all of the crates that will
-be created. See [flake.nix](./flake.nix) for a more detailed listing.
+The `makePackageSet` function from [the
+overlay](./overlay/make-package-set/user-facing.nix) accepts arguments that
+adjust how the workspace is built.  Only the `packageFun` argument is required.
+Cargo2nix's own [flake.nix](./flake.nix) has more information.
     
 - `rustVersion` - is either a version string or YYYY-MM-DD date-string
 - `rustChannel` - `"nightly"` `"beta"` `"stable"`
@@ -133,7 +135,7 @@ arguments.
   target logic into a `Cargo.nix`
 
 - The cargo2nix [Nixpkgs](https://github.com/NixOS/nixpkgs) [overlay] consumes
-  the `Cargo.nix`, feeding it what you pass to `makePackageSet'` to provide
+  the `Cargo.nix`, feeding it what you pass to `makePackageSet` to provide
   workspace outputs you can expose in your nix flake
   
 - Because we know all of the dependencies, it's easy to create a shell from those
@@ -202,10 +204,10 @@ feature).  Cargo isn't any better at this aspect of caching vs rebuilding.
    specific deps.
    
    To provide your own override, pass a modified `packageOverrides` to
-   `pkgs.rustBuilder.makePackageSet'`:
+   `pkgs.rustBuilder.makePackageSet`:
    
    ```nix
-     rustPkgs = pkgs.rustBuilder.makePackageSet' {
+     rustPkgs = pkgs.rustBuilder.makePackageSet {
        # ... required arguments not shown
      
        # Use the existing all list of overrides and append your override

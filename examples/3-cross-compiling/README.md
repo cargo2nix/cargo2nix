@@ -194,7 +194,7 @@ Create a new file called [`flake.nix`]:
         };
 
         # create the workspace & dependencies package set
-        rustPkgs = pkgs.rustBuilder.makePackageSet' {
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
           rustVersion = "1.60.0";
           packageFun = import ./Cargo.nix;
           

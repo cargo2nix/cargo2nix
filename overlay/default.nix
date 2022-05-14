@@ -13,9 +13,9 @@ let
           {
             rustLib = callPackage ./lib { };
 
-            makePackageSet = callPackage ./make-package-set/full.nix { };
+            makePackageSetInternal = callPackage ./make-package-set/internal.nix { };
 
-            makePackageSet' = pkgs.callPackage ./make-package-set/simplified.nix { };
+            makePackageSet = pkgs.callPackage ./make-package-set/user-facing.nix { };
 
             mkRustCrate = import ./mkcrate.nix;
 
