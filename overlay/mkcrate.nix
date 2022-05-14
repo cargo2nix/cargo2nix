@@ -33,7 +33,7 @@ let
   inherit (rustLib) rustTriple decideProfile;
   wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
     #!${stdenv.shell}
-    . ${./utils.sh}
+    . ${./mkcrate-utils.sh}
     isBuildScript=
     args=("$@")
     for i in "''${!args[@]}"; do
@@ -261,7 +261,7 @@ let
         | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
       )"
 
-      . ${./utils.sh}
+      . ${./mkcrate-utils.sh}
 
       export CARGO_VERBOSE=`cargoVerbosityLevel $NIX_DEBUG`
       export NIX_RUST_METADATA=`extractHash $out`
