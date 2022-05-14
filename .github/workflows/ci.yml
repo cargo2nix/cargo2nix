@@ -45,11 +45,17 @@ jobs:
             nix build
           else
             nix build \
-              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.11-darwin
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-unstable
           fi
 
       - name: build tests
-        run: nix build .#ci
+        run: |
+          if [[ $RUNNER_OS == Linux ]]; then
+            nix build .#ci
+          else
+            nix build .#ci \
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-unstable
+          fi
 
       - name: build examples
         run: |
