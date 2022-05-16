@@ -12,6 +12,7 @@ anyhow = { version = "1.0.57", features = ["backtrace"] }
 pathdiff = "0.2.1"
 semver = "1.0.9"
 serde = { version = "1.0.137", features = ["derive"] }
+sha2 = "0.10.2"
 tempfile = "3.3.0"
 tera = { version = "1.15.0", default-features = false }
 toml = "0.5.9"

@@ -24,6 +24,7 @@
   profileOpts ? null,
   rustcLinkFlags ? [],
   rustcBuildFlags ? [],
+  ignoreLockHash,
 }:
 lib.fix' (self:
   let
@@ -50,7 +51,7 @@ lib.fix' (self:
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
     packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts rustcLinkFlags rustcBuildFlags;
+      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts rustcLinkFlags rustcBuildFlags ignoreLockHash;
       inherit (stdenv) hostPlatform;
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {

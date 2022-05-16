@@ -11,6 +11,7 @@ use crate::{platform, BoolExpr, Feature as FeatureStr, Optionality, ResolvedPack
 #[derive(Debug, Serialize)]
 pub struct BuildPlan {
     pub cargo2nix_version: String,
+    pub cargo_lock_hash: String,
     pub root_features: Vec<String>,
     pub profiles: BTreeMap<String, String>,
     pub workspace_members: Vec<Member>,
@@ -19,6 +20,7 @@ pub struct BuildPlan {
 
 impl BuildPlan {
     pub fn from_items(
+        cargo_lock_hash: String,
         root_pkgs: Vec<&'_ Package>,
         profiles: TomlProfile,
         rpkgs_by_id: BTreeMap<PackageId, ResolvedPackage<'_>>,
@@ -62,6 +64,7 @@ impl BuildPlan {
 
         Ok(BuildPlan {
             cargo2nix_version: env!("CARGO_PKG_VERSION").to_string(),
+            cargo_lock_hash,
             root_features,
             profiles,
             workspace_members,
