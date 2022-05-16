@@ -13,7 +13,7 @@
   compileMode ? "build",
   profile,
   meta ? { },
-  rustcflags ? [ ],
+  rustcLinkFlags ? [ ],
   rustcBuildFlags ? [ ],
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],

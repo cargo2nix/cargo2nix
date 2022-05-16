@@ -21,7 +21,7 @@
   profileOpts ? null,
   codegenOpts ? null,
   meta ? { },
-  rustcflags ? [ ],
+  rustcLinkFlags ? [ ],
   rustcBuildFlags ? [ ],
   target ? null,
   hostPlatformCpu ? null,
@@ -44,7 +44,7 @@ let
       fi
     done
     if [ "$isBuildScript" ]; then
-      args+=($NIX_RUST_BUILD_LINK_FLAGS)
+      args+=($NIX_RUST_BUILD_FLAGS)
     else
       args+=($NIX_RUST_LINK_FLAGS)
     fi
@@ -150,10 +150,10 @@ let
     buildDependencies = depMapToList buildDependencies;
     devDependencies = depMapToList (optionalAttrs (compileMode != "build") devDependencies);
 
-    extraRustcFlags =
+    extraRustcLinkFlags =
       optionals (hostPlatformCpu != null) ([("-Ctarget-cpu=" + hostPlatformCpu)]) ++
       optionals (hostPlatformFeatures != []) [("-Ctarget-feature=" + (concatMapStringsSep "," (feature: "+" + feature) hostPlatformFeatures))] ++
-      rustcflags;
+      rustcLinkFlags;
 
     extraRustcBuildFlags = rustcBuildFlags;
 
@@ -272,8 +272,8 @@ let
       linkExternCrateToDeps `realpath deps` $dependencies $devDependencies
       linkExternCrateToDeps `realpath build_deps` $buildDependencies
 
-      export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcFlags"
-      export NIX_RUST_BUILD_LINK_FLAGS="''${buildLinkFlags[@]} -L dependency=$(realpath build_deps) $extraRustcBuildFlags"
+      export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcLinkFlags"
+      export NIX_RUST_BUILD_FLAGS="''${buildLinkFlags[@]} -L dependency=$(realpath build_deps) $extraRustcBuildFlags"
       export RUSTC=${wrapper "rustc"}/bin/rustc
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
@@ -281,7 +281,7 @@ let
 
       if (( NIX_DEBUG >= 1 )); then
         echo $NIX_RUST_LINK_FLAGS
-        echo $NIX_RUST_BUILD_LINK_FLAGS
+        echo $NIX_RUST_BUILD_FLAGS
         for key in ''${depKeys[@]}; do
           echo $key
         done
