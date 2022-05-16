@@ -17,6 +17,7 @@ args@{
   packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
   target ? null,
   workspaceSrc ? null,
+  ignoreLockHash ? false,
   ...
 }:
 let
@@ -27,6 +28,7 @@ let
                                           "rustToolchain"
                                           "extraRustComponents"
                                           "packageFun"
+                                          "nixifiedLockHash"
                                           "packageOverrides"
                                           "target" ];
 
@@ -104,11 +106,11 @@ let
 # performed.  Note that buildRustPackages is just buildPackages with a null
 # target.
 in rustBuilder.makePackageSetInternal (extraArgs // {
-  inherit packageFun workspaceSrc target;
+  inherit packageFun ignoreLockHash workspaceSrc target;
   rustToolchain = rustToolchain';
   packageOverrides = packageOverrides' pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSetInternal (extraArgs // {
-    inherit packageFun workspaceSrc;
+    inherit packageFun ignoreLockHash workspaceSrc;
     rustToolchain = rustToolchain';
     target = null;
     packageOverrides = packageOverrides' buildPackages;
