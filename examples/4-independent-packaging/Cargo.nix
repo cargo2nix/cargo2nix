@@ -53,10 +53,18 @@ args@{
   rustLib,
   lib,
   workspaceSrc,
+  ignoreLockHash,
 }:
 let
+  nixifiedLockHash = "b9d91ce527aa31247da3ba144f1214ff590ae7cbda615d48daad91d366083961";
   workspaceSrc = if args.workspaceSrc == null then ./. else args.workspaceSrc;
-in let
+  currentLockHash = builtins.hashFile "sha256" (workspaceSrc + /Cargo.lock);
+  lockHashIgnored = if ignoreLockHash
+                  then builtins.trace "Ignoring lock hash" ignoreLockHash
+                  else ignoreLockHash;
+in if !lockHashIgnored && (nixifiedLockHash != currentLockHash) then
+  throw ("Cargo.nix ${nixifiedLockHash} is out of sync with Cargo.lock ${currentLockHash}")
+else let
   inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit fetchCrateAlternativeRegistry expandFeatures decideProfile genDrvsByProfile;
   profilesByName = {
     dev = builtins.fromTOML "debug = 0\n[package.miniz_oxide]\nopt-level = 3\n\n[package.rowan]\nopt-level = 3\n\n[package.rustc-hash]\nopt-level = 3\n\n[package.smol_str]\nopt-level = 3\n\n[package.text-size]\nopt-level = 3\n";
