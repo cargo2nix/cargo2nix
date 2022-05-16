@@ -29,6 +29,7 @@
         # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
         # `makePackageSet` accepts the following arguments:
         # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
+        # - `ignoreLockHash` (optional): Set to `true` to turn off the hash check between Cargo.lock and Cargo.nix.
         # - `workspaceSrc` (optional): Sources for the workspace can be provided or default to the current directory.
         # You must set some combination of `rustChannel` + `rustVersion` or `rustToolchain`.
         # - `rustToolchain` (optional): Completely override the toolchain.  Must provide rustc, cargo, rust-std, and rust-src components

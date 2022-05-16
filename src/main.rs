@@ -24,6 +24,7 @@ use cargo::{
 use cargo_platform::Platform;
 use colorify::colorify;
 use semver::{Version, VersionReq};
+use sha2::{Digest, Sha256};
 use tera::Tera;
 
 use crate::expr::BoolExpr;
@@ -179,6 +180,13 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     };
 
     let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
+    let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
+    let mut hasher = Sha256::new();
+    io::copy(
+        &mut fs::File::open(cargo_lock_path).expect("Does the Cargo.lock file exist?"),
+        &mut hasher,
+    )?;
+    let cargo_lock_hash: String = format!("{:x}", hasher.finalize());
     let ws = Workspace::new(&root_manifest_path, &config)?;
     let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
 
@@ -253,7 +261,13 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     let root_manifest = fs::read(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
-    let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd())?;
+    let plan = BuildPlan::from_items(
+        cargo_lock_hash,
+        root_pkgs,
+        profiles,
+        rpkgs_by_id,
+        config.cwd(),
+    )?;
     let mut tera = Tera::default();
     tera.add_raw_template(
         "Cargo.nix.tera",
