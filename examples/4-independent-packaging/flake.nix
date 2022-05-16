@@ -30,6 +30,7 @@
           rustVersion = "1.61.0";
           # nixified Cargo.lock
           packageFun = import ./Cargo.nix;
+          ignoreLockHash = true;
 
           # Provide the gperfools lib for linking the final rust-analyzer binary
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
