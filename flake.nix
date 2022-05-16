@@ -56,6 +56,10 @@
         #     flags used for compilation of the package set. The value should be a list of the features to be turned on, without the leading "+",
         #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
         #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
+        #    rustcLinkFlags (optional):
+        #     Pass extra flags directly to rustc during non-build invocations
+        #    rustcBuildFlags (optional):
+        #     Pass extra flags directly to Rustc during build invocations
         # - `target` (optional):
         #     Set an explicit Rust output target.  Overrides the translation
         #     from Nix targets to Rust targets.  See overlay/lib/rust-triple.nix
