@@ -105,6 +105,7 @@ You will now see a clean binary output at `result-bin/bin/rust-analyzer`
 
 ### Errata
 
-The version of Rust Analyzer built here will generate a Cargo.nix that enables
-both allocators.  Search the [Cargo.nix](./Cargo.nix) for `mimalloc` to see
-where this erroneously enabled feature was commented out by hand.
+This crate is a special case where the flake root has a Cargo.lock that is
+**not** the one that generated the Cargo.nix.  Currently the overlay can't
+handle this, and so `ignoreLockHash` was turned on, set to `true`.
+
