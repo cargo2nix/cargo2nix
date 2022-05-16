@@ -5,25 +5,26 @@
   rustBuilder,
 }:
 args@{
-  rustVersion ? null,
   rustChannel ? null,
+  rustVersion ? null,
   rustToolchain ? null,
   rustProfile ? "minimal",
   extraRustComponents ? [],
   packageFun,
-  workspaceSrc ? null,
   packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
   target ? null,
+  workspaceSrc ? null,
   ...
 }:
 let
   extraArgs = builtins.removeAttrs args [ "rustChannel"
                                           "rustVersion"
+                                          "rustProfile"
                                           "rustToolchain"
                                           "extraRustComponents"
                                           "packageFun"
                                           "packageOverrides"
-                                          "target"];
+                                          "target" ];
 
   toolchainArgs = {
     extensions = [ "rust-src" ] ++ extraRustComponents;
@@ -78,7 +79,7 @@ in rustBuilder.makePackageSetInternal (extraArgs // {
   rustToolchain = rustToolchain';
   packageOverrides = packageOverrides pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSetInternal (extraArgs // {
-    inherit packageFun;
+    inherit packageFun workspaceSrc;
     rustToolchain = rustToolchain';
     target = null;
     packageOverrides = packageOverrides buildPackages;
