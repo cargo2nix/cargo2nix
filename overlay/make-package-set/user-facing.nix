@@ -20,6 +20,7 @@ let
   extraArgs = builtins.removeAttrs args [ "rustChannel"
                                           "rustVersion"
                                           "rustToolchain"
+                                          "extraRustComponents"
                                           "packageFun"
                                           "packageOverrides"
                                           "target"];
