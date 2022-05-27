@@ -8,8 +8,7 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-8iOxTjDFVWXSxrn+tKKUsZ6PCxcUCLcTkm8E3raUWM4=",
+        "narHash": "sha256-7Voku2qjACi+OryF9JpvuFv/2DSpwMBTfGvk49yeJmg=",
         "path": "../../",
         "type": "path"
       },
@@ -81,32 +80,48 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1652298859,
-        "narHash": "sha256-hcwRboK+NxMWUJh0fQ3VsocDcAHrYJ95FmPEHlddV0Y=",
+        "lastModified": 1653660442,
+        "narHash": "sha256-tWfNB4Y4m2Z0gwmIiT6QpKfwAG4jS6kwpNH8OcMRbHk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "051448e41537c3463ae776d46115d01afb6c498d",
+        "rev": "7ec4e5339010283440132e8dc010f49ae1f2e6c4",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "release-21.11",
+        "ref": "release-22.05",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1652521631,
-        "narHash": "sha256-E7SN8avPKRhTxDl5KS1BsSLyfT1w90XEEte4IYghZu4=",
+        "lastModified": 1653326962,
+        "narHash": "sha256-W8feCYqKTsMre4nAEpv5Kx1PVFC+hao/LwqtB2Wci/8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "41cc1d5d9584103be4108c1815c350e07c807036",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1653660442,
+        "narHash": "sha256-tWfNB4Y4m2Z0gwmIiT6QpKfwAG4jS6kwpNH8OcMRbHk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "3293938416338c8dc37c4cedd4536070d7b6f64f",
+        "rev": "7ec4e5339010283440132e8dc010f49ae1f2e6c4",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "release-21.11",
+        "ref": "release-22.05",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -115,7 +130,7 @@
       "inputs": {
         "cargo2nix": "cargo2nix",
         "flake-utils": "flake-utils_3",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs_3",
         "rust-analyzer-src": "rust-analyzer-src"
       }
     },
@@ -139,10 +154,7 @@
     "rust-overlay": {
       "inputs": {
         "flake-utils": "flake-utils_2",
-        "nixpkgs": [
-          "cargo2nix",
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs_2"
       },
       "locked": {
         "lastModified": 1652323265,
