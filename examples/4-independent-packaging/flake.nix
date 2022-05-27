@@ -4,7 +4,7 @@
     # Use the github URL for real packages
     # cargo2nix.url = "github:cargo2nix/cargo2nix?rev=1de0ee0a0a7396c09b17cae1d90862490bcd4b67";
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
     rust-analyzer-src = {
       url = "github:rust-analyzer/rust-analyzer?rev=5dce1ff0212e467271c9e895478670c74d847ee9";
       flake = false;

@@ -4,7 +4,7 @@
     # Use the github URL for real packages
     # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs/master";
+    nixpkgs.url = "github:nixos/nixpkgs/release-22.05";
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
