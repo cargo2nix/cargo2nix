@@ -46,7 +46,7 @@ jobs:
             nix build
           else
             nix build \
-              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-unstable
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
           fi
 
       - name: build tests
@@ -55,7 +55,7 @@ jobs:
             nix build .#ci
           else
             nix build .#ci \
-              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-unstable
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
           fi
 
       - name: build examples
@@ -72,16 +72,16 @@ jobs:
           else
           nix build ./examples/1-hello-world# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.11-darwin
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
           nix build ./examples/2-bigger-project# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.11-darwin
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
           # nix build ./examples/3-cross-compiling#
           #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.11-darwin
+          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
           nix build ./examples/4-independent-packaging# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-21.11-darwin
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
           fi
 
       - name: use dev shell
