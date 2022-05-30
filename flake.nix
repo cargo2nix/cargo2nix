@@ -1,8 +1,11 @@
 {
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
     flake-compat = {
       url = github:edolstra/flake-compat;
