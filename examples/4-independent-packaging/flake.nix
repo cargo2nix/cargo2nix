@@ -1,12 +1,12 @@
 {
   inputs = {
     cargo2nix.url = "path:../../";
-    # Use the github URL for real packages
-    # cargo2nix.url = "github:cargo2nix/cargo2nix?rev=1de0ee0a0a7396c09b17cae1d90862490bcd4b67";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
+    # Use a github flake URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "cargo2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
     rust-analyzer-src = {
-      url = "github:rust-analyzer/rust-analyzer?rev=5dce1ff0212e467271c9e895478670c74d847ee9";
+      url = "github:rust-lang/rust-analyzer/?rev=f94fa62d69faf5bd63b3772d3ec4f0c76cf2db57";
       flake = false;
     };
   };
@@ -27,7 +27,7 @@
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           # rust toolchain version
-          rustVersion = "1.60.0";
+          rustVersion = "1.61.0";
           # nixified Cargo.lock
           packageFun = import ./Cargo.nix;
 

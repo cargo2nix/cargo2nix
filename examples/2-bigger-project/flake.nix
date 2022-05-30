@@ -1,10 +1,10 @@
 {
   inputs = {
     cargo2nix.url = "path:../../";
-    # Use the github URL for real packages
-    # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
+    # Use a github flake URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "cargo2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
@@ -26,7 +26,7 @@
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.60.0";
+          rustVersion = "1.61.0";
           packageFun = import ./Cargo.nix;
           # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
         };
