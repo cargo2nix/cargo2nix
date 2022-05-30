@@ -45,9 +45,9 @@ A bare minimum flake.nix:
 ```nix
 {
   inputs = {
-    cargo2nix.url = "github:cargo2nix/cargo2nix/master";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
+    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "carog2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
@@ -59,7 +59,7 @@ A bare minimum flake.nix:
         };
 
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.60.0";
+          rustVersion = "1.61.0";
           packageFun = import ./Cargo.nix;
         };
 
@@ -107,6 +107,31 @@ The `workspaceShell` function accepts all the same options as the nix
 [`mkShell`] function.
 
 [`mkShell`]: https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell
+
+### Maintaining your project
+
+In your flake, you can choose your cargo2nix version by changing the URL.
+
+| Flake URL                                 |                            Result                            |
+|-------------------------------------------|:------------------------------------------------------------:|
+| github:cargo2nix/cargo2nix/               | latest release (check repo's default branch, release-0.11.0) |
+| github:cargo2nix/cargo2nix/release-0.11.0 |                    use a specific release                    |
+| github:cargo2nix/cargo2nix/unstable       |                    latest features & fixes                   |
+
+Only use unstable for developing with the latest features.  PR's against old
+releases can be accepted but no active support will be done.  **The default
+branch for this repo is updated whenever a new release tag is made.**  Only
+specific release branches are "stable."
+
+Update your flake lock with the latest or a specific version of cargo2nix:
+
+```shell
+nix flake lock --update-input cargo2nix
+nix flake lock --update-input cargo2nix --override-input cargo2nix github:cargo2nix/cargo2nix/?rev=d45481420482fa7d9b0a62836555e24ec07d93be
+```
+
+If you need newer versions of Rust or the flake-utils inputs, just specify them
+using url instead of follows.
 
 ### Arguments & Options
 
@@ -234,7 +259,6 @@ rebuilding.
                ];
              };
          })
-         
        ];
      };
    ```
