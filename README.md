@@ -132,7 +132,7 @@ nix flake lock --update-input cargo2nix --override-input cargo2nix github:cargo2
 If you need newer versions of Rust or the flake-utils inputs, just specify them
 using url instead of follows.
 
-### Arguments to makePackageSet
+### Arguments to `makePackageSet`
 
 The `makePackageSet` function from [the
 overlay](./overlay/make-package-set/user-facing.nix) accepts arguments that
@@ -173,6 +173,19 @@ paths look like:
 `rustPkgs.workspaceShell` is a derivation using Nix's standard `mkShell`,
 embelished with information we learned from the dependencies and their
 overrides, enabling vanilla `cargo build` to work in a `nix develop` shell.
+
+#### Overrides
+
+_This is for finished derivations, not for dependencies.  Keep reading below for
+using `makeOverride` in the dependency tree._
+
+`workspaceShell` and crates both support [`override`](o) and
+[`overrideAttrs`](oa) like normal Nix derivations.  This allows you to customize
+the workspace shell or a build step in your workspace crate very easily.  See
+`nix show-derivation` and `nix show-derivation #devShell` for more information.
+
+[o]: https://nixos.org/manual/nixpkgs/stable/#sec-pkg-override 
+[oa]: https://nixos.org/manual/nixpkgs/stable/#sec-pkg-overrideAttrs
 
 #### More Control
 

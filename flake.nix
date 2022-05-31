@@ -91,7 +91,12 @@
         # and environment settings necessary for a regular `cargo build`.
         # Passes through all arguments to pkgs.mkShell for adding supplemental
         # dependencies.
-        workspaceShell = rustPkgs.workspaceShell {};
+        workspaceShell = (rustPkgs.workspaceShell {
+          # packages = [ pkgs.somethingExtra ];
+          # shellHook = ''
+          #   export PS1="\033[0;31m☠dev-shell☠ $ \033[0m"
+          # '';
+        }); # supports override & overrideAttrs
 
       in rec {
 
@@ -101,9 +106,8 @@
         # the packages in:
         # nix build .#packages.x86_64-linux.cargo2nix
         packages = {
-
           # nix build .#cargo2nix
-          cargo2nix = (rustPkgs.workspace.cargo2nix {}).bin;
+          cargo2nix = (rustPkgs.workspace.cargo2nix {}).bin; # supports override & overrideAttrs
 
           # `runTests` runs all tests for a crate inside a Nix derivation.  This
           # may be problematic as Nix may restrict filesystem, network access,
