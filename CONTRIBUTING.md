@@ -132,8 +132,10 @@ remember to do so).
 ### Creating pull requests
 
 1. Fork this repository into the personal GitHub account
-2. Make changes on the personal fork
-3. Make a Pull Request against this repository
-4. **Allow maintainers to make changes to your pull request** (there's a checkbox)
-5. Once the pull request has been approved, you will be thanked and observe your
+2. Select the appropriate branch, release-<version> for stable changes, unstable
+   for breaking changes
+3. Make changes on the personal fork
+4. Make a Pull Request against this repository
+5. **Allow maintainers to make changes to your pull request** (there's a checkbox)
+6. Once the pull request has been approved, you will be thanked and observe your
    changes applied with authorship preserved (if we remember)
