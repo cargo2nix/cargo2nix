@@ -103,8 +103,7 @@ a bare NixOS system or fresh OSX environment with no dependencies or toolchains
 installed, you will have everything you need to run `cargo build`.  See the
 `devShell` attribute in `flake.nix` to see how to prepare this kind of shell.
 
-The `workspaceShell` function accepts all the same options as the nix
-[`mkShell`] function.
+The `workspaceShell` function, created by [`makePackagSet`](#Arguments) accepts all the same options as the nix [`mkShell`] function.
 
 [`mkShell`]: https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell
 
@@ -133,7 +132,7 @@ nix flake lock --update-input cargo2nix --override-input cargo2nix github:cargo2
 If you need newer versions of Rust or the flake-utils inputs, just specify them
 using url instead of follows.
 
-### Arguments & Options
+### Arguments to makePackageSet
 
 The `makePackageSet` function from [the
 overlay](./overlay/make-package-set/user-facing.nix) accepts arguments that
@@ -154,10 +153,38 @@ Cargo2nix's own [flake.nix](./flake.nix) has more information.
 - `target` - setting an explicit target, useful when cross compiling to obtain a
   specific Rust target that doesn't align with the nixpkgs target
 
-Each crate in the resulting `rustPkgs` is a function that also accepts some
-arguments.
+#### Contents of Package Set
 
-- `compileMode` - "build" "bench" "doctest" etc
+`rustPkgs` contains all crates in the dependency graph and some extra
+conveniences for development.  The workspace crates are also exposed via a
+workspace attribute.
+
+`rustPkgs.<registry>.<crate>.<version>` is an example of a crate **function**
+path.  Calling the function results in a completed derivation, which can be used
+as a flake output.  They support all the normal behaviors such as `override` and
+`overrideAttrs`.  See [mkCrate.nix](./overlay/mkcrate.nix) for the full set of
+arguments the crate function supports.
+
+`rustPkgs.workspace.<crate>` are usually the packages you will use.  The other
+paths look like:
+
+`rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"`
+
+`rustPkgs.workspaceShell` is a derivation using Nix's standard `mkShell`,
+embelished with information we learned from the dependencies and their
+overrides, enabling vanilla `cargo build` to work in a `nix develop` shell.
+
+#### More Control
+
+You can make overrides to packages in the dependency tree.  See examples in
+[overrides.nix](./overlay/overrides.nix).  Overriding the `buildPhase` etc is
+possible for a single crate without modifying `mkcrate.nix` in cargo2nix
+directly.  The output of `nix show-derivation` can be valuable when determining
+what the current output result is.
+
+**The most important function in cargo2nix source is mkcrate.nix** because it's
+how we store information in dependents and replay them back when
+building dependents.  It is vital for building crates in isolation.
 
 ## How it works
 
@@ -358,6 +385,19 @@ less interesting `$installPhase`. If there's a problem, inspecting the `env` or
 reading the generated `Cargo.lock` etc should yield clues.  If you've unpacked a
 fresh source and are using the `--ignore-environment` switch, everything is
 identical to how the overlay builds the crate, cutting out guess work.
+
+## Contributing
+
+See [Contributing](./CONTRIBUTING.md) for potentially more information.
+
+1. Fork this repository into the personal GitHub account
+2. Select the appropriate branch, release-<version> for stable changes, unstable
+   for breaking changes
+3. Make changes on the personal fork
+4. Make a Pull Request against this repository
+5. **Allow maintainers to make changes to your pull request** (there's a checkbox)
+6. Once the pull request has been approved, you will be thanked and observe your
+   changes applied with authorship preserved (if we remember)
 
 ## Credits
 
