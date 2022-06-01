@@ -74,14 +74,28 @@ let
               .${args.rustVersion}
               .${rustProfile}.override toolchainArgs;
 
+
+  # Cargo2nix requires a rustc in order to run.  This runtime dependency is
+  # grafted on here to avoid noise in the flake and because we know what Rust
+  # toolchain is in use at this point of expression.
+  packageOverrides' = pkgs: packageOverrides (pkgs) ++ [(pkgs.rustBuilder.rustLib.makeOverride {
+    name = "cargo2nix";
+    overrideAttrs = drv: {
+      nativeBuildInputs = drv.nativeBuildInputs ++ [ pkgs.makeWrapper ];
+      postFixup = ''
+        wrapProgram $bin/bin/cargo2nix --prefix PATH : ${pkgs.lib.makeBinPath [ rustToolchain' ]};
+      '';
+    };
+  })];
+
 in rustBuilder.makePackageSetInternal (extraArgs // {
   inherit packageFun workspaceSrc target;
   rustToolchain = rustToolchain';
-  packageOverrides = packageOverrides pkgs;
+  packageOverrides = packageOverrides' pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSetInternal (extraArgs // {
     inherit packageFun workspaceSrc;
     rustToolchain = rustToolchain';
     target = null;
-    packageOverrides = packageOverrides buildPackages;
+    packageOverrides = packageOverrides' buildPackages;
   });
 })
