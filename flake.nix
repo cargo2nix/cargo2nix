@@ -83,9 +83,11 @@
         #
         # When a crate is not associated with any registry, such as when building
         # locally, the registry is "unknown" as shown below:
-        # rustPkgs.unknown.cargo2nix."0.9.0"
+        # rustPkgs.unknown.cargo2nix."0.11.0"
         # An example of a crates.io path:
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
+
+        cargo2nixBin = (rustPkgs.workspace.cargo2nix {}).bin; # supports override & overrideAttrs
 
         # The workspace defines a development shell with all of the dependencies
         # and environment settings necessary for a regular `cargo build`.
@@ -98,16 +100,30 @@
           # '';
         }); # supports override & overrideAttrs
 
+        # A shell for users to quickly bootstrap projects.  Contains cargo2nix
+        # and the rustToolchain used to build this cargo2nix.
+        bootstrapShell = pkgs.mkShell {
+          packages = [ cargo2nixBin ];
+          # inputsFrom = [ cargo2nixBin ];
+          nativeBuildInputs = cargo2nixBin.nativeBuildInputs;
+        };
+
       in rec {
 
+        # nix develop .#bootstrap
+        devShells = {
+          default = workspaceShell;
+          bootstrap = bootstrapShell;
+        };
+
         # nix develop
-        devShell = workspaceShell;
+        devShell = devShells.default;
 
         # the packages in:
         # nix build .#packages.x86_64-linux.cargo2nix
         packages = {
           # nix build .#cargo2nix
-          cargo2nix = (rustPkgs.workspace.cargo2nix {}).bin; # supports override & overrideAttrs
+          cargo2nix = cargo2nixBin;
 
           # `runTests` runs all tests for a crate inside a Nix derivation.  This
           # may be problematic as Nix may restrict filesystem, network access,
