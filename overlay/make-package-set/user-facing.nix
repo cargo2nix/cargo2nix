@@ -79,11 +79,13 @@ let
   # grafted on here to avoid noise in the flake and because we know what Rust
   # toolchain is in use at this point of expression.
   packageOverrides' = pkgs: packageOverrides (pkgs) ++ [(pkgs.rustBuilder.rustLib.makeOverride {
-    name = "cargo2nix";
+    name = "cargo2nix.bin";
     overrideAttrs = drv: {
       nativeBuildInputs = drv.nativeBuildInputs ++ [ pkgs.makeWrapper ];
       postFixup = ''
-        wrapProgram $bin/bin/cargo2nix --prefix PATH : ${pkgs.lib.makeBinPath [ rustToolchain' ]};
+        if [[ -x $bin/bin/cargo2nix ]]; then
+          wrapProgram $bin/bin/cargo2nix --prefix PATH : ${pkgs.lib.makeBinPath [ rustToolchain' ]};
+        fi
       '';
     };
   })];
