@@ -83,7 +83,9 @@ let
     overrideAttrs = drv: {
       nativeBuildInputs = drv.nativeBuildInputs or [] ++ [ pkgs.makeWrapper ];
       postFixup = ''
-        wrapProgram $bin/bin/cargo2nix --prefix PATH : ${pkgs.lib.makeBinPath [ rustToolchain' ]};
+        if [[ -x $bin/bin/cargo2nix ]]; then
+          wrapProgram $bin/bin/cargo2nix --prefix PATH : ${pkgs.lib.makeBinPath [ rustToolchain' ]};
+        fi
       '';
     };
   })];
