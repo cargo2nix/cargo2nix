@@ -22,10 +22,10 @@ With [nix](https://nixos.org/nix) (with flake support) installed, generate a
 `Cargo.nix` for your project:
 
 ```bash
-# Use nix to get cargo2nix on your path
-nix shell github:cargo2nix/cargo2nix
+# Use nix to get cargo2nix & rust toolchain on your path
+nix develop github:cargo2nix/cargo2nix#bootstrap
 
-# In directory with Cargo.lock & Cargo.toml files
+# In directory with Cargo.toml & Cargo.lock files (cargo --generate-lockfile)
 cargo2nix
 
 # Or skip the shell and run it directly
