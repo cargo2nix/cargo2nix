@@ -152,13 +152,13 @@ Create a new file called [`flake.nix`]:
 {
   inputs = {
     cargo2nix.url = "path:../../";
-    # Use the github URL for real packages
-    # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs/master";
+    # Use a github flake URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "cargo2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs;
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -173,31 +173,29 @@ Create a new file called [`flake.nix`]:
         pkgs = import nixpkgs {
           inherit system;
 
-          # This will build for Linux Arm with dynamic linking to GNU glibc
           # crossSystem = {
           #   config = "aarch64-unknown-linux-gnu";
           # };
 
-          # An x86_64 binary for Linux statically linked with musl
+
           # crossSystem = {
           #   config = "x86_64-unknown-linux-musl";
           # };
 
-          # Wasm output linked for the wasi runtime
           crossSystem = {
             config = "wasm32-unknown-wasi";
             # Nixpkgs currently only supports LLVM lld linker for wasm32-wasi.
             useLLVM = true;
           };
 
-          overlays = [ cargo2nix.overlay ];
+          overlays = [ cargo2nix.overlays.default ];
         };
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.60.0";
+          rustVersion = "1.61.0";
           packageFun = import ./Cargo.nix;
-          
+
           # If your specific build target requires a difference between Rust and
           # nixpkgs, set this target
           # target = "aarch64-unknown-linux-gnu";
@@ -213,10 +211,9 @@ Create a new file called [`flake.nix`]:
           # nix build .#cross-compiling
           # nix build .#packages.x86_64-linux.cross-compiling
           cross-compiling = (rustPkgs.workspace.cross-compiling {}).bin;
+          # nix build
+          default = packages.cross-compiling;
         };
-
-        # nix build
-        defaultPackage = packages.cross-compiling;
       }
     );
 }

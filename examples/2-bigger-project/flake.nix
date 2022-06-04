@@ -7,7 +7,7 @@
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs; # pass through all inputs and bring them into scope
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -21,7 +21,7 @@
         # create nixpkgs that contains rustBuilder from cargo2nix overlay
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ cargo2nix.overlay ];
+          overlays = [ cargo2nix.overlays.default ];
         };
 
         # create the workspace & dependencies package set
@@ -39,10 +39,9 @@
           # nix build .#bigger-project
           # nix build .#packages.x86_64-linux.bigger-project
           bigger-project = (rustPkgs.workspace.bigger-project {}).bin;
+          # nix build
+          default = packages.bigger-project;
         };
-
-        # nix build
-        defaultPackage = packages.bigger-project;
       }
     );
 }

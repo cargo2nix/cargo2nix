@@ -32,11 +32,12 @@ let
         # The single top-level attribute that user-facing API's are exposed through
         rustBuilder = lib.makeScope newScope scope;
       };
-in {
+in rec {
   # These three overlays are exposed in the cargo2nix flake as cargo2nix.overlays
-  # The combined overlay is the most conveient to use
+  # The combined overlay is the most conveient to use.
   inherit rust-overlay;
   cargo2nix = cargo2nixOverlay;
+  default = combined;
   combined = final: prev:
     let
       composeOverlays = overlays: final: prev:

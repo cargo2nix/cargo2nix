@@ -7,7 +7,6 @@ let
     "__noProfile" # A placeholder profile for build scripts, which don't respect any profiles.
   ];
 in
-{ }:
 {
   # Decides which profile to use based on compile mode and whether release is enabled.
   # Ported from https://github.com/rust-lang/cargo/blob/rust-1.38.0/src/cargo/core/profiles.rs#L86.
