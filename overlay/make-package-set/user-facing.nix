@@ -5,18 +5,22 @@
   rustBuilder,
 }:
 args@{
+  # required arg
+  packageFun,
+
+  # optional args
   rustChannel ? null,
   rustVersion ? null,
   rustToolchain ? null,
   rustProfile ? "minimal",
   extraRustComponents ? [],
-  packageFun,
   packageOverrides ? pkgs: pkgs.rustBuilder.overrides.all,
   target ? null,
   workspaceSrc ? null,
   ...
 }:
 let
+  # These are used in this function, and we clean them out for downstream
   extraArgs = builtins.removeAttrs args [ "rustChannel"
                                           "rustVersion"
                                           "rustProfile"
@@ -26,6 +30,8 @@ let
                                           "packageOverrides"
                                           "target" ];
 
+  # Rust targets don't always map perfectly to Nix targets, so they are allowed
+  # to be independent by specicying an explicit Rust target.
   toolchainArgs = {
     extensions = [ "rust-src" ] ++ extraRustComponents;
     targets = [(rustBuilder.rustLib.rustTriple stdenv.buildPlatform)] ++
@@ -34,9 +40,12 @@ let
                else [ (rustBuilder.rustLib.rustTriple stdenv.hostPlatform) ]);
   };
 
-  # This logic is a little complex because of legacy use of "rustChannel" wich
-  # could be a version string in previous eras.  Can deprecate at some point
-  # after pointing everyone to correct usage.
+  # Normalize the toolchain args and build a toolchain or used the provided
+  # toolchain.  This logic is a bit complicated by legacy use of "rustChannel"
+  # wich could be a version string in previous eras.  Can deprecate at some
+  # point after pointing everyone to correct usage.  Note that rustToolchain
+  # comes from buildPackages.rust-bin.  The overlay has been applied and
+  # returned via callPackage.
   rustToolchain' =
     if rustToolchain != null
     then
@@ -90,6 +99,10 @@ let
     };
   })];
 
+# This expression finally evaluates the result of makePackageSet.
+# makePackageSetInternal is where overrides are applied and the splice is
+# performed.  Note that buildRustPackages is just buildPackages with a null
+# target.
 in rustBuilder.makePackageSetInternal (extraArgs // {
   inherit packageFun workspaceSrc target;
   rustToolchain = rustToolchain';
