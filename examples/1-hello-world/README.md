@@ -36,7 +36,8 @@ If you don't have cargo installed, you can use nix to enter a shell that has a
 Rust toolchain available.  Then just create a default binary crate project.
 
 ```bash
-nix shell github:oxalica/rust-overlay
+# adds cargo2nix rustc & cargo to PATH
+nix develop github:cargo2nix/cargo2nix#bootstrap
 
 cargo new hello-world
 # Created binary (application) `hello-world` package
@@ -62,7 +63,7 @@ If you haven't installed cargo2nix, you can run it directly from the flake
 definition from github like so:
 
 ```bash
-nix shell github:cargo2nix/cargo2nix
+nix run github:cargo2nix/cargo2nix
 ```
 
 Generate the `Cargo.nix` file
