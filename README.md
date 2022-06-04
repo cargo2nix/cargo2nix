@@ -55,7 +55,7 @@ A bare minimum flake.nix:
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [cargo2nix.overlay];
+          overlays = [cargo2nix.overlays.default];
         };
 
         rustPkgs = pkgs.rustBuilder.makePackageSet {

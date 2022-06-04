@@ -37,7 +37,7 @@
             useLLVM = true;
           };
 
-          overlays = [ cargo2nix.overlay ];
+          overlays = [ cargo2nix.overlays.default ];
         };
 
         # create the workspace & dependencies package set
