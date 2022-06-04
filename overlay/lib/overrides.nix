@@ -10,7 +10,6 @@
 # See https://nixos.org/nixpkgs/manual/#sec-pkg-override for more information on `overrideArgs`, and
 # https://nixos.org/nixpkgs/manual/#sec-pkg-overrideAttrs for `overrideAttrs`.
 # type Override = Attrs -> { overrideArgs: Maybe Overrider, overrideAttrs: Maybe Overrider }
-{ }:
 let
   combineOverriders = a: b:
     if a == null then b

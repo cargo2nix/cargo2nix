@@ -3,8 +3,8 @@
   inherit (callPackage ./features.nix { }) expandFeatures;
   inherit (callPackage ./splice.nix { }) splicePackages;
   inherit (callPackage ./fetch.nix { }) fetchCrateLocal fetchCrateGit fetchCratesIo fetchCrateAlternativeRegistryExpensive;
-  inherit (callPackage ./profiles.nix { }) decideProfile genDrvsByProfile;
-  inherit (callPackage ./overrides.nix { }) makeOverride combineOverrides runOverride nullOverride;
+  inherit (import ./profiles.nix) decideProfile genDrvsByProfile;
+  inherit (import ./overrides.nix) makeOverride combineOverrides runOverride nullOverride;
 
   rustTriple = import ./rust-triple.nix;
 }
