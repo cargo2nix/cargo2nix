@@ -247,6 +247,7 @@ let
     '';
 
     setBuildEnv = ''
+      CARGO_BUILD_INCREMENTAL=0  #builds inside nix sandbox use nix caching, not cargo target caching
       MINOR_RUSTC_VERSION="$(${rustToolchain}/bin/rustc --version | cut -d . -f 2)"
 
       if (( MINOR_RUSTC_VERSION < 41 )); then
