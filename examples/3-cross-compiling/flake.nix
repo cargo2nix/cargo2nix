@@ -7,7 +7,7 @@
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs;
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -60,10 +60,9 @@
           # nix build .#cross-compiling
           # nix build .#packages.x86_64-linux.cross-compiling
           cross-compiling = (rustPkgs.workspace.cross-compiling {}).bin;
+          # nix build
+          default = packages.cross-compiling;
         };
-
-        # nix build
-        defaultPackage = packages.cross-compiling;
       }
     );
 }

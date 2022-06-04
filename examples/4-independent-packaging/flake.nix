@@ -11,7 +11,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-analyzer-src, ... }:
+  outputs = inputs: with inputs;
 
     # Build the output set for each default system, resulting in paths such as:
     # nix build .#pkgs.x86_64-linux.<name>
@@ -52,10 +52,9 @@
         packages = {
           # nix build .#rust-analyzer
           rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+          # nix build
+          default = packages.rust-analyzer;
         };
-
-        # nix build
-        defaultPackage = packages.rust-analyzer;
       }
     );
 }

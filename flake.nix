@@ -1,21 +1,21 @@
 {
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
+    flake-utils.url = "github:numtide/flake-utils";
     flake-compat = {
       url = github:edolstra/flake-compat;
       flake = false;
     };
   };
   
-  outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
+  outputs = inputs: with inputs;
     let
-      overlays = import ./overlay rust-overlay.overlay;
+      overlays = import ./overlay (rust-overlay.overlay);
       combinedOverlay = overlays.combined;
 
     in flake-utils.lib.eachDefaultSystem (system:
@@ -110,20 +110,19 @@
 
       in rec {
 
-        # nix develop .#bootstrap
         devShells = {
+          # nix develop
           default = workspaceShell;
+          # nix develop .#bootstrap
           bootstrap = bootstrapShell;
         };
 
-        # nix develop
-        devShell = devShells.default;
-
-        # the packages in:
-        # nix build .#packages.x86_64-linux.cargo2nix
-        packages = {
+        packages = rec {
+          # nix build .#packages.x86_64-linux.cargo2nix
           # nix build .#cargo2nix
           cargo2nix = cargo2nixBin;
+          # nix build
+          default = cargo2nix;
 
           # `runTests` runs all tests for a crate inside a Nix derivation.  This
           # may be problematic as Nix may restrict filesystem, network access,
@@ -135,19 +134,18 @@
             /* Add `depsBuildBuild` test-only deps here, if any. */
           };
 
-          shell = devShell;
+          # for legacy users
+          shell = devShells.default;
         };
-
-        # nix build
-        defaultPackage = packages.cargo2nix;
 
         apps = rec {
-          cargo2nix = { type = "app"; program = "${defaultPackage}/bin/cargo2nix"; };
+          # nix run .#cargo2nix
+          # nix run github:cargo2nix/cargo2nix
+          cargo2nix = { type = "app"; program = "${packages.default}/bin/cargo2nix"; };
+          # nix run
+          # nix run github:cargo2nix/cargo2nix
           default = cargo2nix;
         };
-
-        # nix run
-        defaultApp = apps.default;
       }
     ) // {
       # The above outputs are mapped over system for `nix run` and `nix develop`
@@ -155,11 +153,6 @@
       # which are top level attributes can be used directly in downstream
       # flakes.  If `cargo2nix` is your flake input, `cargo2nix.overlay` is the
       # overlay.
-
-      # for downstream importer who wants to provide rust themselves
-      overlay = combinedOverlay;
-
-      # for downstream importer using whatever rust-overlay this cargo2nix uses
       inherit overlays;
     };
 }

@@ -50,7 +50,7 @@ A bare minimum flake.nix:
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs;
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -67,8 +67,8 @@ A bare minimum flake.nix:
         packages = {
           # replace hello-world with your package name
           hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          default = packages.hello-world;
         };
-        defaultPackage = packages.hello-world;
       }
     );
 }

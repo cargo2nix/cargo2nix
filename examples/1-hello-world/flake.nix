@@ -7,7 +7,7 @@
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs;
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -38,10 +38,9 @@
           # nix build .#hello-world
           # nix build .#packages.x86_64-linux.hello-world
           hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          # nix build
+          default = packages.hello-world; # rec
         };
-
-        # nix build
-        defaultPackage = packages.hello-world;
       }
     );
 }
