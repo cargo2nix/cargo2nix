@@ -154,5 +154,9 @@
       # flakes.  If `cargo2nix` is your flake input, `cargo2nix.overlay` is the
       # overlay.
       inherit overlays;
+      # Nix flake check complains.  I will keep this attribute alive until next
+      # version branch-off.
+      overlay = builtins.trace
+        "cargo2nix.overlay is deprecated.  Use cargo2nix.overlays.default" overlays.default;
     };
 }
