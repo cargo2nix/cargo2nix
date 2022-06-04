@@ -66,13 +66,13 @@ following arguments:
 {
   inputs = {
     cargo2nix.url = "path:../../";
-    # Use the github URL for real packages
-    # cargo2nix.url = "github:cargo2nix/cargo2nix/master";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
+    # Use a github flake URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "cargo2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs; # pass through all inputs and bring them into scope
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
@@ -86,12 +86,12 @@ following arguments:
         # create nixpkgs that contains rustBuilder from cargo2nix overlay
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ cargo2nix.overlay ];
+          overlays = [ cargo2nix.overlays.default ];
         };
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.60.0";
+          rustVersion = "1.61.0";
           packageFun = import ./Cargo.nix;
           # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
         };
@@ -104,10 +104,9 @@ following arguments:
           # nix build .#bigger-project
           # nix build .#packages.x86_64-linux.bigger-project
           bigger-project = (rustPkgs.workspace.bigger-project {}).bin;
+          # nix build
+          default = packages.bigger-project;
         };
-
-        # nix build
-        defaultPackage = packages.bigger-project;
       }
     );
 }

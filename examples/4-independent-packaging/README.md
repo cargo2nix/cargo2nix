@@ -47,7 +47,7 @@ We will also pass a `workspaceSrc` argument to `makePackageSet`.
 ```nix
 
   rustPkgs = pkgs.rustBuilder.makePackageSet {
-    rustVersion = "1.60.0";
+    rustVersion = "1.61.0";
     packageFun = import ./Cargo.nix;
 
     workspaceSrc = rust-analyzer-src
@@ -88,9 +88,8 @@ selecting it explicitly in the final expression of our `default.nix`:
   in rec {
     packages = {
       rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+      default = packages.rust-analyzer;
     };
-
-    defaultPackage = packages.rust-analyzer;
   }
 ```
 

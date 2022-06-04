@@ -7,7 +7,7 @@
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = inputs: with inputs;
+  outputs = inputs: with inputs; # pass through all inputs and bring them into scope
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:

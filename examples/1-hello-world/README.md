@@ -104,27 +104,21 @@ to use to do their work.
 
 ```nix
 {
-  # inputs is a set, declaring all of the flakes this flake depends on
   inputs = {
-    # we of course want nixpkgs to provide stdenv, dependency packages, and
-    # various nix functions
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.11";
-  
-    # we need the overlay at cargo2nix/overlay
-    cargo2nix.url = "github:cargo2nix/cargo2nix/master";
-    
-    # convenience functions for writing flakes
-    flake-utils.url = "github:numtide/flake-utils";
+    cargo2nix.url = "path:../../";
+    # Use a github flake URL for real packages
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    flake-utils.follows = "cargo2nix/flake-utils";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  # outputs is a function that unsurprisingly consumes the inputs
-  outputs = { self, nixpkgs, cargo2nix, flake-utils, ... }:
+  outputs = inputs: with inputs; # pass through all inputs and bring them into scope
 
     # Build the output set for each default system and map system sets into
     # attributes, resulting in paths such as:
     # nix build .#packages.x86_64-linux.<name>
     flake-utils.lib.eachDefaultSystem (system:
-    
+
       # let-in expressions, very similar to Rust's let bindings.  These names
       # are used to express the output but not themselves paths in the output.
       let
@@ -132,15 +126,15 @@ to use to do their work.
         # create nixpkgs that contains rustBuilder from cargo2nix overlay
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [cargo2nix.overlay];
+          overlays = [ cargo2nix.overlays.default ];
         };
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.60.0";
+          rustVersion = "1.61.0";
           packageFun = import ./Cargo.nix;
         };
-        
+
       in rec {
         # this is the output (recursive) set (expressed for each system)
 
@@ -149,10 +143,9 @@ to use to do their work.
           # nix build .#hello-world
           # nix build .#packages.x86_64-linux.hello-world
           hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          # nix build
+          default = packages.hello-world; # rec
         };
-
-        # nix build
-        defaultPackage = packages.hello-world;
       }
     );
 }
@@ -199,7 +192,7 @@ the name!**
         pkgs = import nixpkgs {
           inherit system;
           overlays = [(import "${cargo2nix}/overlay")
-                      rust-overlay.overlay];
+                      rust-overlay.overlays.default];
         };
 ```
 
