@@ -25,9 +25,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 # nix flakes do not work on shallow clones
+      - uses: actions/checkout@v2.4.2
       - uses: cachix/install-nix-action@v15
         with:
           extra_nix_config: |
@@ -37,7 +35,8 @@ jobs:
         with:
           name: cargo2nix-gh
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          pushFilter: "(rustc-1.57.0-x86_64-unknown-linux-gnu$|.drv.chroot$)"
+          # Some paths may confuse cachix.  Add them with a pipe to the pushFilter
+          # pushFilter: "(cargo-1.60.0-x86_64-unknown-linux-gnu$|.drv.chroot$)"
 
       # Runs a single command using the runners shell
       - name: build cargo2nix
