@@ -341,7 +341,7 @@ rebuilding.
    
 ## Declarative build debugging shell
 
-You can load a `nix shell` for any crate derivation in the dependency tree. This
+You can load a nix shell for any crate derivation in the dependency tree. This
 is the same environment the `cargo2nix` overlay will build them in.
 
 To do this, first find the .drv for your dependency by using, for example, `nix
