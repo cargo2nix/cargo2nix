@@ -25,7 +25,7 @@ With [nix](https://nixos.org/nix) (with flake support) installed, generate a
 # Use nix to get cargo2nix & rust toolchain on your path
 nix develop github:cargo2nix/cargo2nix#bootstrap
 
-# In directory with Cargo.toml & Cargo.lock files (cargo --generate-lockfile)
+# In directory with Cargo.toml & Cargo.lock files (cargo generate-lockfile)
 cargo2nix
 
 # Or skip the shell and run it directly
