@@ -296,3 +296,11 @@ cargoVerbosityLevel() {
 
   echo ${verbose_flag}
 }
+
+cargoRelativeManifest() {
+    local manifest_path=$(cargo metadata --format-version 1 --no-deps | jq -c ".packages[] | select(.name == \"$1\") | .manifest_path" | tr -d '"')
+    local workspace_path=$(cargo metadata --format-version 1 --no-deps | jq -c '.workspace_root' | tr -d '"')
+    workspace_path="${workspace_path%/}/"
+
+    echo "${manifest_path#"$workspace_path"}"
+}

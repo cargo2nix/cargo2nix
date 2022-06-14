@@ -159,13 +159,17 @@ let
     extraRustcBuildFlags = rustcBuildFlags;
 
     findCrate =  ''
-      if ! grep -lE 'name\s?=\s?"${name}"' Cargo.toml; then
+      . ${./mkcrate-utils.sh}
+      manifest_path=$(cargoRelativeManifest ${name})
+      manifest_dir=''${manifest_path%Cargo.toml}
+
+      if [ $manifest_path != "Cargo.toml" ]; then
         shopt -s globstar
         mv Cargo.toml Cargo.toml.workspace
         if [[ -d .cargo ]]; then
           mv .cargo .cargo.workspace
         fi
-        cd $(grep -lE 'name\s?=\s?"${name}"' **/Cargo.toml | xargs dirname)
+        cd "$manifest_dir"
       fi
     '';
 
