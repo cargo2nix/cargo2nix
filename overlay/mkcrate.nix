@@ -314,7 +314,9 @@ let
 
     outputs = ["out" "bin"];
 
-    installPhase = if compileMode != "doctest" then ''
+    installPhase = ''
+      runHook preInstall
+    '' + (if compileMode != "doctest" then ''
       mkdir -p $out/lib
       cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
@@ -327,6 +329,8 @@ let
       mkdir -p $bin
       touch results.json
       mv results.json $out/share/
+    '') + ''
+      runHook postInstall
     '';
   };
 in
