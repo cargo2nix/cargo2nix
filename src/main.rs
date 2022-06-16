@@ -182,19 +182,26 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
 
     let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
     let ws = Workspace::new(&root_manifest_path, &config)?;
-    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
 
     // To get a list of all packages with all features and dependencies that
     // might be enabled present, we first resolve with all features turned on
+    let requested_kinds = CompileKind::from_requested_targets(ws.config(), &[])?;
+    let target_data = RustcTargetData::new(&ws, &requested_kinds)?;
+
+    // Resolve entire workspace.
     let specs = Packages::All.to_package_id_specs(&ws)?;
+    let force_all = cargo::core::resolver::features::ForceAllTargets::Yes;
+
+    // Note that even with --filter-platform we end up downloading host dependencies as well,
+    // as that is the behavior of download_accessible.
     let resolved_all = resolve_ws_with_opts(
         &ws,
-        &rtd,
-        &[CompileKind::Host],
-        &CliFeatures::new_all(true),
+        &target_data,
+        &requested_kinds,
+        &CliFeatures::new_all(false),
         &specs,
         HasDevUnits::Yes,
-        ForceAllTargets::Yes,
+        force_all,
     )?;
 
     let pkgs_by_id = resolved_all
@@ -225,12 +232,12 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
 
     let resolved_no_features = resolve_ws_with_opts(
         &ws,
-        &rtd,
-        &[CompileKind::Host],
+        &target_data,
+        &requested_kinds,
         &no_features,
         &specs,
         HasDevUnits::Yes,
-        ForceAllTargets::Yes,
+        force_all,
     )?
     .targeted_resolve;
 
@@ -244,7 +251,14 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     mark_required(&resolved_no_features, &mut rpkgs_by_id)?;
 
     for pkg in root_pkgs.iter() {
-        mark_feature_activations(pkg, &ws, &resolved_no_features, &mut rpkgs_by_id)?;
+        mark_feature_activations(
+            pkg,
+            &ws,
+            &resolved_no_features,
+            &mut rpkgs_by_id,
+            &target_data,
+            &requested_kinds,
+        )?;
     }
 
     // Certain optionality cases are redundant, such as including an optional
@@ -329,12 +343,13 @@ fn mark_feature_activations<'a>(
     ws: &Workspace,
     resolved_no_features: &Resolve,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
+    target_data: &RustcTargetData,
+    compile_kinds: &[CompileKind],
 ) -> Result<()> {
     let root_pkg_name = root_pkg.name().as_str();
     let root_pkg_features = root_pkg.summary().features();
 
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
 
     for feature in root_pkg_features.keys() {
         // resolve ws with just the target feature activated
@@ -346,8 +361,8 @@ fn mark_feature_activations<'a>(
 
         let just_feature_ws = resolve_ws_with_opts(
             ws,
-            &rtd,
-            &[CompileKind::Host],
+            &target_data,
+            &compile_kinds,
             &just_this_feature,
             &[spec.clone()],
             HasDevUnits::Yes,
