@@ -88,11 +88,13 @@ fn read_version_attribute(path: &Path) -> Result<Version> {
             }
             None
         })
-        .ok_or(anyhow!(
-            "valid {} not found in {}",
-            VERSION_ATTRIBUTE_NAME,
-            path.display()
-        ))
+        .ok_or_else(|| {
+            anyhow!(
+                "valid {} not found in {}",
+                VERSION_ATTRIBUTE_NAME,
+                path.display()
+            )
+        })
 }
 
 fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
@@ -334,7 +336,7 @@ fn mark_feature_activations<'a>(
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
     let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
 
-    for (feature, _) in root_pkg_features {
+    for feature in root_pkg_features.keys() {
         // resolve ws with just the target feature activated
         let just_this_feature = CliFeatures::from_command_line(
             &[feature.to_string()], // just the active feature
@@ -371,7 +373,7 @@ fn mark_feature_activations<'a>(
                     !deps_no_features.contains(&rpkg.pkg.package_id())
                         && deps_just_feature.contains(&rpkg.pkg.package_id())
                 })
-                .for_each(|rpkg| rpkg.optionality.activated_by((&root_pkg_name, feature)));
+                .for_each(|rpkg| rpkg.optionality.activated_by((root_pkg_name, feature)));
 
             let features_no_features: HashSet<_> = resolved_no_features
                 .features(rpkg.pkg.package_id())
@@ -392,7 +394,7 @@ fn mark_feature_activations<'a>(
                     !features_no_features.contains(&f.to_string())
                         && features_just_feature.contains(&f.to_string())
                 })
-                .for_each(|(_f, optionality)| optionality.activated_by((&root_pkg_name, feature)));
+                .for_each(|(_f, optionality)| optionality.activated_by((root_pkg_name, feature)));
         }
     }
 
@@ -445,7 +447,6 @@ impl<'a> ResolvedPackage<'a> {
                 match (dep.platform(), rdep.platforms.as_mut()) {
                     (Some(platform), Some(platforms)) => {
                         platforms.insert(platform);
-                        () // match other branch type
                     }
                     (None, _) => rdep.platforms = None,
                     _ => {}
