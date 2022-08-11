@@ -47,6 +47,9 @@ fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
             ("target_os", v) => Single(format!("{}.parsed.kernel.name == {:?}", platform_var, v)),
             ("target_family", "unix") => Single(format!("{}.isUnix", platform_var)),
             ("target_family", "windows") => Single(format!("{}.isWindows", platform_var)),
+            ("target_env", "sgx") => {
+                Single(format!("target == {:?}", "x86_64-fortanix-unknown-sgx"))
+            }
             ("target_env", v) => Single(format!("{}.parsed.abi.name == {:?}", platform_var, v)),
             ("target_endian", "little") => Single(format!(
                 "{}.parsed.cpu.significantByte == {:?}",
