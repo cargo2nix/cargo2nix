@@ -184,7 +184,8 @@ let
       ]
 
     # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
-    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown") (''
+    # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
+    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") (''
       [target."${rustHostTriple}"]
       linker = "${ccForHost}"
     ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
