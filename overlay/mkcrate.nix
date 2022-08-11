@@ -122,7 +122,13 @@ let
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
 
     buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
-    propagatedBuildInputs = (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
+    propagatedBuildInputs =
+      let
+        withRepeats = (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
+        byHash = listToAttrs (map (dep: { name = unsafeDiscardStringContext dep.outPath; value = dep; }) withRepeats);
+      in
+        attrValues byHash;
+
     nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
 
     depsBuildBuild =
