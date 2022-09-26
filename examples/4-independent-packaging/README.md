@@ -76,22 +76,38 @@ an inline override
     
 ```
 
-Nix will by default build packages that contain some extra outputs (which
-cargo2nix utilizes to coordinate between dependencies) that might be necessary
-when being used as a `buildDependency` but will collide when attempting to
-install finished software into a profile. We can expose just the `bin` output by
-selecting it explicitly in the final expression of our `default.nix`:
+Call the workspace function (with no arguments here) to evaluate the output
+derivation for our binary:
 
 ```nix
   #... previously expressed rustPkgs
   
   in rec {
     packages = {
-      rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+      rust-analyzer = (rustPkgs.workspace.rust-analyzer {});
       default = packages.rust-analyzer;
     };
   }
 ```
+
+#### Multiple Outputs
+
+Each derivation created by `mkRustCrate` contains multiple outputs.  The `bin`
+attribute is the default and contains just the executible compiler artifacts
+(using cargo metadata output).  By default only the `bin` output is installed,
+but you can also use `out` to see the intermediate linking information and other
+libraries created during the build. The `out` attribute contains extra files
+(which cargo2nix utilizes to coordinate between dependencies) that might be
+necessary when being used as a `buildDependency` but will collide when
+attempting to install finished software into a profile.  This is why the `bin`
+attribute is the default output while `out` is used in Cargo.nix.
+
+You can see the outputs of the derivation using `nix show-derivation` and `jq`:
+```
+nix show-derivation | jq '.[].outputs'
+```
+
+### Building
 
 You can test that this package builds like so:
 

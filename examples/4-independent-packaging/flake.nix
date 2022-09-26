@@ -51,7 +51,7 @@
       in rec {
         packages = {
           # nix build .#rust-analyzer
-          rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+          rust-analyzer = (rustPkgs.workspace.rust-analyzer {});
           # nix build
           default = packages.rust-analyzer;
         };

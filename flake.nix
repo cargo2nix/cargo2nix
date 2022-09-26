@@ -87,7 +87,7 @@
         # An example of a crates.io path:
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 
-        cargo2nixBin = (rustPkgs.workspace.cargo2nix {}).bin; # supports override & overrideAttrs
+        cargo2nix = (rustPkgs.workspace.cargo2nix {}); # supports override & overrideAttrs
 
         # The workspace defines a development shell with all of the dependencies
         # and environment settings necessary for a regular `cargo build`.
@@ -103,9 +103,9 @@
         # A shell for users to quickly bootstrap projects.  Contains cargo2nix
         # and the rustToolchain used to build this cargo2nix.
         bootstrapShell = pkgs.mkShell {
-          packages = [ cargo2nixBin ];
+          packages = [ cargo2nix ];
           # inputsFrom = [ cargo2nixBin ];
-          nativeBuildInputs = cargo2nixBin.nativeBuildInputs;
+          nativeBuildInputs = cargo2nix.nativeBuildInputs;
         };
 
       in rec {
@@ -120,7 +120,7 @@
         packages = rec {
           # nix build .#packages.x86_64-linux.cargo2nix
           # nix build .#cargo2nix
-          cargo2nix = cargo2nixBin;
+          inherit cargo2nix;
           # nix build
           default = cargo2nix;
 

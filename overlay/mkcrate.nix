@@ -316,7 +316,7 @@ let
       runHook runCargo
     '';
 
-    outputs = ["out" "bin"];
+    outputs = ["bin" "out"];
 
     installPhase = ''
       runHook preInstall

@@ -109,7 +109,7 @@ in
       {%- else %}
         {%- set attribute = dep.extern_name -%}
       {%- endif %}
-      {{ attribute }} = {{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }};
+      {{ attribute }} = ({{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }}).out;
     {%- endfor %}
     };
     {%- endif %}
@@ -129,7 +129,7 @@ in
       {%- else %}
         {%- set attribute = dep.extern_name -%}
       {%- endif %}
-      {{ attribute }} = {{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }};
+      {{ attribute }} = ({{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }}).out;
     {%- endfor %}
     };
     {%- endif %}
@@ -142,7 +142,7 @@ in
       {%- else %}
         {%- set attribute = dep.extern_name -%}
       {%- endif %}
-      {{ attribute }} = buildRustPackages."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" { profileName = "__noProfile"; };
+      {{ attribute }} = (buildRustPackages."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" { profileName = "__noProfile"; }).out;
     {%- endfor %}
     };
     {%- endif %}

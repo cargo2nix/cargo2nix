@@ -59,7 +59,7 @@
         packages = {
           # nix build .#cross-compiling
           # nix build .#packages.x86_64-linux.cross-compiling
-          cross-compiling = (rustPkgs.workspace.cross-compiling {}).bin;
+          cross-compiling = (rustPkgs.workspace.cross-compiling {});
           # nix build
           default = packages.cross-compiling;
         };
