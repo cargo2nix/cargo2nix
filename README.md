@@ -66,7 +66,7 @@ A bare minimum flake.nix:
       in rec {
         packages = {
           # replace hello-world with your package name
-          hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          hello-world = (rustPkgs.workspace.hello-world {});
           default = packages.hello-world;
         };
       }

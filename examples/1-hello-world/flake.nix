@@ -37,7 +37,7 @@
         packages = {
           # nix build .#hello-world
           # nix build .#packages.x86_64-linux.hello-world
-          hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          hello-world = (rustPkgs.workspace.hello-world {});
           # nix build
           default = packages.hello-world; # rec
         };

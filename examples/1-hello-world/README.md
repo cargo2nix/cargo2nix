@@ -143,7 +143,7 @@ to use to do their work.
         packages = {
           # nix build .#hello-world
           # nix build .#packages.x86_64-linux.hello-world
-          hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          hello-world = (rustPkgs.workspace.hello-world {});
           # nix build
           default = packages.hello-world; # rec
         };
@@ -233,14 +233,16 @@ and build it if we want.
 
 Packages from the workspace are also duplicated as a `workspace` set.  Each
 output is a function that must be called (see the main `Cargo.nix` for
-arguments) to obtain a final derivation.  The derivations contain a `bin`
-attribute that is appropriate for installation into a [nix profile].
+arguments) to obtain a final derivation.  The derivations contain multiple
+outputs.  The default is `bin` attribute that is appropriate for installation
+into a [nix profile].  The `out` attribute contains the linking information used
+in dependents.
 
 [nix profile]: https://nixos.org/manual/nix/unstable/package-management/profiles.html
 
 ```nix
-# this expression is the bin ouput of our sweet derviation
-(rustPkgs.workspace.hello-world {}).bin
+# this expression is the output ("bin", not "out" by default) of our sweet derviation
+(rustPkgs.workspace.hello-world {})
 ```
 
 #### The System Argument

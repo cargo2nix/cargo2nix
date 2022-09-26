@@ -103,7 +103,7 @@ following arguments:
         packages = {
           # nix build .#bigger-project
           # nix build .#packages.x86_64-linux.bigger-project
-          bigger-project = (rustPkgs.workspace.bigger-project {}).bin;
+          bigger-project = (rustPkgs.workspace.bigger-project {});
           # nix build
           default = packages.bigger-project;
         };
