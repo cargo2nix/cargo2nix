@@ -192,8 +192,8 @@ in rec {
       propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
         (propagateEnv "openssl-sys" [
           { name = "RUSTFLAGS"; value = "--cfg ossl111 --cfg ossl110 --cfg ossl101";}
-          { name = "${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.buildPlatform.config)}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
-          { name = "${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.hostPlatform.config)}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
+          { name = "${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.buildPlatform)}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
+          { name = "${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.hostPlatform)}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
           { name = "OPENSSL_NO_VENDOR"; value = "1";} # fixed 0.9.60
         ])
       ];
