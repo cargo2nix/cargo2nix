@@ -136,7 +136,7 @@ install_crate2() {
   cp $(jq -rR 'fromjson?
     | select(.reason == "compiler-artifact")
     | .filenames
-    | map(select(test("\\.(a|rlib|so|dylib|wasm)$")))
+    | map(select(test("\\.(a|rlib|so|dylib|dll|lib|wasm)$")))
     | .[]' < .cargo-build-output) "$out/lib" 2> /dev/null || :
 
   jq -rR 'fromjson?
@@ -230,6 +230,8 @@ install_crate() {
         a) ;&
         so) ;&
         wasm) ;&
+        lib) ;&
+        dll) ;&
         dylib)
           mkdir -p "$out/lib"
           cp "$output" "$out/lib/"
