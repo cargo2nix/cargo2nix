@@ -450,12 +450,14 @@ impl<'a> ResolvedPackage<'a> {
             .filter_map(|(dep_id, deps)| {
                 let dep_pkg = pkgs_by_id[&dep_id];
                 let extern_name = resolve
-                    .extern_crate_name(
+                    .extern_crate_name_and_dep_name(
                         pkg.package_id(),
                         dep_id,
                         dep_pkg.targets().iter().find(|t| t.is_lib())?,
                     )
-                    .ok()?;
+                    .ok()?
+                    .0
+                    .to_string();
 
                 Some(
                     deps.iter()
