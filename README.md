@@ -59,7 +59,7 @@ A bare minimum flake.nix:
         };
 
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.61.0";
+          rustVersion = "1.64.0";
           packageFun = import ./Cargo.nix;
         };
 
