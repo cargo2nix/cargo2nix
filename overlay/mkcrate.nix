@@ -312,9 +312,11 @@ let
     '';
 
     buildPhase = ''
+      runHook preBuild
       runHook overrideCargoManifest
       runHook setBuildEnv
       runHook runCargo
+      runHook postBuild
     '';
 
     outputs = ["bin" "out"];
