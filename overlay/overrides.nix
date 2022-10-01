@@ -92,6 +92,7 @@ in rec {
     overrideArgs = old: { rustcLinkFlags = old.rustcLinkFlags or [ ] ++ [ "--cap-lints" "warn" ]; };
   };
 
+  # Every crate that depends on the cc crate (usually build scripts) will have the xcbuild
   cc = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
       name = "cc";
@@ -106,7 +107,9 @@ in rec {
   curl-sys = makeOverride {
     name = "curl-sys";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ (patchCurl pkgs) ];
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+        (patchCurl pkgs)
+      ];
     };
   };
 
@@ -135,7 +138,7 @@ in rec {
   libdbus-sys = pkgs.rustBuilder.rustLib.makeOverride {
     name = "libdbus-sys";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+      buildInputs = drv.buildInputs or [ ] ++ [
         pkgs.dbus
       ];
     };
@@ -144,7 +147,7 @@ in rec {
   libudev-sys = pkgs.rustBuilder.rustLib.makeOverride {
     name = "libudev-sys";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+      buildInputs = drv.buildInputs or [ ] ++ [
         pkgs.udev
       ];
       buildPhase = ''
@@ -163,6 +166,8 @@ in rec {
         propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
           pkgs.darwin.apple_sdk.frameworks.Security
           pkgs.darwin.apple_sdk.frameworks.CoreFoundation
+        ];
+        buildInputs = drv.buildInputs or [ ] ++ [
           pkgs.libgit2
         ];
         preferLocalBuild = true;
@@ -174,40 +179,61 @@ in rec {
   libssh2-sys = makeOverride {
     name = "libssh2-sys";
     overrideAttrs = drv: {
-      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.openssl.dev pkgs.zlib.dev ];
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.openssl.dev pkgs.zlib.dev ];
     };
   };
 
   libsqlite3-sys = pkgs.rustBuilder.rustLib.makeOverride {
     name = "libsqlite3-sys";
     overrideAttrs = drv: {
-      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.sqlite ];
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.sqlite ];
     };
   };
 
   openssl-sys = makeOverride {
     name = "openssl-sys";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
-        (propagateEnv "openssl-sys" [
-          { name = "RUSTFLAGS"; value = "--cfg ossl111 --cfg ossl110 --cfg ossl101";}
-          { name = "${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.buildPlatform)}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs.buildPackages); }
-          { name = "${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.hostPlatform)}_OPENSSL_DIR"; value = joinOpenssl (patchOpenssl pkgs); }
-          { name = "OPENSSL_NO_VENDOR"; value = "1";} # fixed 0.9.60
-        ])
-      ];
+      # The setup hook will set the variables both for building openssl-sys and
+      # in dependent derivations.  This mechanism will also set the variable
+      # inside our development shell.  Because the setupHook does not add the
+      # joinOpenssl derivation as a dependnecy, we have to include it in
+      # nativeBuildInputs as well or the variable will point to a path not
+      # visible to the derivation at build time.
+      buildInputs = drv.buildInputs or [ ] ++ [(joinOpenssl (patchOpenssl pkgs.buildPackages))];
+
+      # shellHook = ''
+      #   # shellHook is also a means of injecting the build environment for this dependency
+      #   # export FOO=BAR
+      # '';
+      setupHook = buildPackages.writeText "openssl-sys-setup-env.sh" ''
+          openssl-sys-setup-env() {
+            export ${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.buildPlatform)}_OPENSSL_DIR=${lib.escapeShellArg (joinOpenssl (patchOpenssl pkgs.buildPackages))}
+            export ${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.hostPlatform)}_OPENSSL_DIR=${lib.escapeShellArg (joinOpenssl (patchOpenssl pkgs))}
+            export OPENSSL_NO_VENDOR=1 # fixed 0.9.60
+            # export RUSTFLAGS="''${RUSTFLAGS:-} --cfg ossl111 --cfg ossl110 --cfg ossl101"
+          }
+          addEnvHooks "$hostOffset" openssl-sys-setup-env
+      '';
     };
   };
 
   pkg-config = makeOverride {
     name = "pkg-config";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+      # Every crate that depends on the pkg-config crate also gets pkg-config and this environment
+      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
         pkgs.pkg-config
-        (propagateEnv "pkg-config" [
-          { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
-        ])
+        # (propagateEnv "pkg-config" [
+        #   { name = "PKG_CONFIG_ALLOW_CROSS"; value = "1"; }
+        # ])
       ];
+      # Every dependent also gets this variable?
+      setupHook = buildPackages.writeText "openssl-sys-setup-env.sh" ''
+          pkg-config-setup-env() {
+            export PGK_CONFIG_ALLOW_CROSS=1
+          }
+          addEnvHooks "$hostOffset" pkg-config-setup-env
+      '';
     };
   };
 
@@ -220,7 +246,7 @@ in rec {
         overrideAttrs = drv: {
           # We can't use the host `pg_config` here, as it might not run on build platform. `pq-sys` only needs
           # to know the `lib` directory for `libpq`, so just create a fake binary that gives it exactly that.
-          propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          buildInputs = drv.buildInputs or [ ] ++ [
             (propagateEnv "pq-sys" [
               { name = "PG_CONFIG_${envize pkgs.stdenv.buildPlatform.config}"; value = binEcho "${(patchPostgresql pkgs.buildPackages).lib}/lib"; }
               { name = "PG_CONFIG_${envize pkgs.stdenv.hostPlatform.config}"; value = binEcho "${(patchPostgresql pkgs).lib}/lib"; }
@@ -229,10 +255,13 @@ in rec {
         };
       };
 
+  # Note that protobuff is from buildPackages and runs at the crate's
+  # build-time, so it's a nativeBuildInput.  Every crate that depends on
+  # prost-build might need protoc at runtime, so it's propagated.
   prost-build = makeOverride {
     name = "prost-build";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
         (propagateEnv "prost-build" [
           { name = "PROTOC"; value = "${pkgs.buildPackages.buildPackages.protobuf}/bin/protoc"; }
         ])
@@ -243,7 +272,7 @@ in rec {
   protoc = makeOverride {
     name = "protoc";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.buildPackages.buildPackages.protobuf ];
+      propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [ pkgs.buildPackages.buildPackages.protobuf ];
     };
   };
 
@@ -287,7 +316,7 @@ in rec {
   zmq-sys = makeOverride {
     name = "zmq-sys";
     overrideAttrs = drv: {
-      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.zeromq ];
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.zeromq ];
     };
   };
 }

@@ -71,7 +71,7 @@ lib.fix' (self:
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
     inherit rustPackages callPackage pkgs rustToolchain noBuild;
-    workspaceShell = workspaceShell { inherit pkgs noBuild rustToolchain; };
+    workspaceShell = workspaceShell { inherit pkgs rustPackages rustToolchain; };
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;
