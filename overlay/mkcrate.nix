@@ -123,6 +123,10 @@ let
     inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
 
+    # Adding libiconv is a convenience hack.  It really isn't needed by every
+    # derivation and should instead be added / propagated where appropriate, but
+    # until someone decides to investigate the actual dependencies, it remains
+    # here instead of in overrides.
     buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
     propagatedBuildInputs = lib.unique (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
     nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
