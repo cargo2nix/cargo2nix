@@ -66,15 +66,24 @@ in rec {
 
   # Don't forget to add new overrides here.
   all = [
+    atk-sys
     capLints
     cc
+    cairo-sys-rs
     curl-sys
     fsevent-sys
+    gdk
+    gdk-pixbuf-sys
+    gdk-sys
+    gdkx11-sys
+    glib-sys
+    javascriptcore-rs-sys
     libgit2-sys
     libdbus-sys
     libssh2-sys
     libudev-sys
     openssl-sys
+    pango-sys
     pkg-config
     pq-sys
     prost-build
@@ -84,8 +93,24 @@ in rec {
     rdkafka-sys
     reqwest
     ring
+    soup2-sys
     zmq-sys
   ];
+
+  atk-sys = makeOverride {
+    name = "atk-sys";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.atk.dev ];
+    };
+  };
+
+  cairo-sys-rs = makeOverride {
+    name = "cairo-sys-rs";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.cairo.dev ];
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.pkg-config ];
+    };
+  };
 
   capLints = makeOverride {
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -124,16 +149,47 @@ in rec {
     }
     else  nullOverride;
 
-  reqwest = if pkgs.stdenv.hostPlatform.isDarwin
-    then makeOverride {
-      name = "reqwest";
-      overrideAttrs = drv: {
-        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
-          pkgs.darwin.apple_sdk.frameworks.Security
-        ];
-      };
-    }
-    else  nullOverride;
+  glib-sys = makeOverride {
+    name = "glib-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.glib.dev pkgs.pkg-config ];
+    };
+  };
+
+  gdk-pixbuf-sys = makeOverride {
+    name = "gdk-pixbuf-sys";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.gdk-pixbuf.dev ];
+    };
+  };
+
+  gdk-sys = makeOverride {
+    name = "gdk-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.gtk3.dev ];
+    };
+  };
+
+  gdk = makeOverride {
+    name = "gdk";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.gtk3.dev ];
+    };
+  };
+
+  gdkx11-sys = makeOverride {
+    name = "gdkx11-sys";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.gtk3.dev ];
+    };
+  };
+
+  javascriptcore-rs-sys = makeOverride {
+    name = "javascriptcore-rs-sys";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.webkitgtk.dev ];
+    };
+  };
 
   libdbus-sys = pkgs.rustBuilder.rustLib.makeOverride {
     name = "libdbus-sys";
@@ -214,6 +270,13 @@ in rec {
           }
           addEnvHooks "$hostOffset" openssl-sys-setup-env
       '';
+    };
+  };
+
+  pango-sys = makeOverride {
+    name = "pango-sys";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.pango.dev ];
     };
   };
 
@@ -304,6 +367,17 @@ in rec {
     };
   };
 
+  reqwest = if pkgs.stdenv.hostPlatform.isDarwin
+    then makeOverride {
+      name = "reqwest";
+      overrideAttrs = drv: {
+        propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+          pkgs.darwin.apple_sdk.frameworks.Security
+        ];
+      };
+    }
+    else  nullOverride;
+
   ring = if pkgs.stdenv.hostPlatform.isDarwin
     then makeOverride {
       name = "ring";
@@ -312,6 +386,13 @@ in rec {
       };
     }
     else nullOverride;
+
+  soup2-sys = makeOverride {
+    name = "soup2-sys";
+    overrideAttrs = drv: {
+      buildInputs = drv.buildInputs or [ ] ++ [ pkgs.libsoup.dev ];
+    };
+  };
 
   zmq-sys = makeOverride {
     name = "zmq-sys";
