@@ -60,6 +60,8 @@
         #     flags used for compilation of the package set. The value should be a list of the features to be turned on, without the leading "+",
         #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
         #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
+        #    cargoUnstableFlags (optional):
+        #     Passes "-Z" flags that affect cargo unstable features.  Example [ "build-std=panic_abort" "std" ]
         #    rustcLinkFlags (optional):
         #     Pass extra flags directly to rustc during non-build invocations
         #    rustcBuildFlags (optional):
