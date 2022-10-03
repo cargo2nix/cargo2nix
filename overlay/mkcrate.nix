@@ -245,7 +245,9 @@ let
               , test: .test
               , example: .example
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-              } | with_entries(select( .value != null ))
+              }
+              | with_entries(select( .value != null ))
+              | del( .package.workspace )
               + $manifestPatch" \
         | jq "del(.[][] | nulls)" \
         | remarshal -if json -of toml > Cargo.toml
