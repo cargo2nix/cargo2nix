@@ -305,13 +305,23 @@ let
         if (( NIX_DEBUG >= 1 )); then
           set -x
         fi
-        env \
-          "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
-          "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
-          "CC_${rustHostTriple}"="${ccForHost}" \
-          "CXX_${rustHostTriple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
-          ${buildCmd}
+        dep_keys_sanitized="$(echo ''${depKeys[@]})"
+        if [ -z "$dep_keys_sanitized" ]; then
+          env \
+            "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+            "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+            "CC_${rustHostTriple}"="${ccForHost}" \
+            "CXX_${rustHostTriple}"="${cxxForHost}" \
+            ${buildCmd}
+        else
+          env \
+            "CC_${stdenv.buildPlatform.config}"="${ccForBuild}" \
+            "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
+            "CC_${rustHostTriple}"="${ccForHost}" \
+            "CXX_${rustHostTriple}"="${cxxForHost}" \
+            "$dep_keys_sanitized" \
+            ${buildCmd}
+        fi
       )
     '';
 

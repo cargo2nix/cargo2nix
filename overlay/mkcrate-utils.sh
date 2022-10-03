@@ -123,7 +123,11 @@ dumpDepInfo() {
           cp -r "$val" "$dep_file_target"
           val=$dep_file_target
         fi
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$dep_keys"
+        if [[ $val = *" "* ]]; then
+            printf 'DEP_%s_%s="%s"\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$dep_keys"
+        else
+            printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$dep_keys"
+        fi
     esac
   done < "$depinfo"
 }
@@ -165,7 +169,11 @@ install_crate2() {
         [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
         local key="${BASH_REMATCH[1]}"
         local val="${BASH_REMATCH[2]}"
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+        if [[ $val = *" "* ]]; then
+            printf 'DEP_%s_%s="%s"\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+        else
+            printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+        fi
       done || :
     fi
 
