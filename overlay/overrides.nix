@@ -210,7 +210,7 @@ in rec {
             export ${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.buildPlatform)}_OPENSSL_DIR=${lib.escapeShellArg (joinOpenssl (patchOpenssl pkgs.buildPackages))}
             export ${envize (pkgs.rustBuilder.rustLib.rustTriple pkgs.stdenv.hostPlatform)}_OPENSSL_DIR=${lib.escapeShellArg (joinOpenssl (patchOpenssl pkgs))}
             export OPENSSL_NO_VENDOR=1 # fixed 0.9.60
-            # export RUSTFLAGS="''${RUSTFLAGS:-} --cfg ossl111 --cfg ossl110 --cfg ossl101"
+            export RUSTFLAGS="''${RUSTFLAGS:-} --cfg ossl111 --cfg ossl110 --cfg ossl101 --cfg ossl300"
           }
           addEnvHooks "$hostOffset" openssl-sys-setup-env
       '';
