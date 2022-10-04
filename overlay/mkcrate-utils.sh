@@ -92,6 +92,13 @@ linkExternCrateToDeps() {
 upper() {
   echo "${1^^}"
 }
+single_quote_whitespaced() {
+if [[ $1 == *[[:space:]]* ]]; then
+    echo "'$1'"
+else
+    echo $1
+fi
+}
 
 dumpDepInfo() {
   local link_flags="$1"; shift
@@ -123,7 +130,7 @@ dumpDepInfo() {
           cp -r "$val" "$dep_file_target"
           val=$dep_file_target
         fi
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$dep_keys"
+        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$(single_quote_whitespaced "$val")" >> "$dep_keys"
     esac
   done < "$depinfo"
 }
@@ -165,7 +172,7 @@ install_crate2() {
         [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
         local key="${BASH_REMATCH[1]}"
         local val="${BASH_REMATCH[2]}"
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$(single_quote_whitespaced "$val")" >> "$out/lib/.dep-keys"
       done || :
     fi
 
