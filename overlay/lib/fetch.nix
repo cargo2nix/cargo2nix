@@ -8,6 +8,7 @@ rec {
 
   fetchCrateGit = { url, name, version, rev, ref ? "HEAD" }: builtins.fetchGit {
     inherit url rev ref;
+    submodules = true;
   };
 
   # This implementation of `fetchCrateAlternativeRegistry` assumes that the download URL is updated frequently

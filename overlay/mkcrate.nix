@@ -21,6 +21,7 @@
   profileOpts ? null,
   codegenOpts ? null,
   meta ? { },
+  cargoUnstableFlags ? [ ],
   rustcLinkFlags ? [ ],
   rustcBuildFlags ? [ ],
   target ? null,
@@ -82,6 +83,7 @@ let
       if compileMode != "doctest" then ''
         ${rustToolchain}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${rustHostTriple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
+          ${optionalString (builtins.length cargoUnstableFlags > 0) "-Z ${lib.strings.concatStringsSep "," cargoUnstableFlags}"} \
           --message-format json-diagnostic-rendered-ansi | tee .cargo-build-output \
           1> >(jq 'select(.message != null) .message.rendered' -r)
       ''
@@ -249,7 +251,9 @@ let
               , test: .test
               , example: .example
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-              } | with_entries(select( .value != null ))
+              }
+              | with_entries(select( .value != null ))
+              | del( .package.workspace )
               + $manifestPatch" \
         | jq "del(.[][] | nulls)" \
         | remarshal -if json -of toml > Cargo.toml
