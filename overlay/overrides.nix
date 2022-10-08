@@ -77,6 +77,7 @@ in rec {
     rand
     rand_os
     rdkafka-sys
+    sqlx-macros
     reqwest
     ring
     zmq-sys
@@ -290,6 +291,15 @@ in rec {
       };
     }
     else nullOverride;
+
+  sqlx-macros = if pkgs.stdenv.hostPlatform.isDarwin
+  then makeOverride {
+    name = "sqlx-macros";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.darwin.apple_sdk.frameworks.SystemConfiguration ];
+    };
+  }
+  else nullOverride;
 
   rdkafka-sys = makeOverride {
     name = "rdkafka-sys";
