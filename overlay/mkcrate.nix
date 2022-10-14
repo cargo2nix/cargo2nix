@@ -290,6 +290,7 @@ let
       export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcLinkFlags"
       export NIX_RUST_BUILD_FLAGS="''${buildLinkFlags[@]} -L dependency=$(realpath build_deps) $extraRustcBuildFlags"
       export RUSTC=${wrapper "rustc"}/bin/rustc
+      export CLIPPY_DRIVER=${wrapper "clippy-driver"}/bin/clippy-driver
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
       depKeys=(`loadDepKeys $dependencies`)
