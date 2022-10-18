@@ -206,7 +206,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         &ws,
         &target_data,
         &requested_kinds,
-        &CliFeatures::new_all(false),
+        &CliFeatures::new_all(true),
         &specs,
         HasDevUnits::Yes,
         force_all,
