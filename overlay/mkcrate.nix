@@ -59,6 +59,14 @@ let
   cc = stdenv.cc;
   ccForHost="${cc}/bin/${targetPrefix}cc";
   cxxForHost="${cc}/bin/${targetPrefix}c++";
+  specialLinkers = let
+      lld-elf = "${buildPackages.llvmPackages_latest.lld}/bin/ld.lld";
+      lld-pe = "${buildPackages.llvmPackages_latest.lld}/bin/lld-link";
+    in {
+      "aarch64-unknown-none" = lld-elf;
+      "x86_64-unknown-none" = lld-elf;
+      "x86_64-unknown-uefi" = lld-pe;
+    };
   rustBuildTriple = rustTriple stdenv.buildPlatform;
   rustHostTriple = if (target != null) then target else rustTriple stdenv.hostPlatform;
   depMapToList = deps:
@@ -191,7 +199,7 @@ let
     # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
     '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") (''
       [target."${rustHostTriple}"]
-      linker = "${ccForHost}"
+      linker = "${specialLinkers.${rustHostTriple} or ccForHost}"
     ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
       rustflags = [
     '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustHostTriple}") + "\n" + ''
