@@ -4,7 +4,7 @@ use std::{
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     fs,
     io::{self, BufRead, Write},
-    path::Path,
+    path::PathBuf,
 };
 
 use anyhow::{anyhow, Context, Result};
@@ -22,6 +22,8 @@ use cargo::{
     util::important_paths::find_root_manifest_for_wd,
 };
 use cargo_platform::Platform;
+use clap::{Command, CommandFactory, Parser, ValueHint};
+use clap_complete::{generate, Generator, Shell};
 use colorify::colorify;
 use semver::{Version, VersionReq};
 use sha2::{Digest, Sha256};
@@ -41,32 +43,50 @@ type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
 
 const VERSION_ATTRIBUTE_NAME: &str = "cargo2nixVersion";
 
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
-    if let Err(err) = try_main(&args) {
-        eprint!(colorify!(red_bold: "error: "));
-        eprintln!("{:#}", &err);
-        std::process::exit(1);
-    }
+#[derive(Parser, Debug, PartialEq)]
+#[command(about, author, long_about = None, version)]
+/// Granular caching, development shell, Nix & Rust integration
+struct Opt {
+    /// Optional workspace directory (default value: ./)
+    #[arg(value_name = "WORKSPACE_DIRECTORY", value_hint = ValueHint::DirPath)]
+    workspace_directory: Option<PathBuf>,
+    /// Generate a SHELL completion script
+    #[arg(long = "completions", value_enum)]
+    generator: Option<Shell>,
+    /// Output to filepath (default value: ./Cargo.nix)
+    #[arg(conflicts_with = "stdout", long, short, value_name = "FILEPATH", value_hint = ValueHint::FilePath)]
+    file: Option<PathBuf>,
+    /// Overwrite existing output filepath without prompting
+    #[arg(action, long, short)]
+    overwrite: bool,
+    /// Output to stdout
+    #[arg(conflicts_with = "file", action, long, short)]
+    stdout: bool,
 }
 
-fn try_main(args: &[&str]) -> Result<()> {
-    match &args[1..] {
-        ["--stdout"] | ["-s"] => generate_cargo_nix(io::stdout().lock()),
-        [] | ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
-        ["--file", file] | ["-f", file] => write_to_file(file),
-        ["--help"] | ["-h"] => print_help(),
-        ["--version"] | ["-v"] => {
-            println!("{}", version());
-            Ok(())
-        }
-        _ => {
-            println!("Invalid arguments: {:?}", &args[1..]);
-            println!("\nTry again, with help: \n");
-            print_help()
-        }
+fn main() -> std::io::Result<()> {
+    let opt = Opt::parse();
+
+    if let Some(generator) = opt.generator {
+        let mut cmd = Opt::command();
+        eprintln!("Generating completion file for {:?}...", generator);
+        print_completions(generator, &mut cmd);
+        std::process::exit(0);
     }
+
+    let workspace_directory = opt.workspace_directory.unwrap_or(std::env::current_dir()?).canonicalize()?;
+    let file = opt.file.unwrap_or(PathBuf::from("./Cargo.nix"));
+
+    let rendered = generate_cargo_nix(&workspace_directory).expect("Error generating nix expressions");
+
+    if opt.stdout { write_to_stdout(&rendered).expect("Error writing to stdout"); }
+    else { write_to_file(&file, &rendered, &opt.overwrite).expect("Error writing to file"); }
+
+    Ok(())
+}
+
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 fn version() -> Version {
@@ -75,7 +95,7 @@ fn version() -> Version {
     Version::parse(env!("CARGO_PKG_VERSION")).unwrap()
 }
 
-fn read_version_attribute(path: &Path) -> Result<Version> {
+fn read_version_attribute(path: &PathBuf) -> Result<Version> {
     let file = fs::File::open(path).context(format!("Couldn't open file {}", path.display()))?;
     io::BufReader::new(file)
         .lines()
@@ -98,7 +118,7 @@ fn read_version_attribute(path: &Path) -> Result<Version> {
         })
 }
 
-fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
+fn version_req(path: &PathBuf) -> Result<(VersionReq, Version)> {
     let version = read_version_attribute(path)?;
     let req = format!(">={}.{}", version.major, version.minor);
     VersionReq::parse(&req)
@@ -107,20 +127,8 @@ fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
         .map(|req| (req, version))
 }
 
-fn print_help() -> Result<()> {
-    println!("cargo2nix-{}\n", version());
-    println!("$ cargo2nix                        # Print the help");
-    println!("$ cargo2nix -s,--stdout            # Output to stdout");
-    println!("$ cargo2nix -f,--file              # Output to Cargo.nix");
-    println!("$ cargo2nix -f,--file <file>       # Output to the given file");
-    println!("$ cargo2nix -v,--version           # Print version of cargo2nix");
-    println!("$ cargo2nix -h,--help              # Print the help");
-    Ok(())
-}
-
-fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
-    let path = file.as_ref();
-    if path.exists() {
+fn write_to_file(path: &PathBuf, rendered: &str, overwrite: &bool) -> Result<()> {
+    if !overwrite && path.exists() {
         let (vers_req, ver) = version_req(path)?;
         if !vers_req.matches(&version()) {
             let mut message = format!(
@@ -163,7 +171,7 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
         .tempfile()
         .context("could not create new temporary file")?;
 
-    generate_cargo_nix(&mut temp_file)?;
+    write!(temp_file, "{}", rendered)?;
 
     if let Err(err) = temp_file.persist(path) {
         let (_, temp_path) = err.file.keep()?;
@@ -174,14 +182,19 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
     Ok(())
 }
 
-fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
+fn write_to_stdout(rendered: &str) -> Result<()> {
+    write!(io::stdout().lock(), "{}", rendered)?;
+    Ok(())
+}
+
+fn generate_cargo_nix(workspace_directory: &PathBuf) -> Result<String> {
     let config = {
         let mut config = cargo::Config::default()?;
         config.configure(0, true, None, false, true, false, &None, &[], &[])?;
         config
     };
 
-    let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
+    let root_manifest_path = find_root_manifest_for_wd(workspace_directory)?;
     let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
     let mut hasher = Sha256::new();
     io::copy(
@@ -282,7 +295,7 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
         root_pkgs,
         profiles,
         rpkgs_by_id,
-        config.cwd(),
+        workspace_directory,
     )?;
     let mut tera = Tera::default();
     tera.add_raw_template(
@@ -291,9 +304,8 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     )?;
     let context = tera::Context::from_serialize(plan)?;
     let rendered = tera.render("Cargo.nix.tera", &context)?;
-    write!(out, "{}", rendered)?;
 
-    Ok(())
+    Ok(rendered)
 }
 
 fn simplify_optionality<'a, 'b: 'a>(rpkgs: impl IntoIterator<Item = &'a mut ResolvedPackage<'b>>) {
