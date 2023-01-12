@@ -200,6 +200,9 @@ install_crate2() {
 }
 
 install_crate() {
+  # This function is only used for rustc older than 1.41.0.  It's
+  # becoming almost completely unused.  Look for an opportunity to
+  # remove as old Rust versions fall out of use.
   local host_triple="$1"
   local mode="$2"
   pushd "target/${host_triple}/${mode}"
