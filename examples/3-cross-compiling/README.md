@@ -193,7 +193,7 @@ Create a new file called [`flake.nix`]:
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.64.0";
+          rustVersion = "1.66.1";
           packageFun = import ./Cargo.nix;
 
           # If your specific build target requires a difference between Rust and
