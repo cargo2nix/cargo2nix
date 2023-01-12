@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.11";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -72,7 +72,7 @@
         #     for more info.
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
-          rustVersion = "1.64.0";
+          rustVersion = "1.66.1";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
         };
         # `rustPkgs` now contains all crates in the dependency graph.
