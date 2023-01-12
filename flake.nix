@@ -107,7 +107,7 @@
         # and the rustToolchain used to build this cargo2nix.
         bootstrapShell = pkgs.mkShell {
           packages = [ cargo2nix ];
-          # inputsFrom = [ cargo2nixBin ];
+          # inputsFrom = [ cargo2nix ];
           nativeBuildInputs = cargo2nix.nativeBuildInputs;
         };
 
