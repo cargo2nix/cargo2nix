@@ -184,11 +184,11 @@ install_crate2() {
     fi
   fi
 
-  loadExternCrateLinkFlags $dependencies >> "$out/lib/.link-flags"
+  loadExternCrateLinkFlags $(cat $dependenciesPath) >> "$out/lib/.link-flags"
 
   if (shopt -s failglob; : "$out/lib"/*.rlib) 2> /dev/null; then
     mkdir -p "$out/lib/deps"
-    linkExternCrateToDeps "$out/lib/deps" $dependencies
+    linkExternCrateToDeps "$out/lib/deps" $(cat $dependenciesPath)
   fi
 
   jq -n '{name:$name, metadata:$metadata, version:$version, proc_macro:$procmacro}' \
@@ -255,7 +255,7 @@ install_crate() {
   popd
 
   touch "$out/lib/.link-flags"
-  loadExternCrateLinkFlags $dependencies >> "$out/lib/.link-flags"
+  loadExternCrateLinkFlags $(cat $dependenciesPath) >> "$out/lib/.link-flags"
 
   if [ "$isProcMacro" ]; then
     pushd "target/${mode}"
@@ -286,7 +286,7 @@ install_crate() {
 
   if [ "$needs_deps" ]; then
     mkdir -p "$out/lib/deps"
-    linkExternCrateToDeps "$out/lib/deps" $dependencies
+    linkExternCrateToDeps "$out/lib/deps" $(cat $dependenciesPath)
   fi
 
   echo {} | jq \

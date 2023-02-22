@@ -204,6 +204,8 @@ let
     buildDependencies = depMapToList buildDependencies;
     devDependencies = depMapToList (optionalAttrs (compileMode != "build") devDependencies);
 
+    passAsFile = ["dependencies"];
+
     extraRustcLinkFlags =
       optionals (hostPlatformCpu != null) ([("-Ctarget-cpu=" + hostPlatformCpu)]) ++
       optionals (hostPlatformFeatures != []) [("-Ctarget-feature=" + (concatMapStringsSep "," (feature: "+" + feature) hostPlatformFeatures))] ++
@@ -329,9 +331,9 @@ let
       export CARGO_HOME=`pwd`/.cargo
 
       mkdir -p deps build_deps
-      linkFlags=(`makeExternCrateFlags $dependencies $devDependencies | sort -u`)
+      linkFlags=(`makeExternCrateFlags $(cat $dependenciesPath) $devDependencies | sort -u`)
       buildLinkFlags=(`makeExternCrateFlags $buildDependencies | sort -u`)
-      linkExternCrateToDeps `realpath deps` $dependencies $devDependencies
+      linkExternCrateToDeps `realpath deps` $(cat $dependenciesPath) $devDependencies
       linkExternCrateToDeps `realpath build_deps` $buildDependencies
 
       export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcLinkFlags"
@@ -340,7 +342,7 @@ let
       export CLIPPY_DRIVER=${wrapper "clippy-driver"}/bin/clippy-driver
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
-      depKeys=(`loadDepKeys $dependencies`)
+      depKeys=(`loadDepKeys $(cat $dependenciesPath)`)
 
       if (( NIX_DEBUG >= 1 )); then
         echo $NIX_RUST_LINK_FLAGS
