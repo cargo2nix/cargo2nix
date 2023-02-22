@@ -119,6 +119,53 @@ let
         ])))
     runtimeDependencies buildtimeDependencies;
 
+  /*
+   * A copy of `symlinkJoin` from `nixpkgs` which passes the `paths` argument via a file
+   * instead of via an environment variable. This should fix the "Argument list too long"
+   * error when `paths` exceeds the limit.
+   *
+   * Code taken from https://github.com/nix-community/naersk/blob/master/build.nix
+   *
+   * Create a forest of symlinks to the files in `paths'.
+   *
+   * Examples:
+   * # adds symlinks of hello to current build.
+   * { symlinkJoin, hello }:
+   * symlinkJoin { name = "myhello"; paths = [ hello ]; }
+   *
+   * # adds symlinks of hello to current build and prints "links added"
+   * { symlinkJoin, hello }:
+   * symlinkJoin { name = "myhello"; paths = [ hello ]; postBuild = "echo links added"; }
+   */
+  symlinkJoinPassViaFile = args_ @ {
+    name,
+    paths,
+    preferLocalBuild ? true,
+    allowSubstitutes ? false,
+    postBuild ? "",
+    ...
+  }: let
+    args =
+      removeAttrs args_ ["name" "postBuild"]
+      // {
+        inherit preferLocalBuild allowSubstitutes;
+        passAsFile = ["paths"];
+      }; # pass the defaults
+  in
+    pkgs.runCommand name args
+    ''
+      mkdir -p $out
+      for i in $(cat $pathsPath); do
+        ${pkgs.buildPackages.xorg.lndir}/bin/lndir -silent $i $out
+      done
+      ${postBuild}
+    '';
+
+  propagatedBuildInputs = symlinkJoinPassViaFile {
+    name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}-deps";
+    paths = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
+  };
+
   drvAttrs = {
     inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
@@ -128,7 +175,7 @@ let
     # until someone decides to investigate the actual dependencies, it remains
     # here instead of in overrides.
     buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
-    propagatedBuildInputs = lib.unique (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
+    propagatedBuildInputs = [propagatedBuildInputs];
     nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
 
     depsBuildBuild =
