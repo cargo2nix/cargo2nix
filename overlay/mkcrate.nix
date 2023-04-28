@@ -293,7 +293,7 @@ let
       export CLIPPY_DRIVER=${wrapper "clippy-driver"}/bin/clippy-driver
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
-      depKeys=(`loadDepKeys $dependencies`)
+      readarray -t depKeys <<< `loadDepKeys $dependencies`
 
       if (( NIX_DEBUG >= 1 )); then
         echo $NIX_RUST_LINK_FLAGS
@@ -315,7 +315,7 @@ let
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
           "CC_${rustHostTriple}"="${ccForHost}" \
           "CXX_${rustHostTriple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
+          ''${depKeys:+"''${depKeys[@]}"} \
           ${buildCmd}
       )
     '';
