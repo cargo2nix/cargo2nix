@@ -293,7 +293,7 @@ let
       export CLIPPY_DRIVER=${wrapper "clippy-driver"}/bin/clippy-driver
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
-      depKeys=(`loadDepKeys $dependencies`)
+      readarray -t depKeys <<< `loadDepKeys $dependencies`
 
       if (( NIX_DEBUG >= 1 )); then
         echo $NIX_RUST_LINK_FLAGS
