@@ -315,7 +315,7 @@ let
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
           "CC_${rustHostTriple}"="${ccForHost}" \
           "CXX_${rustHostTriple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
+          ''${depKeys:+"''${depKeys[@]}"} \
           ${buildCmd}
       )
     '';
