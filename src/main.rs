@@ -418,8 +418,8 @@ impl<'a> ResolvedPackage<'a> {
             .deps(pkg.package_id())
             .filter_map(|(dep_id, deps)| {
                 let dep_pkg = pkgs_by_id[&dep_id];
-                let extern_name = resolve
-                    .extern_crate_name(
+                let (extern_name, _) = resolve
+                    .extern_crate_name_and_dep_name(
                         pkg.package_id(),
                         dep_id,
                         dep_pkg.targets().iter().find(|t| t.is_lib())?,
@@ -436,7 +436,7 @@ impl<'a> ResolvedPackage<'a> {
                 let rdep = deps
                     .entry((dep_id, dep.kind()))
                     .or_insert(ResolvedDependency {
-                        extern_name,
+                        extern_name: extern_name.to_string(),
                         pkg: dep_pkg,
                         optionality: Optionality::default(),
                         platforms: Some(BTreeSet::new()),
