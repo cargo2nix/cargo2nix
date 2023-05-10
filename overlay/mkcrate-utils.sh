@@ -304,3 +304,10 @@ cargoRelativeManifest() {
 
     echo "${manifest_path#"$workspace_path"}"
 }
+
+cargoWorkspaceMetadata() {
+     (cargo metadata --format-version 1 --no-deps | jq ".packages[] | select(.name == \"$1\")" || echo "{}") \
+    | jq '{package: {name: .name, authors: .authors, categories: .categories, description: .description, documentation: .documentation, edition: .edition, exclude: .exclude, homepage: .homepage, include: .include, keywords: .keywords, license: .license, publish: .publish, readme: .readme, repository: .repository, version: .version,}}' \
+    | jq 'del(..|nulls)' \
+    > "./$2/Cargo.metadata.json"
+}
