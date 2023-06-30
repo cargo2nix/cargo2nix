@@ -69,7 +69,7 @@
         #     for more info.
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.0";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
         };
         # `rustPkgs` now contains all crates in the dependency graph.
