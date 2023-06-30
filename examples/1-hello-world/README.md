@@ -132,7 +132,7 @@ to use to do their work.
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.66.1";
+          rustVersion = "1.70.1";
           packageFun = import ./Cargo.nix;
         };
 

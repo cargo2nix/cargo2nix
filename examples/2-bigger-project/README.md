@@ -91,7 +91,7 @@ following arguments:
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.66.1";
+          rustVersion = "1.70.0";
           packageFun = import ./Cargo.nix;
           # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
         };
