@@ -263,7 +263,7 @@ let
 
       crateName="$(
         remarshal -if toml -of json Cargo.original.toml \
-        | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
+        | jq -r 'if .lib."name" then .lib."name" else "${replaceStrings ["-"] ["_"] name}" end' \
       )"
 
       . ${./mkcrate-utils.sh}
