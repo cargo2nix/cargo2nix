@@ -15,7 +15,7 @@
   
   outputs = inputs: with inputs;
     let
-      overlays = import ./overlay (rust-overlay.overlays);
+      overlays = import ./overlay (rust-overlay.overlays.default);
       combinedOverlay = overlays.combined;
 
     in flake-utils.lib.eachDefaultSystem (system:
