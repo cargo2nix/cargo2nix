@@ -132,7 +132,7 @@ to use to do their work.
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.1";
           packageFun = import ./Cargo.nix;
         };
 
@@ -143,7 +143,7 @@ to use to do their work.
         packages = {
           # nix build .#hello-world
           # nix build .#packages.x86_64-linux.hello-world
-          hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          hello-world = (rustPkgs.workspace.hello-world {});
           # nix build
           default = packages.hello-world; # rec
         };
@@ -233,14 +233,16 @@ and build it if we want.
 
 Packages from the workspace are also duplicated as a `workspace` set.  Each
 output is a function that must be called (see the main `Cargo.nix` for
-arguments) to obtain a final derivation.  The derivations contain a `bin`
-attribute that is appropriate for installation into a [nix profile].
+arguments) to obtain a final derivation.  The derivations contain multiple
+outputs.  The default is `bin` attribute that is appropriate for installation
+into a [nix profile].  The `out` attribute contains the linking information used
+in dependents.
 
 [nix profile]: https://nixos.org/manual/nix/unstable/package-management/profiles.html
 
 ```nix
-# this expression is the bin ouput of our sweet derviation
-(rustPkgs.workspace.hello-world {}).bin
+# this expression is the output ("bin", not "out" by default) of our sweet derviation
+(rustPkgs.workspace.hello-world {})
 ```
 
 #### The System Argument
@@ -256,7 +258,7 @@ such as `"x86_64-linux"` or `"x86_64-darwin"`.
 
 The [Rust Overlay] is a flake that provides a Rust toolchain for use as a
 dependency during build.  You can use other versions of Rust by setting
-`rustVersion` to `1.60.0` for example.  `rustChannel` can also be set.  See the
+`rustVersion` to `1.66.1` for example.  `rustChannel` can also be set.  See the
 oxalica Rust Overlay [reference] for a list of all public attributes.
 
 [reference]: https://github.com/oxalica/rust-overlay/blob/master/docs/reference.md

@@ -47,7 +47,7 @@ We will also pass a `workspaceSrc` argument to `makePackageSet`.
 ```nix
 
   rustPkgs = pkgs.rustBuilder.makePackageSet {
-    rustVersion = "1.61.0";
+    rustVersion = "1.70.0";
     packageFun = import ./Cargo.nix;
 
     workspaceSrc = rust-analyzer-src
@@ -76,22 +76,38 @@ an inline override
     
 ```
 
-Nix will by default build packages that contain some extra outputs (which
-cargo2nix utilizes to coordinate between dependencies) that might be necessary
-when being used as a `buildDependency` but will collide when attempting to
-install finished software into a profile. We can expose just the `bin` output by
-selecting it explicitly in the final expression of our `default.nix`:
+Call the workspace function (with no arguments here) to evaluate the output
+derivation for our binary:
 
 ```nix
   #... previously expressed rustPkgs
   
   in rec {
     packages = {
-      rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+      rust-analyzer = (rustPkgs.workspace.rust-analyzer {});
       default = packages.rust-analyzer;
     };
   }
 ```
+
+#### Multiple Outputs
+
+Each derivation created by `mkRustCrate` contains multiple outputs.  The `bin`
+attribute is the default and contains just the executible compiler artifacts
+(using cargo metadata output).  By default only the `bin` output is installed,
+but you can also use `out` to see the intermediate linking information and other
+libraries created during the build. The `out` attribute contains extra files
+(which cargo2nix utilizes to coordinate between dependencies) that might be
+necessary when being used as a `buildDependency` but will collide when
+attempting to install finished software into a profile.  This is why the `bin`
+attribute is the default output while `out` is used in Cargo.nix.
+
+You can see the outputs of the derivation using `nix show-derivation` and `jq`:
+```
+nix show-derivation | jq '.[].outputs'
+```
+
+### Building
 
 You can test that this package builds like so:
 
@@ -104,6 +120,7 @@ You will now see a clean binary output at `result-bin/bin/rust-analyzer`
 
 ### Errata
 
-The version of Rust Analyzer built here will generate a Cargo.nix that enables
-both allocators.  Search the [Cargo.nix](./Cargo.nix) for `mimalloc` to see
-where this erroneously enabled feature was commented out by hand.
+This crate is a special case where the flake root has a Cargo.lock that is
+**not** the one that generated the Cargo.nix.  Currently the overlay can't
+handle this, and so `ignoreLockHash` was turned on, set to `true`.
+

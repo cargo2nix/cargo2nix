@@ -40,4 +40,6 @@ in {
   "wasm32-unknown"          = "wasm32-unknown-unknown";
   "wasm32-wasi"             = "wasm32-wasi";
   "wasm32-unknown-wasi"     = "wasm32-wasi";
+  "riscv64-linux"           = "riscv64gc-unknown-linux-${abi}";
+  "riscv32-linux"           = "riscv32gc-unknown-linux-${abi}";
 }.${platform.system} or platform.config

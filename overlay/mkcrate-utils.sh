@@ -92,6 +92,13 @@ linkExternCrateToDeps() {
 upper() {
   echo "${1^^}"
 }
+single_quote_whitespaced() {
+if [[ $1 == *[[:space:]]* ]]; then
+    echo "'$1'"
+else
+    echo $1
+fi
+}
 
 dumpDepInfo() {
   local link_flags="$1"; shift
@@ -123,7 +130,7 @@ dumpDepInfo() {
           cp -r "$val" "$dep_file_target"
           val=$dep_file_target
         fi
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$dep_keys"
+        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$(single_quote_whitespaced "$val")" >> "$dep_keys"
     esac
   done < "$depinfo"
 }
@@ -136,7 +143,7 @@ install_crate2() {
   cp $(jq -rR 'fromjson?
     | select(.reason == "compiler-artifact")
     | .filenames
-    | map(select(test("\\.(a|rlib|so|dylib)$")))
+    | map(select(test("\\.(a|rlib|so|dylib|dll|lib|wasm)$")))
     | .[]' < .cargo-build-output) "$out/lib" 2> /dev/null || :
 
   jq -rR 'fromjson?
@@ -165,7 +172,7 @@ install_crate2() {
         [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
         local key="${BASH_REMATCH[1]}"
         local val="${BASH_REMATCH[2]}"
-        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$val" >> "$out/lib/.dep-keys"
+        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$(single_quote_whitespaced "$val")" >> "$out/lib/.dep-keys"
       done || :
     fi
 
@@ -193,6 +200,9 @@ install_crate2() {
 }
 
 install_crate() {
+  # This function is only used for rustc older than 1.41.0.  It's
+  # becoming almost completely unused.  Look for an opportunity to
+  # remove as old Rust versions fall out of use.
   local host_triple="$1"
   local mode="$2"
   pushd "target/${host_triple}/${mode}"
@@ -229,6 +239,9 @@ install_crate() {
           ;;
         a) ;&
         so) ;&
+        wasm) ;&
+        lib) ;&
+        dll) ;&
         dylib)
           mkdir -p "$out/lib"
           cp "$output" "$out/lib/"

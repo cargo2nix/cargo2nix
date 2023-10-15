@@ -25,13 +25,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2.4.2
-      - uses: cachix/install-nix-action@v15
+      - uses: actions/checkout@v3.2.0
+      - uses: cachix/install-nix-action@v23
         with:
           extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
             log-lines = 200
-      - uses: cachix/cachix-action@v10
+      - uses: cachix/cachix-action@v12
         with:
           name: cargo2nix-gh
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -45,7 +44,7 @@ jobs:
             nix build
           else
             nix build \
-              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           fi
 
       - name: build tests
@@ -54,7 +53,7 @@ jobs:
             nix build .#ci
           else
             nix build .#ci \
-              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
+              --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           fi
 
       - name: build examples
@@ -71,16 +70,16 @@ jobs:
           else
           nix build ./examples/1-hello-world# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           nix build ./examples/2-bigger-project# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           # nix build ./examples/3-cross-compiling#
           #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
+          #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           nix build ./examples/4-independent-packaging# \
             --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
-            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-22.05-darwin
+            --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           fi
 
       - name: use dev shell

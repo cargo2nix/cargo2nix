@@ -26,7 +26,7 @@
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.0";
           packageFun = import ./Cargo.nix;
           # packageOverrides = pkgs: pkgs.rustBuilder.overrides.all; # Implied, if not specified
         };
@@ -38,7 +38,7 @@
         packages = {
           # nix build .#bigger-project
           # nix build .#packages.x86_64-linux.bigger-project
-          bigger-project = (rustPkgs.workspace.bigger-project {}).bin;
+          bigger-project = (rustPkgs.workspace.bigger-project {});
           # nix build
           default = packages.bigger-project;
         };

@@ -59,14 +59,14 @@ A bare minimum flake.nix:
         };
 
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.0";
           packageFun = import ./Cargo.nix;
         };
 
       in rec {
         packages = {
           # replace hello-world with your package name
-          hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          hello-world = (rustPkgs.workspace.hello-world {});
           default = packages.hello-world;
         };
       }
@@ -303,6 +303,19 @@ rebuilding.
      };
    ```
 
+1. Each derivation function in `rustBuilder.makePackageSet` has it's outputs
+   created within [mkcrate.nix](./overlay/mkcrate.nix), using some bash
+   functions in [mkcrate-utils.sh](./overlay/mkcrate-utils.sh).  We try not to
+   copy more than necessary to the outputs, but this also means sometimes
+   skipping a necessary file.  Each derivation is [multiple output], using `bin`
+   and `out`.  The default output is `bin` and should contain just what's
+   necessary at runtime, possibly linked to other files in the Nix store.  This
+   output si for installation into a Nix profile or shell.  The `out` output
+   contains all of this and extra information necessary for dependents to
+   consume the crate, usually linking information, which will collide if you
+   attempt to install several such derivations.
+
+   [multiple output]: https://nixos.org/manual/nixpkgs/stable/#chap-multiple-output
 
 1. Non-deterministic rustc or linker behavior can lead to binary-incompatible
    crates.  Nix cannot protect from non-determinism, only impurity.  Override

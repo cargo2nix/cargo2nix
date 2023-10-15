@@ -6,7 +6,7 @@
     flake-utils.follows = "cargo2nix/flake-utils";
     nixpkgs.follows = "cargo2nix/nixpkgs";
     rust-analyzer-src = {
-      url = "github:rust-lang/rust-analyzer/?rev=f94fa62d69faf5bd63b3772d3ec4f0c76cf2db57";
+      url = "github:rust-lang/rust-analyzer/?rev=2e9f1204ca01c3e20898d4a67c8b84899d394a88";
       flake = false;
     };
   };
@@ -27,9 +27,10 @@
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           # rust toolchain version
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.0";
           # nixified Cargo.lock
           packageFun = import ./Cargo.nix;
+          ignoreLockHash = true;
 
           # Provide the gperfools lib for linking the final rust-analyzer binary
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
@@ -51,7 +52,7 @@
       in rec {
         packages = {
           # nix build .#rust-analyzer
-          rust-analyzer = (rustPkgs.workspace.rust-analyzer {}).bin;
+          rust-analyzer = (rustPkgs.workspace.rust-analyzer {});
           # nix build
           default = packages.rust-analyzer;
         };

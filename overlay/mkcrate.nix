@@ -21,6 +21,7 @@
   profileOpts ? null,
   codegenOpts ? null,
   meta ? { },
+  cargoUnstableFlags ? [ ],
   rustcLinkFlags ? [ ],
   rustcBuildFlags ? [ ],
   target ? null,
@@ -82,6 +83,7 @@ let
       if compileMode != "doctest" then ''
         ${rustToolchain}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${rustHostTriple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
+          ${optionalString (builtins.length cargoUnstableFlags > 0) "-Z ${lib.strings.concatStringsSep "," cargoUnstableFlags}"} \
           --message-format json-diagnostic-rendered-ansi | tee .cargo-build-output \
           1> >(jq 'select(.message != null) .message.rendered' -r)
       ''
@@ -121,8 +123,12 @@ let
     inherit src version meta NIX_DEBUG;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
 
+    # Adding libiconv is a convenience hack.  It really isn't needed by every
+    # derivation and should instead be added / propagated where appropriate, but
+    # until someone decides to investigate the actual dependencies, it remains
+    # here instead of in overrides.
     buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
-    propagatedBuildInputs = (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
+    propagatedBuildInputs = lib.unique (concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies);
     nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
 
     depsBuildBuild =
@@ -184,7 +190,8 @@ let
       ]
 
     # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
-    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown") (''
+    # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
+    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") (''
       [target."${rustHostTriple}"]
       linker = "${ccForHost}"
     ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
@@ -244,7 +251,9 @@ let
               , test: .test
               , example: .example
               , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-              } | with_entries(select( .value != null ))
+              }
+              | with_entries(select( .value != null ))
+              | del( .package.workspace )
               + $manifestPatch" \
         | jq "del(.[][] | nulls)" \
         | remarshal -if json -of toml > Cargo.toml
@@ -263,7 +272,7 @@ let
 
       crateName="$(
         remarshal -if toml -of json Cargo.original.toml \
-        | jq -r 'if .lib."name" then .lib."name" else "${replaceChars ["-"] ["_"] name}" end' \
+        | jq -r 'if .lib."name" then .lib."name" else "${replaceStrings ["-"] ["_"] name}" end' \
       )"
 
       . ${./mkcrate-utils.sh}
@@ -281,9 +290,10 @@ let
       export NIX_RUST_LINK_FLAGS="''${linkFlags[@]} -L dependency=$(realpath deps) $extraRustcLinkFlags"
       export NIX_RUST_BUILD_FLAGS="''${buildLinkFlags[@]} -L dependency=$(realpath build_deps) $extraRustcBuildFlags"
       export RUSTC=${wrapper "rustc"}/bin/rustc
+      export CLIPPY_DRIVER=${wrapper "clippy-driver"}/bin/clippy-driver
       export RUSTDOC=${wrapper "rustdoc"}/bin/rustdoc
 
-      depKeys=(`loadDepKeys $dependencies`)
+      readarray -t depKeys <<< `loadDepKeys $dependencies`
 
       if (( NIX_DEBUG >= 1 )); then
         echo $NIX_RUST_LINK_FLAGS
@@ -305,18 +315,20 @@ let
           "CXX_${stdenv.buildPlatform.config}"="${cxxForBuild}" \
           "CC_${rustHostTriple}"="${ccForHost}" \
           "CXX_${rustHostTriple}"="${cxxForHost}" \
-          "''${depKeys[@]}" \
+          ''${depKeys:+"''${depKeys[@]}"} \
           ${buildCmd}
       )
     '';
 
     buildPhase = ''
+      runHook preBuild
       runHook overrideCargoManifest
       runHook setBuildEnv
       runHook runCargo
+      runHook postBuild
     '';
 
-    outputs = ["out" "bin"];
+    outputs = ["bin" "out"];
 
     installPhase = ''
       runHook preInstall

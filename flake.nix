@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=release-23.05";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -15,7 +15,7 @@
   
   outputs = inputs: with inputs;
     let
-      overlays = import ./overlay (rust-overlay.overlay);
+      overlays = import ./overlay (rust-overlay.overlays.default);
       combinedOverlay = overlays.combined;
 
     in flake-utils.lib.eachDefaultSystem (system:
@@ -32,11 +32,12 @@
         # 2. Builds the rust package set, which contains all crates in your cargo workspace's dependency graph.
         # `makePackageSet` accepts the following arguments:
         # - `packageFun` (required): The generated `Cargo.nix` file, which returns the whole dependency graph.
+        # - `ignoreLockHash` (optional): Set to `true` to turn off the hash check between Cargo.lock and Cargo.nix.
         # - `workspaceSrc` (optional): Sources for the workspace can be provided or default to the current directory.
         # You must set some combination of `rustChannel` + `rustVersion` or `rustToolchain`.
         # - `rustToolchain` (optional): Completely override the toolchain.  Must provide rustc, cargo, rust-std, and rust-src components
         # - `rustChannel` (optional): "nightly" "stable" "beta".  To support legacy use, this can be a version when supplied alone.  If unspecified, defaults to "stable".
-        # - `rustVersion` (optional): "1.60.0" "2020-12-30".  If not supplied, "latest" will be assumed.
+        # - `rustVersion` (optional): "1.64.0" "2020-12-30".  If not supplied, "latest" will be assumed.
         # - `rustProfile` (optional): "minimal" or "default" usually.  "minimal" if not specified (for faster builds)
         # - `extraRustComponents` (optional): ["rustfmt" "clippy"].
         # - `packageOverrides` (optional):
@@ -59,6 +60,8 @@
         #     flags used for compilation of the package set. The value should be a list of the features to be turned on, without the leading "+",
         #     e.g. `[ "aes" "sse2" "ssse3" "sse4.1" ]`.  They will be prefixed with a "+", and comma delimited before passing through to rust.
         #     Crates that check for CPU features such as the `aes` crate will be evaluated against this argument.
+        #    cargoUnstableFlags (optional):
+        #     Passes "-Z" flags that affect cargo unstable features.  Example [ "build-std=panic_abort" "std" ]
         #    rustcLinkFlags (optional):
         #     Pass extra flags directly to rustc during non-build invocations
         #    rustcBuildFlags (optional):
@@ -69,7 +72,7 @@
         #     for more info.
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
-          rustVersion = "1.61.0";
+          rustVersion = "1.71.0";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
         };
         # `rustPkgs` now contains all crates in the dependency graph.
@@ -87,7 +90,7 @@
         # An example of a crates.io path:
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 
-        cargo2nixBin = (rustPkgs.workspace.cargo2nix {}).bin; # supports override & overrideAttrs
+        cargo2nix = (rustPkgs.workspace.cargo2nix {}); # supports override & overrideAttrs
 
         # The workspace defines a development shell with all of the dependencies
         # and environment settings necessary for a regular `cargo build`.
@@ -103,9 +106,9 @@
         # A shell for users to quickly bootstrap projects.  Contains cargo2nix
         # and the rustToolchain used to build this cargo2nix.
         bootstrapShell = pkgs.mkShell {
-          packages = [ cargo2nixBin ];
-          # inputsFrom = [ cargo2nixBin ];
-          nativeBuildInputs = cargo2nixBin.nativeBuildInputs;
+          packages = [ cargo2nix ];
+          # inputsFrom = [ cargo2nix ];
+          nativeBuildInputs = cargo2nix.nativeBuildInputs;
         };
 
       in rec {
@@ -120,7 +123,7 @@
         packages = rec {
           # nix build .#packages.x86_64-linux.cargo2nix
           # nix build .#cargo2nix
-          cargo2nix = cargo2nixBin;
+          inherit cargo2nix;
           # nix build
           default = cargo2nix;
 

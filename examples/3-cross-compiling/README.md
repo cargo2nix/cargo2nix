@@ -193,7 +193,7 @@ Create a new file called [`flake.nix`]:
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.0";
           packageFun = import ./Cargo.nix;
 
           # If your specific build target requires a difference between Rust and
@@ -210,7 +210,7 @@ Create a new file called [`flake.nix`]:
         packages = {
           # nix build .#cross-compiling
           # nix build .#packages.x86_64-linux.cross-compiling
-          cross-compiling = (rustPkgs.workspace.cross-compiling {}).bin;
+          cross-compiling = (rustPkgs.workspace.cross-compiling {});
           # nix build
           default = packages.cross-compiling;
         };

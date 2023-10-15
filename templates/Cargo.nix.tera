@@ -16,16 +16,25 @@ args@{
   target ? null,
   codegenOpts ? null,
   profileOpts ? null,
+  cargoUnstableFlags ? null,
   rustcLinkFlags ? null,
   rustcBuildFlags ? null,
   mkRustCrate,
   rustLib,
   lib,
   workspaceSrc,
+  ignoreLockHash,
 }:
 let
+  nixifiedLockHash = "{{ cargo_lock_hash }}";
   workspaceSrc = if args.workspaceSrc == null then ./. else args.workspaceSrc;
-in let
+  currentLockHash = builtins.hashFile "sha256" (workspaceSrc + /Cargo.lock);
+  lockHashIgnored = if ignoreLockHash
+                  then builtins.trace "Ignoring lock hash" ignoreLockHash
+                  else ignoreLockHash;
+in if !lockHashIgnored && (nixifiedLockHash != currentLockHash) then
+  throw ("Cargo.nix ${nixifiedLockHash} is out of sync with Cargo.lock ${currentLockHash}")
+else let
   inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit fetchCrateAlternativeRegistry expandFeatures decideProfile genDrvsByProfile;
   profilesByName = {
   {%- for name, profile in profiles %}
@@ -35,7 +44,7 @@ in let
   rootFeatures' = expandFeatures rootFeatures;
   overridableMkRustCrate = f:
     let
-      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures target profileOpts codegenOpts rustcLinkFlags rustcBuildFlags; } // (f profileName)));
+      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags; } // (f profileName)));
     in { compileMode ? null, profileName ? decideProfile compileMode release }:
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in
@@ -109,7 +118,7 @@ in
       {%- else %}
         {%- set attribute = dep.extern_name -%}
       {%- endif %}
-      {{ attribute }} = {{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }};
+      {{ attribute }} = ({{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }}).out;
     {%- endfor %}
     };
     {%- endif %}
@@ -129,7 +138,7 @@ in
       {%- else %}
         {%- set attribute = dep.extern_name -%}
       {%- endif %}
-      {{ attribute }} = {{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }};
+      {{ attribute }} = ({{ package_set }}."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" {{ profile }}).out;
     {%- endfor %}
     };
     {%- endif %}
@@ -142,7 +151,7 @@ in
       {%- else %}
         {%- set attribute = dep.extern_name -%}
       {%- endif %}
-      {{ attribute }} = buildRustPackages."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" { profileName = "__noProfile"; };
+      {{ attribute }} = (buildRustPackages."{{ dep.registry }}".{{ dep.name }}."{{ dep.version }}" { profileName = "__noProfile"; }).out;
     {%- endfor %}
     };
     {%- endif %}

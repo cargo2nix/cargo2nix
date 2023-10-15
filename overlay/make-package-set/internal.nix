@@ -22,8 +22,10 @@
   target,
   codegenOpts ? null,
   profileOpts ? null,
+  cargoUnstableFlags ? [],
   rustcLinkFlags ? [],
   rustcBuildFlags ? [],
+  ignoreLockHash,
 }:
 lib.fix' (self:
   let
@@ -50,7 +52,7 @@ lib.fix' (self:
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
     packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts rustcLinkFlags rustcBuildFlags;
+      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags ignoreLockHash;
       inherit (stdenv) hostPlatform;
       mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
       rustLib = rustLib // {
@@ -70,7 +72,7 @@ lib.fix' (self:
 
   in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
     inherit rustPackages callPackage pkgs rustToolchain noBuild;
-    workspaceShell = workspaceShell { inherit pkgs noBuild rustToolchain; };
+    workspaceShell = workspaceShell { inherit pkgs rustPackages rustToolchain; };
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';
     __splicedPackages = defaultScope;

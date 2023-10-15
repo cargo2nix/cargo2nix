@@ -11,6 +11,7 @@ use crate::{platform, BoolExpr, Feature as FeatureStr, Optionality, ResolvedPack
 #[derive(Debug, Serialize)]
 pub struct BuildPlan {
     pub cargo2nix_version: String,
+    pub cargo_lock_hash: String,
     pub root_features: Vec<String>,
     pub profiles: BTreeMap<String, String>,
     pub workspace_members: Vec<Member>,
@@ -19,6 +20,7 @@ pub struct BuildPlan {
 
 impl BuildPlan {
     pub fn from_items(
+        cargo_lock_hash: String,
         root_pkgs: Vec<&'_ Package>,
         profiles: TomlProfile,
         rpkgs_by_id: BTreeMap<PackageId, ResolvedPackage<'_>>,
@@ -62,6 +64,7 @@ impl BuildPlan {
 
         Ok(BuildPlan {
             cargo2nix_version: env!("CARGO_PKG_VERSION").to_string(),
+            cargo_lock_hash,
             root_features,
             profiles,
             workspace_members,
@@ -136,7 +139,7 @@ fn to_registry_string(src_id: SourceId) -> String {
 fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
     let id = pkg.pkg.package_id();
 
-    let source = if id.source_id().is_default_registry() {
+    let source = if id.source_id().is_registry() {
         Source::CratesIo {
             sha256: pkg
                 .checksum

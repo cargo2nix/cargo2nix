@@ -26,7 +26,7 @@
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
-          rustVersion = "1.61.0";
+          rustVersion = "1.70.0";
           packageFun = import ./Cargo.nix;
         };
 
@@ -37,7 +37,7 @@
         packages = {
           # nix build .#hello-world
           # nix build .#packages.x86_64-linux.hello-world
-          hello-world = (rustPkgs.workspace.hello-world {}).bin;
+          hello-world = (rustPkgs.workspace.hello-world {});
           # nix build
           default = packages.hello-world; # rec
         };

@@ -4,7 +4,7 @@ use std::{
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     fs,
     io::{self, BufRead, Write},
-    path::Path,
+    path::PathBuf,
 };
 
 use anyhow::{anyhow, Context, Result};
@@ -22,8 +22,11 @@ use cargo::{
     util::important_paths::find_root_manifest_for_wd,
 };
 use cargo_platform::Platform;
+use clap::{Command, CommandFactory, Parser, ValueHint};
+use clap_complete::{generate, Generator, Shell};
 use colorify::colorify;
 use semver::{Version, VersionReq};
+use sha2::{Digest, Sha256};
 use tera::Tera;
 
 use crate::expr::BoolExpr;
@@ -40,32 +43,50 @@ type RootFeature<'a> = (PackageName<'a>, Feature<'a>);
 
 const VERSION_ATTRIBUTE_NAME: &str = "cargo2nixVersion";
 
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
-    if let Err(err) = try_main(&args) {
-        eprint!(colorify!(red_bold: "error: "));
-        eprintln!("{:#}", &err);
-        std::process::exit(1);
-    }
+#[derive(Parser, Debug, PartialEq)]
+#[command(about, author, long_about = None, version)]
+/// Granular caching, development shell, Nix & Rust integration
+struct Opt {
+    /// Optional workspace directory (default value: ./)
+    #[arg(value_name = "WORKSPACE_DIRECTORY", value_hint = ValueHint::DirPath)]
+    workspace_directory: Option<PathBuf>,
+    /// Generate a SHELL completion script
+    #[arg(long = "completions", value_enum)]
+    generator: Option<Shell>,
+    /// Output to filepath (default value: ./Cargo.nix)
+    #[arg(conflicts_with = "stdout", long, short, value_name = "FILEPATH", value_hint = ValueHint::FilePath)]
+    file: Option<PathBuf>,
+    /// Overwrite existing output filepath without prompting
+    #[arg(action, long, short)]
+    overwrite: bool,
+    /// Output to stdout
+    #[arg(conflicts_with = "file", action, long, short)]
+    stdout: bool,
 }
 
-fn try_main(args: &[&str]) -> Result<()> {
-    match &args[1..] {
-        ["--stdout"] | ["-s"] => generate_cargo_nix(io::stdout().lock()),
-        [] | ["--file"] | ["-f"] => write_to_file("Cargo.nix"),
-        ["--file", file] | ["-f", file] => write_to_file(file),
-        ["--help"] | ["-h"] => print_help(),
-        ["--version"] | ["-v"] => {
-            println!("{}", version());
-            Ok(())
-        }
-        _ => {
-            println!("Invalid arguments: {:?}", &args[1..]);
-            println!("\nTry again, with help: \n");
-            print_help()
-        }
+fn main() -> std::io::Result<()> {
+    let opt = Opt::parse();
+
+    if let Some(generator) = opt.generator {
+        let mut cmd = Opt::command();
+        eprintln!("Generating completion file for {:?}...", generator);
+        print_completions(generator, &mut cmd);
+        std::process::exit(0);
     }
+
+    let workspace_directory = opt.workspace_directory.unwrap_or(std::env::current_dir()?).canonicalize()?;
+    let file = opt.file.unwrap_or(PathBuf::from("./Cargo.nix"));
+
+    let rendered = generate_cargo_nix(&workspace_directory).expect("Error generating nix expressions");
+
+    if opt.stdout { write_to_stdout(&rendered).expect("Error writing to stdout"); }
+    else { write_to_file(&file, &rendered, &opt.overwrite).expect("Error writing to file"); }
+
+    Ok(())
+}
+
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 fn version() -> Version {
@@ -74,7 +95,7 @@ fn version() -> Version {
     Version::parse(env!("CARGO_PKG_VERSION")).unwrap()
 }
 
-fn read_version_attribute(path: &Path) -> Result<Version> {
+fn read_version_attribute(path: &PathBuf) -> Result<Version> {
     let file = fs::File::open(path).context(format!("Couldn't open file {}", path.display()))?;
     io::BufReader::new(file)
         .lines()
@@ -88,14 +109,16 @@ fn read_version_attribute(path: &Path) -> Result<Version> {
             }
             None
         })
-        .ok_or(anyhow!(
-            "valid {} not found in {}",
-            VERSION_ATTRIBUTE_NAME,
-            path.display()
-        ))
+        .ok_or_else(|| {
+            anyhow!(
+                "valid {} not found in {}",
+                VERSION_ATTRIBUTE_NAME,
+                path.display()
+            )
+        })
 }
 
-fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
+fn version_req(path: &PathBuf) -> Result<(VersionReq, Version)> {
     let version = read_version_attribute(path)?;
     let req = format!(">={}.{}", version.major, version.minor);
     VersionReq::parse(&req)
@@ -104,20 +127,8 @@ fn version_req(path: &Path) -> Result<(VersionReq, Version)> {
         .map(|req| (req, version))
 }
 
-fn print_help() -> Result<()> {
-    println!("cargo2nix-{}\n", version());
-    println!("$ cargo2nix                        # Print the help");
-    println!("$ cargo2nix -s,--stdout            # Output to stdout");
-    println!("$ cargo2nix -f,--file              # Output to Cargo.nix");
-    println!("$ cargo2nix -f,--file <file>       # Output to the given file");
-    println!("$ cargo2nix -v,--version           # Print version of cargo2nix");
-    println!("$ cargo2nix -h,--help              # Print the help");
-    Ok(())
-}
-
-fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
-    let path = file.as_ref();
-    if path.exists() {
+fn write_to_file(path: &PathBuf, rendered: &str, overwrite: &bool) -> Result<()> {
+    if !overwrite && path.exists() {
         let (vers_req, ver) = version_req(path)?;
         if !vers_req.matches(&version()) {
             let mut message = format!(
@@ -160,7 +171,7 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
         .tempfile()
         .context("could not create new temporary file")?;
 
-    generate_cargo_nix(&mut temp_file)?;
+    write!(temp_file, "{}", rendered)?;
 
     if let Err(err) = temp_file.persist(path) {
         let (_, temp_path) = err.file.keep()?;
@@ -171,28 +182,47 @@ fn write_to_file(file: impl AsRef<Path>) -> Result<()> {
     Ok(())
 }
 
-fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
+fn write_to_stdout(rendered: &str) -> Result<()> {
+    write!(io::stdout().lock(), "{}", rendered)?;
+    Ok(())
+}
+
+fn generate_cargo_nix(workspace_directory: &PathBuf) -> Result<String> {
     let config = {
         let mut config = cargo::Config::default()?;
         config.configure(0, true, None, false, true, false, &None, &[], &[])?;
         config
     };
 
-    let root_manifest_path = find_root_manifest_for_wd(config.cwd())?;
+    let root_manifest_path = find_root_manifest_for_wd(workspace_directory)?;
+    let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
+    let mut hasher = Sha256::new();
+    io::copy(
+        &mut fs::File::open(cargo_lock_path).expect("Does the Cargo.lock file exist?"),
+        &mut hasher,
+    )?;
+    let cargo_lock_hash: String = format!("{:x}", hasher.finalize());
     let ws = Workspace::new(&root_manifest_path, &config)?;
-    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
 
     // To get a list of all packages with all features and dependencies that
     // might be enabled present, we first resolve with all features turned on
+    let requested_kinds = CompileKind::from_requested_targets(ws.config(), &[])?;
+    let target_data = RustcTargetData::new(&ws, &requested_kinds)?;
+
+    // Resolve entire workspace.
     let specs = Packages::All.to_package_id_specs(&ws)?;
+    let force_all = cargo::core::resolver::features::ForceAllTargets::Yes;
+
+    // Note that even with --filter-platform we end up downloading host dependencies as well,
+    // as that is the behavior of download_accessible.
     let resolved_all = resolve_ws_with_opts(
         &ws,
-        &rtd,
-        &[CompileKind::Host],
+        &target_data,
+        &requested_kinds,
         &CliFeatures::new_all(true),
         &specs,
         HasDevUnits::Yes,
-        ForceAllTargets::Yes,
+        force_all,
     )?;
 
     let pkgs_by_id = resolved_all
@@ -223,12 +253,12 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
 
     let resolved_no_features = resolve_ws_with_opts(
         &ws,
-        &rtd,
-        &[CompileKind::Host],
+        &target_data,
+        &requested_kinds,
         &no_features,
         &specs,
         HasDevUnits::Yes,
-        ForceAllTargets::Yes,
+        force_all,
     )?
     .targeted_resolve;
 
@@ -242,7 +272,14 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     mark_required(&resolved_no_features, &mut rpkgs_by_id)?;
 
     for pkg in root_pkgs.iter() {
-        mark_feature_activations(pkg, &ws, &resolved_no_features, &mut rpkgs_by_id)?;
+        mark_feature_activations(
+            pkg,
+            &ws,
+            &resolved_no_features,
+            &mut rpkgs_by_id,
+            &target_data,
+            &requested_kinds,
+        )?;
     }
 
     // Certain optionality cases are redundant, such as including an optional
@@ -250,10 +287,16 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     // Optionality::Required
     simplify_optionality(rpkgs_by_id.values_mut());
 
-    let root_manifest = fs::read(&root_manifest_path)?;
+    let root_manifest = fs::read_to_string(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
-    let plan = BuildPlan::from_items(root_pkgs, profiles, rpkgs_by_id, config.cwd())?;
+    let plan = BuildPlan::from_items(
+        cargo_lock_hash,
+        root_pkgs,
+        profiles,
+        rpkgs_by_id,
+        workspace_directory,
+    )?;
     let mut tera = Tera::default();
     tera.add_raw_template(
         "Cargo.nix.tera",
@@ -261,9 +304,8 @@ fn generate_cargo_nix(mut out: impl io::Write) -> Result<()> {
     )?;
     let context = tera::Context::from_serialize(plan)?;
     let rendered = tera.render("Cargo.nix.tera", &context)?;
-    write!(out, "{}", rendered)?;
 
-    Ok(())
+    Ok(rendered)
 }
 
 fn simplify_optionality<'a, 'b: 'a>(rpkgs: impl IntoIterator<Item = &'a mut ResolvedPackage<'b>>) {
@@ -327,14 +369,15 @@ fn mark_feature_activations<'a>(
     ws: &Workspace,
     resolved_no_features: &Resolve,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
+    target_data: &RustcTargetData,
+    compile_kinds: &[CompileKind],
 ) -> Result<()> {
     let root_pkg_name = root_pkg.name().as_str();
     let root_pkg_features = root_pkg.summary().features();
 
     let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
-    let rtd = RustcTargetData::new(&ws, &[CompileKind::Host])?;
 
-    for (feature, _) in root_pkg_features {
+    for feature in root_pkg_features.keys() {
         // resolve ws with just the target feature activated
         let just_this_feature = CliFeatures::from_command_line(
             &[feature.to_string()], // just the active feature
@@ -344,8 +387,8 @@ fn mark_feature_activations<'a>(
 
         let just_feature_ws = resolve_ws_with_opts(
             ws,
-            &rtd,
-            &[CompileKind::Host],
+            &target_data,
+            &compile_kinds,
             &just_this_feature,
             &[spec.clone()],
             HasDevUnits::Yes,
@@ -371,7 +414,7 @@ fn mark_feature_activations<'a>(
                     !deps_no_features.contains(&rpkg.pkg.package_id())
                         && deps_just_feature.contains(&rpkg.pkg.package_id())
                 })
-                .for_each(|rpkg| rpkg.optionality.activated_by((&root_pkg_name, feature)));
+                .for_each(|rpkg| rpkg.optionality.activated_by((root_pkg_name, feature)));
 
             let features_no_features: HashSet<_> = resolved_no_features
                 .features(rpkg.pkg.package_id())
@@ -392,7 +435,7 @@ fn mark_feature_activations<'a>(
                     !features_no_features.contains(&f.to_string())
                         && features_just_feature.contains(&f.to_string())
                 })
-                .for_each(|(_f, optionality)| optionality.activated_by((&root_pkg_name, feature)));
+                .for_each(|(_f, optionality)| optionality.activated_by((root_pkg_name, feature)));
         }
     }
 
@@ -419,12 +462,14 @@ impl<'a> ResolvedPackage<'a> {
             .filter_map(|(dep_id, deps)| {
                 let dep_pkg = pkgs_by_id[&dep_id];
                 let extern_name = resolve
-                    .extern_crate_name(
+                    .extern_crate_name_and_dep_name(
                         pkg.package_id(),
                         dep_id,
                         dep_pkg.targets().iter().find(|t| t.is_lib())?,
                     )
-                    .ok()?;
+                    .ok()?
+                    .0
+                    .to_string();
 
                 Some(
                     deps.iter()
@@ -445,7 +490,6 @@ impl<'a> ResolvedPackage<'a> {
                 match (dep.platform(), rdep.platforms.as_mut()) {
                     (Some(platform), Some(platforms)) => {
                         platforms.insert(platform);
-                        () // match other branch type
                     }
                     (None, _) => rdep.platforms = None,
                     _ => {}

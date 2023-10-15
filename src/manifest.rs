@@ -5,13 +5,13 @@ use std::collections::BTreeMap;
 
 pub type TomlProfile = BTreeMap<String, Table>;
 
-pub fn extract_profiles(manifest_contents: &[u8]) -> TomlProfile {
+pub fn extract_profiles(manifest_contents: &str) -> TomlProfile {
     #[derive(Debug, Deserialize)]
     struct Manifest {
         pub profile: Option<TomlProfile>,
     }
 
-    toml::from_slice::<Manifest>(manifest_contents)
+    toml::from_str::<Manifest>(manifest_contents)
         .ok()
         .and_then(|m| m.profile)
         .map(|mut profiles_by_name| {
