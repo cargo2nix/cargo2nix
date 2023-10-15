@@ -287,7 +287,7 @@ fn generate_cargo_nix(workspace_directory: &PathBuf) -> Result<String> {
     // Optionality::Required
     simplify_optionality(rpkgs_by_id.values_mut());
 
-    let root_manifest = fs::read(&root_manifest_path)?;
+    let root_manifest = fs::read_to_string(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
     let plan = BuildPlan::from_items(

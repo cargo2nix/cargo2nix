@@ -5,16 +5,16 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-cargo = "0.65.0"
-cargo-platform = "0.1.2"
-clap = { version = "4.0", features = ["derive"] }
-clap_complete = { version = "4.0" }
+cargo = "0.73.1"
+cargo-platform = "0.1.4"
+clap = { version = "4.4.6", features = ["derive"] }
+clap_complete = { version = "4.4.3" }
 colorify = "0.2.3"
-anyhow = { version = "1.0.65", features = ["backtrace"] }
+anyhow = { version = "1.0.75", features = ["backtrace"] }
 pathdiff = "0.2.1"
-semver = "1.0.14"
-serde = { version = "1.0.145", features = ["derive"] }
-sha2 = "0.10.6"
-tempfile = "3.3.0"
-tera = { version = "1.17.1", default-features = false }
-toml = "0.5.9"
+semver = "1.0.20"
+serde = { version = "1.0.189", features = ["derive"] }
+sha2 = "0.10.8"
+tempfile = "3.8.0"
+tera = { version = "1.19.1", default-features = false }
+toml = "0.8.2"
