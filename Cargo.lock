@@ -154,9 +154,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bitflags"
-version = "2.4.0"
+version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4682ae6287fcf752ecaabbfcc7b6f9b72aa33933dc23a554d853aea8eea8635"
+checksum = "327762f6e5a765692301e5bb513e0d9fef63be86bbc14528052b1cd3e6f03e07"
 
 [[package]]
 name = "bitmaps"
@@ -951,7 +951,7 @@ version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e874f41437441c02991dcea76990b9058fadfc54b02ab4dd06ab2218af43897"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "bstr",
  "gix-path",
  "libc",
@@ -1048,7 +1048,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd0ade1e80ab1f079703d1824e1daf73009096386aa7fd2f0477f6e4ac0a558e"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "bstr",
  "gix-features",
  "gix-path",
@@ -1093,7 +1093,7 @@ version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "616ba958fabfb11263fa042c35690d48a6c7be4e9277e2c7e24ff263b3fe7b82"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "bstr",
  "btoi",
  "filetime",
@@ -1137,7 +1137,7 @@ version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "945c3ef1e912e44a5f405fc9e924edf42000566a1b257ed52cb1293300f6f08c"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "gix-commitgraph",
  "gix-hash",
  "gix-object",
@@ -1339,7 +1339,7 @@ version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9615cbd6b456898aeb942cd75e5810c382fbfc48dbbff2fa23ebd2d33dcbe9c7"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "gix-path",
  "libc",
  "windows",
@@ -2254,7 +2254,7 @@ version = "0.38.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "745ecfa778e66b2b63c88a61cb36e0eea109e803b0b86bf9879fbc77c70e86ed"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "errno",
  "libc",
  "linux-raw-sys",
