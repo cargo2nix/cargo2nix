@@ -12,6 +12,7 @@ use cargo::{
     core::{
         compiler::{CompileKind, RustcTargetData},
         dependency::DepKind,
+        registry::PackageRegistry,
         resolver::{
             features::{ForceAllTargets, HasDevUnits},
             CliFeatures, Resolve,
