@@ -78,14 +78,20 @@ fn main() -> std::io::Result<()> {
         std::process::exit(0);
     }
 
-    let workspace_directory = opt.workspace_directory.unwrap_or(std::env::current_dir()?).canonicalize()?;
+    let workspace_directory = opt
+        .workspace_directory
+        .unwrap_or(std::env::current_dir()?)
+        .canonicalize()?;
     let file = opt.file.unwrap_or(PathBuf::from("./Cargo.nix"));
 
     let rendered = generate_cargo_nix(&workspace_directory, opt.locked)
         .expect("Error generating nix expressions");
 
-    if opt.stdout { write_to_stdout(&rendered).expect("Error writing to stdout"); }
-    else { write_to_file(&file, &rendered, &opt.overwrite).expect("Error writing to file"); }
+    if opt.stdout {
+        write_to_stdout(&rendered).expect("Error writing to stdout");
+    } else {
+        write_to_file(&file, &rendered, &opt.overwrite).expect("Error writing to file");
+    }
 
     Ok(())
 }
@@ -200,13 +206,6 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
     };
 
     let root_manifest_path = find_root_manifest_for_wd(workspace_directory)?;
-    let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
-    let mut hasher = Sha256::new();
-    io::copy(
-        &mut fs::File::open(cargo_lock_path).expect("Does the Cargo.lock file exist?"),
-        &mut hasher,
-    )?;
-    let cargo_lock_hash: String = format!("{:x}", hasher.finalize());
     let ws = Workspace::new(&root_manifest_path, &config)?;
 
     if !locked {
@@ -310,6 +309,13 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
     let root_manifest = fs::read_to_string(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
+    let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
+    let mut hasher = Sha256::new();
+    io::copy(
+        &mut fs::File::open(cargo_lock_path).expect("Does the Cargo.lock file exist?"),
+        &mut hasher,
+    )?;
+    let cargo_lock_hash: String = format!("{:x}", hasher.finalize());
     let plan = BuildPlan::from_items(
         cargo_lock_hash,
         root_pkgs,
