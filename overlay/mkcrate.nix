@@ -164,6 +164,7 @@ let
 
     extraRustcBuildFlags = rustcBuildFlags;
 
+    # If the crate is a workspace, reduce it to a crate of just a single workspace
     findCrate =  ''
       . ${./mkcrate-utils.sh}
       manifest_path=$(cargoRelativeManifest ${name})
@@ -171,11 +172,13 @@ let
 
       if [ $manifest_path != "Cargo.toml" ]; then
         shopt -s globstar
-        mv Cargo.toml Cargo.toml.workspace
         if [[ -d .cargo ]]; then
           mv .cargo .cargo.workspace
         fi
-        cd "$manifest_dir"
+
+        mv Cargo.toml Cargo.workspace.toml
+        sanitizeTomlForRemarshal Cargo.workspace.toml
+        reduceWorkspaceToml Cargo.workspace.toml Cargo.toml "$manifest_dir"
       fi
     '';
 
@@ -223,6 +226,9 @@ let
     };
 
     overrideCargoManifest = ''
+      manifest_path=$(cargoRelativeManifest ${name})
+      manifest_dir=''${manifest_path%Cargo.toml}
+
       echo "[[package]]" > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
@@ -231,9 +237,11 @@ let
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
 
+      if [ -n "$manifest_dir" ]; then pushd $manifest_dir; fi
       mv Cargo.toml Cargo.original.toml
       sanitizeTomlForRemarshal Cargo.original.toml
-      removeTomlDeps Cargo.original.toml Cargo.toml "$manifestPatch"
+      reducePackageToml Cargo.original.toml Cargo.toml "$manifestPatch"
+      if [ -n "$manifest_dir" ]; then popd; fi
     '';
 
     setBuildEnv = ''
@@ -242,13 +250,13 @@ let
 
       if (( MINOR_RUSTC_VERSION < 41 )); then
         isProcMacro="$(
-          remarshal -if toml -of json Cargo.original.toml \
+          remarshal -if toml -of json "''${manifest_dir}Cargo.original.toml" \
           | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
         )"
       fi
 
       crateName="$(
-        remarshal -if toml -of json Cargo.original.toml \
+        remarshal -if toml -of json "''${manifest_dir}Cargo.original.toml" \
         | jq -r 'if .lib."name" then .lib."name" else "${replaceStrings ["-"] ["_"] name}" end' \
       )"
 
@@ -311,7 +319,7 @@ let
       runHook preInstall
     '' + (if compileMode != "doctest" then ''
       mkdir -p $out/lib
-      cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
+      cargo_links="$(remarshal -if toml -of json "''${manifest_dir}Cargo.original.toml" | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
         install_crate ${rustHostTriple} ${if release then "release" else "debug"}
       else

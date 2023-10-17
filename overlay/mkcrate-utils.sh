@@ -334,20 +334,38 @@ sanitizeTomlForRemarshal () {
     done;
 }
 
-removeTomlDeps () {
+reducePackageToml () {
+    # This function needs to remove any package keys that conflict with
+    # dependency control or target and profile configuration.
+    # https://doc.rust-lang.org/cargo/reference/manifest.html
     local manifestPatch="$3"
+    local registry="$registry"
+    remarshal -if toml -of json "$1" \
+      | jq 'del(."cargo-features",
+                .replace,
+                .patch,
+                .dependencies,
+                ."build-dependencies",
+                .["dev-dependencies"],
+                .target)
+            + '"$manifestPatch" \
+            | jq 'del(.[][] | nulls)' \
+            | remarshal -if json -of toml > "$2"
+}
+
+reduceWorkspaceToml () {
+    # This function needs to remove any workspace keys that conflict with
+    # dependency control or target and profile configuration.
+    # https://doc.rust-lang.org/cargo/reference/workspaces.html
+    local crate_path="$3"
     remarshal -if toml -of json $1 \
-      | jq "{ package: .package
-            , workspace: .workspace
-            , lib: .lib
-            , bin: .bin
-            , test: .test
-            , example: .example
-            , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-            }
-            | with_entries(select( .value != null )) \
-            | del( .package.workspace )
-            + $manifestPatch" \
+      | jq ".workspace.members = [\"$crate_path\"]
+            | del( .workspace.dependencies?,
+                   .workspace.\"default-members\",
+                   .workspace.exclude?,
+                   .patch,
+                   .replace)
+            | with_entries(select( .value != null ))" \
       | jq "del(.[][] | nulls)" \
       | remarshal -if json -of toml > $2
 }
