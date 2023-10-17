@@ -317,3 +317,55 @@ cargoRelativeManifest() {
 
     echo "${manifest_path#"$workspace_path"}"
 }
+
+sanitizeTomlForRemarshal () {
+    # Remarshal was failing on table names of the form:
+    # [key."cfg(foo = \"a\", bar = \"b\"))".path]
+    # The regex to find or deconstruct these strings must find, in order,
+    # these components: open bracket, open quote, open escaped quote, and
+    # their closing pairs.  Because each quoted path can contain multiple
+    # quote escape pairs, a loop is employed to match the first quote escape,
+    # which the sed will replace with a single quote equivalent until all
+    # escaped quote pairs are replaced.  The grep regex is identical to the
+    # sed regex but does not destructure the match into groups for
+    # restructuring in the replacement.
+    while grep '\[[^"]*"[^\\"]*\\"[^\\"]*\\"[^"]*[^]]*\]' $1; do
+        sed -i -r 's/\[([^"]*)"([^\\"]*)\\"([^\\"]*)\\"([^"]*)"([^]]*)\]/[\1"\2'"'"'\3'"'"'\4"\5]/g' $1
+    done;
+}
+
+reducePackageToml () {
+    # This function needs to remove any package keys that conflict with
+    # dependency control or target and profile configuration.
+    # https://doc.rust-lang.org/cargo/reference/manifest.html
+    local manifestPatch="$3"
+    local registry="$registry"
+    remarshal -if toml -of json "$1" \
+      | jq 'del(."cargo-features",
+                .replace,
+                .patch,
+                .dependencies,
+                ."build-dependencies",
+                .["dev-dependencies"],
+                .target)
+            + '"$manifestPatch" \
+            | jq 'del(.[][] | nulls)' \
+            | remarshal -if json -of toml > "$2"
+}
+
+reduceWorkspaceToml () {
+    # This function needs to remove any workspace keys that conflict with
+    # dependency control or target and profile configuration.
+    # https://doc.rust-lang.org/cargo/reference/workspaces.html
+    local crate_path="$3"
+    remarshal -if toml -of json $1 \
+      | jq ".workspace.members = [\"$crate_path\"]
+            | del( .workspace.dependencies?,
+                   .workspace.\"default-members\",
+                   .workspace.exclude?,
+                   .patch,
+                   .replace)
+            | with_entries(select( .value != null ))" \
+      | jq "del(.[][] | nulls)" \
+      | remarshal -if json -of toml > $2
+}

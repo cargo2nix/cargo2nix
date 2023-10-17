@@ -12,13 +12,14 @@ use cargo::{
     core::{
         compiler::{CompileKind, RustcTargetData},
         dependency::DepKind,
+        registry::PackageRegistry,
         resolver::{
             features::{ForceAllTargets, HasDevUnits},
             CliFeatures, Resolve,
         },
         Package, PackageId, PackageIdSpec, Workspace,
     },
-    ops::{resolve_ws_with_opts, Packages},
+    ops::{resolve_with_previous, resolve_ws_with_opts, Packages},
     util::important_paths::find_root_manifest_for_wd,
 };
 use cargo_platform::Platform;
@@ -59,6 +60,9 @@ struct Opt {
     /// Overwrite existing output filepath without prompting
     #[arg(action, long, short)]
     overwrite: bool,
+    /// Don't attempt to update the lockfile
+    #[arg(action, long, short, value_name = "LOCKED")]
+    locked: bool,
     /// Output to stdout
     #[arg(conflicts_with = "file", action, long, short)]
     stdout: bool,
@@ -74,13 +78,20 @@ fn main() -> std::io::Result<()> {
         std::process::exit(0);
     }
 
-    let workspace_directory = opt.workspace_directory.unwrap_or(std::env::current_dir()?).canonicalize()?;
+    let workspace_directory = opt
+        .workspace_directory
+        .unwrap_or(std::env::current_dir()?)
+        .canonicalize()?;
     let file = opt.file.unwrap_or(PathBuf::from("./Cargo.nix"));
 
-    let rendered = generate_cargo_nix(&workspace_directory).expect("Error generating nix expressions");
+    let rendered = generate_cargo_nix(&workspace_directory, opt.locked)
+        .expect("Error generating nix expressions");
 
-    if opt.stdout { write_to_stdout(&rendered).expect("Error writing to stdout"); }
-    else { write_to_file(&file, &rendered, &opt.overwrite).expect("Error writing to file"); }
+    if opt.stdout {
+        write_to_stdout(&rendered).expect("Error writing to stdout");
+    } else {
+        write_to_file(&file, &rendered, &opt.overwrite).expect("Error writing to file");
+    }
 
     Ok(())
 }
@@ -187,22 +198,30 @@ fn write_to_stdout(rendered: &str) -> Result<()> {
     Ok(())
 }
 
-fn generate_cargo_nix(workspace_directory: &PathBuf) -> Result<String> {
+fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<String> {
     let config = {
         let mut config = cargo::Config::default()?;
-        config.configure(0, true, None, false, true, false, &None, &[], &[])?;
+        config.configure(0, false, None, false, locked, false, &None, &[], &[])?;
         config
     };
 
     let root_manifest_path = find_root_manifest_for_wd(workspace_directory)?;
-    let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
-    let mut hasher = Sha256::new();
-    io::copy(
-        &mut fs::File::open(cargo_lock_path).expect("Does the Cargo.lock file exist?"),
-        &mut hasher,
-    )?;
-    let cargo_lock_hash: String = format!("{:x}", hasher.finalize());
     let ws = Workspace::new(&root_manifest_path, &config)?;
+
+    if !locked {
+        let mut registry = PackageRegistry::new(ws.config())?;
+        let mut resolve = resolve_with_previous(
+            &mut registry,
+            &ws,
+            &CliFeatures::new_all(true),
+            HasDevUnits::Yes,
+            None,
+            None,
+            &[],
+            true,
+        )?;
+        cargo::ops::write_pkg_lockfile(&ws, &mut resolve)?;
+    }
 
     // To get a list of all packages with all features and dependencies that
     // might be enabled present, we first resolve with all features turned on
@@ -290,6 +309,13 @@ fn generate_cargo_nix(workspace_directory: &PathBuf) -> Result<String> {
     let root_manifest = fs::read_to_string(&root_manifest_path)?;
     let profiles = manifest::extract_profiles(&root_manifest);
 
+    let cargo_lock_path = root_manifest_path.clone().with_file_name("Cargo.lock");
+    let mut hasher = Sha256::new();
+    io::copy(
+        &mut fs::File::open(cargo_lock_path).expect("Does the Cargo.lock file exist?"),
+        &mut hasher,
+    )?;
+    let cargo_lock_hash: String = format!("{:x}", hasher.finalize());
     let plan = BuildPlan::from_items(
         cargo_lock_hash,
         root_pkgs,
