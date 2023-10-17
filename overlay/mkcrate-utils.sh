@@ -317,3 +317,37 @@ cargoRelativeManifest() {
 
     echo "${manifest_path#"$workspace_path"}"
 }
+
+sanitizeTomlForRemarshal () {
+    # Remarshal was failing on table names of the form:
+    # [key."cfg(foo = \"a\", bar = \"b\"))".path]
+    # The regex to find or deconstruct these strings must find, in order,
+    # these components: open bracket, open quote, open escaped quote, and
+    # their closing pairs.  Because each quoted path can contain multiple
+    # quote escape pairs, a loop is employed to match the first quote escape,
+    # which the sed will replace with a single quote equivalent until all
+    # escaped quote pairs are replaced.  The grep regex is identical to the
+    # sed regex but does not destructure the match into groups for
+    # restructuring in the replacement.
+    while grep '\[[^"]*"[^\\"]*\\"[^\\"]*\\"[^"]*[^]]*\]' $1; do
+        sed -i -r 's/\[([^"]*)"([^\\"]*)\\"([^\\"]*)\\"([^"]*)"([^]]*)\]/[\1"\2'"'"'\3'"'"'\4"\5]/g' $1
+    done;
+}
+
+removeTomlDeps () {
+    local manifestPatch="$3"
+    remarshal -if toml -of json $1 \
+      | jq "{ package: .package
+            , workspace: .workspace
+            , lib: .lib
+            , bin: .bin
+            , test: .test
+            , example: .example
+            , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
+            }
+            | with_entries(select( .value != null )) \
+            | del( .package.workspace )
+            + $manifestPatch" \
+      | jq "del(.[][] | nulls)" \
+      | remarshal -if json -of toml > $2
+}
