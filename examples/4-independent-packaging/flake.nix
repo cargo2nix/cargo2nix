@@ -6,11 +6,10 @@
     flake-utils.follows = "cargo2nix/flake-utils";
     nixpkgs.follows = "cargo2nix/nixpkgs";
     rust-analyzer-src = {
-      url = "github:rust-lang/rust-analyzer/?rev=2e9f1204ca01c3e20898d4a67c8b84899d394a88";
+      url = "github:rust-lang/rust-analyzer/?rev=b1f89a84ab350091e6c20cfe30c2fab8d76b80e4";
       flake = false;
     };
   };
-
   outputs = inputs: with inputs;
 
     # Build the output set for each default system, resulting in paths such as:
@@ -27,7 +26,7 @@
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           # rust toolchain version
-          rustVersion = "1.70.0";
+          rustVersion = "1.73.0";
           # nixified Cargo.lock
           packageFun = import ./Cargo.nix;
           ignoreLockHash = true;
