@@ -37,7 +37,7 @@
         # You must set some combination of `rustChannel` + `rustVersion` or `rustToolchain`.
         # - `rustToolchain` (optional): Completely override the toolchain.  Must provide rustc, cargo, rust-std, and rust-src components
         # - `rustChannel` (optional): "nightly" "stable" "beta".  To support legacy use, this can be a version when supplied alone.  If unspecified, defaults to "stable".
-        # - `rustVersion` (optional): "1.64.0" "2020-12-30".  If not supplied, "latest" will be assumed.
+        # - `rustVersion` (optional): "1.75.0" "2023-12-30".  If not supplied, "latest" will be assumed.
         # - `rustProfile` (optional): "minimal" or "default" usually.  "minimal" if not specified (for faster builds)
         # - `extraRustComponents` (optional): ["rustfmt" "clippy"].
         # - `packageOverrides` (optional):
@@ -72,7 +72,7 @@
         #     for more info.
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
-          rustVersion = "1.71.0";
+          rustVersion = "1.75.0";
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all;
         };
         # `rustPkgs` now contains all crates in the dependency graph.
