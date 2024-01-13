@@ -374,7 +374,7 @@ fn mark_required(
     for id in resolved_no_features.iter() {
         let rpkg = rpkgs_by_id.get_mut(&id).unwrap();
         for feature in resolved_no_features.features(id).iter() {
-            // unwrap doen't fail because it's from resolved_all_features
+            // unwrap doesn't fail because it's from resolved_all_features
             *(rpkg.features.get_mut(feature.as_str()).unwrap()) = Optionality::Required;
         }
 
