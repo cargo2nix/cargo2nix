@@ -6,7 +6,7 @@
     flake-utils.follows = "cargo2nix/flake-utils";
     nixpkgs.follows = "cargo2nix/nixpkgs";
     rust-analyzer-src = {
-      url = "github:rust-lang/rust-analyzer/?rev=b1f89a84ab350091e6c20cfe30c2fab8d76b80e4";
+      url = "github:rust-lang/rust-analyzer/?rev=9db515503f11bda7812cdfb9c2839f70f4cb1fdd";
       flake = false;
     };
   };
