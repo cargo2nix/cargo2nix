@@ -75,7 +75,11 @@ in
       {%- endif -%}
     };
     {%- elif crate.source.Local.path %}
+    {%- if crate.source.Local.path == "." %}
     src = fetchCrateLocal workspaceSrc;
+    {%- else %}
+    src = fetchCrateLocal (workspaceSrc + "/{{ crate.source.Local.path }}");
+    {%- endif %}
     {%- elif crate.source.Registry.index %}
     src = fetchCrateAlternativeRegistry {
       index = {{ crate.source.Registry.index }};
@@ -85,7 +89,7 @@ in
     };
     {%- else %}
     # ERROR: Could not resolve source: {{ crate.source | safe | json_encode() }}
-    {%- endif -%}
+    {% endif -%}
 
     {%- if crate.features | length > 0 %}
     features = builtins.concatLists [
