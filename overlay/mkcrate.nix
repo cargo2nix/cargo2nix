@@ -164,6 +164,24 @@ let
 
     extraRustcBuildFlags = rustcBuildFlags;
 
+    # If the crate is a workspace, reduce it to a crate of just a single workspace
+    findCrate =  ''
+      . ${./mkcrate-utils.sh}
+      manifest_path=$(cargoRelativeManifest ${name})
+      manifest_dir=''${manifest_path%Cargo.toml}
+
+      if [ $manifest_path != "Cargo.toml" ]; then
+        shopt -s globstar
+        if [[ -d .cargo ]]; then
+          mv .cargo .cargo.workspace
+        fi
+
+        mv Cargo.toml Cargo.workspace.toml
+        sanitizeTomlForRemarshal Cargo.workspace.toml
+        reduceWorkspaceToml Cargo.workspace.toml Cargo.toml "$manifest_dir"
+      fi
+    '';
+
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
@@ -197,6 +215,7 @@ let
 
     configurePhase = ''
       runHook preConfigure
+      runHook findCrate
       runHook configureCargo
       runHook postConfigure
     '';
@@ -207,9 +226,9 @@ let
     };
 
     overrideCargoManifest = ''
-      . ${./mkcrate-utils.sh}
+      manifest_path=$(cargoRelativeManifest ${name})
+      manifest_dir=''${manifest_path%Cargo.toml}
 
-      # Synthesize a lock file
       echo "[[package]]" > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
@@ -218,23 +237,11 @@ let
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
 
-      manifest_path=$(cargoRelativeManifest ${name})
-      manifest_dir=''${manifest_path%Cargo.toml}
-
-      # Rewrite the crate's toml
       if [ -n "$manifest_dir" ]; then pushd $manifest_dir; fi
       mv Cargo.toml Cargo.original.toml
       sanitizeTomlForRemarshal Cargo.original.toml
       reducePackageToml Cargo.original.toml Cargo.toml "$manifestPatch"
       if [ -n "$manifest_dir" ]; then popd; fi
-
-      # If the crate is a workspace, reduce it to a crate of just a workspace of a single crate
-      if [ $manifest_path != "Cargo.toml" ]; then
-        mv Cargo.toml Cargo.workspace.toml
-        sanitizeTomlForRemarshal Cargo.workspace.toml
-        reduceWorkspaceToml Cargo.workspace.toml Cargo.toml "$manifest_dir"
-      fi
-
     '';
 
     setBuildEnv = ''
