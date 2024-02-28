@@ -30,6 +30,8 @@ let
   lockHashIgnored = if ignoreLockHash
                   then builtins.trace "Ignoring lock hash" ignoreLockHash
                   else ignoreLockHash;
+  inherit (rustLib) rustTriple;
+  rustHostTriple = if (target != null) then target else rustTriple hostPlatform;
 in if !lockHashIgnored && (nixifiedLockHash != currentLockHash) then
   throw ("Cargo.nix ${nixifiedLockHash} is out of sync with Cargo.lock ${currentLockHash}")
 else let
