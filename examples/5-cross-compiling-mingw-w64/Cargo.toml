@@ -1,0 +1,8 @@
+[package]
+name = "hello-world"
+version = "0.1.0"
+authors = ["Eyal Kalderon <eyal.kalderon@tenx.tech>"]
+edition = "2018"
+
+[dependencies]
+windows = { version = "0.54.0", features = ["UI"] }

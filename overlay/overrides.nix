@@ -56,6 +56,45 @@ let
       libkrb5 = pkgs.libkrb5.override { inherit openssl; };
     };
 
+  # Copy shipped implib.
+  # This is necessary for winapi-rs and windows crates.
+  copyShippedWin32Implib = crateName: makeOverride {
+      name = "${crateName}";
+      overrideAttrs = drv: {
+        postFixup = ''
+          ${drv.postFixup or ""}
+          jq -rR 'fromjson?
+            | select(.reason == "build-script-executed")
+            | (.linked_paths) | .[]
+            | select(startswith("native=/build/")) | sub("native=/build/";"") ' \
+          < .cargo-build-output >> /build/.copy-shipped-implib
+          cat /build/.copy-shipped-implib | while read path; do
+            parent=$(dirname "$out/lib/native/$path")
+            mkdir -p "$parent"
+            cp -r "/build/$path" "$parent"
+            echo "-L native=$out/lib/native/$path" >> $out/lib/.link-flags
+          done
+        '';
+      };
+    };
+  # TODO: only windows_x86_64_gnu and winapi-x86_64-pc-windows-gnu are tested.
+  allWin32ImplibCrates = [
+    "winapi-x86_64-pc-windows-gnu"
+    "winapi_i686_pc_windows_gnu"
+    "windows_aarch64_gnullvm"
+    "windows_aarch64_msvc"
+    "windows_i686_gnu"
+    "windows_i686_msvc"
+    "windows_x86_64_gnu"
+    "windows_x86_64_gnullvm"
+    "windows_x86_64_msvc"
+  ];
+  # convert array to dict
+  allWin32ImplibOverrides = builtins.listToAttrs (builtins.map (crateName: {
+    name = "copyShippedWin32Implib-${crateName}";
+    value = copyShippedWin32Implib crateName;
+  }) allWin32ImplibCrates);
+
 in rec {
   patches = { inherit patchOpenssl patchCurl patchPostgresql joinOpenssl;};
 
@@ -81,7 +120,10 @@ in rec {
     reqwest
     ring
     zmq-sys
-  ];
+    FIXME-workaround-mcfgthread
+  ] 
+  ++ (builtins.attrValues allWin32ImplibOverrides)
+  ;
 
   capLints = makeOverride {
     registry = "registry+https://github.com/rust-lang/crates.io-index";
@@ -326,4 +368,12 @@ in rec {
       buildInputs = drv.buildInputs or [ ] ++ [ pkgs.zeromq ];
     };
   };
-}
+
+  # FIXME: This is a temporary workaround for upstream Rust not supporting mcfgthread thread model!
+  # See: https://github.com/cargo2nix/cargo2nix/issues/348
+  FIXME-workaround-mcfgthread = if pkgs.stdenv.hostPlatform.isWindows && pkgs.threadsCross.model == "mcf" 
+    then makeOverride{
+      overrideArgs = old: { rustcLinkFlags = old.rustcLinkFlags or [ ] ++ [ "-L" ../lib/mingw-w64 ]; };
+    }
+    else nullOverride;
+} // allWin32ImplibOverrides

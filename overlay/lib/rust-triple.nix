@@ -33,7 +33,7 @@ in {
   "mips64el-linux"          = "mips64el-unknown-linux-${abi}";
   "x86_64-darwin"           = "x86_64-apple-darwin";
   "i686-cygwin"             = "i686-pc-windows-${abi}";
-  "x86_64-cygwin"           = "x86_64-pc-windows-${abi}";
+  "x86_64-windows"          = "x86_64-pc-windows-${abi}";
   "x86_64-freebsd"          = "x86_64-unknown-freebsd";
   "wasm64-wasi"             = "wasm64-wasi"; # unsupported
   "wasm32-emscripten"       = "wasm32-unknown-emscripten";
