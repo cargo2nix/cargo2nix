@@ -63,15 +63,15 @@ let
       overrideAttrs = drv: {
         postFixup = ''
           ${drv.postFixup or ""}
-          jq -rR 'fromjson?
-            | select(.reason == "build-script-executed")
+          jq -rR "fromjson?
+            | select(.reason == \"build-script-executed\")
             | (.linked_paths) | .[]
-            | select(startswith("native=/build/")) | sub("native=/build/";"") ' \
-          < .cargo-build-output >> /build/.copy-shipped-implib
-          cat /build/.copy-shipped-implib | while read path; do
+            | select(startswith(\"native=''${NIX_BUILD_TOP}/\")) | sub(\"native=''${NIX_BUILD_TOP}/\";\"\") " \
+          < .cargo-build-output >> ''${NIX_BUILD_TOP}/.__copy__shipped__implib
+          cat ''${NIX_BUILD_TOP}/.__copy__shipped__implib | while read path; do
             parent=$(dirname "$out/lib/native/$path")
             mkdir -p "$parent"
-            cp -r "/build/$path" "$parent"
+            cp -r "''${NIX_BUILD_TOP}/$path" "$parent"
             echo "-L native=$out/lib/native/$path" >> $out/lib/.link-flags
           done
         '';
