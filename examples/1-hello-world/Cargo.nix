@@ -26,7 +26,7 @@ args@{
 let
   nixifiedLockHash = "86421e8411c52265e52f81b8472270ebd2bf444f999c0a881d1c544b4e8a0d29";
   workspaceSrc = if args.workspaceSrc == null then ./. else args.workspaceSrc;
-  currentLockHash = builtins.hashFile "sha256" (workspaceSrc + /Cargo.lock);
+  currentLockHash = builtins.hashFile "sha256" "${workspaceSrc}/Cargo.lock";
   lockHashIgnored = if ignoreLockHash
                   then builtins.trace "Ignoring lock hash" ignoreLockHash
                   else ignoreLockHash;
