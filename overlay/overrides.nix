@@ -68,6 +68,7 @@ in rec {
     libgit2-sys
     libdbus-sys
     libssh2-sys
+    libsqlite3-sys
     libudev-sys
     openssl-sys
     pkg-config
