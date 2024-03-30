@@ -177,7 +177,7 @@ let
 
     configureCargo = ''
       mkdir -p .cargo
-      cat > .cargo/config <<'EOF'
+      cat > .cargo/config.toml <<'EOF'
       [net]
       offline = true
       [target."${rustBuildTriple}"]
