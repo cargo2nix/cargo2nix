@@ -178,6 +178,8 @@ let
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
+      [net]
+      offline = true
       [target."${rustBuildTriple}"]
       linker = "${ccForBuild}"
     '' + optionalString (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") (''
