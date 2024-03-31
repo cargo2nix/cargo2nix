@@ -8,14 +8,18 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-uoOYk/O5VCQIOOtD6+7wcZYlA5IZc2Wi9G7ZVmq0NXM=",
-        "path": "../../",
-        "type": "path"
+        "lastModified": 1705129117,
+        "narHash": "sha256-LgdDHibvimzYhxBK3kxCk2gAL7k4Hyigl5KI0X9cijA=",
+        "owner": "cargo2nix",
+        "repo": "cargo2nix",
+        "rev": "ae19a9e1f8f0880c088ea155ab66cee1fa001f59",
+        "type": "github"
       },
       "original": {
-        "path": "../../",
-        "type": "path"
+        "owner": "cargo2nix",
+        "ref": "release-0.11.0",
+        "repo": "cargo2nix",
+        "type": "github"
       }
     },
     "flake-compat": {
