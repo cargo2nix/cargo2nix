@@ -165,7 +165,7 @@ let
       manifest_path=$(cargoRelativeManifest ${name})
       manifest_dir=''${manifest_path%Cargo.toml}
 
-      if [ $manifest_path != "Cargo.toml" ]; then
+      if [ "$manifest_path" != "Cargo.toml" ]; then
         shopt -s globstar
         mv Cargo.toml Cargo.toml.workspace
         if [[ -d .cargo ]]; then
