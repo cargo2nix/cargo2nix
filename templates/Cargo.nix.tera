@@ -66,7 +66,7 @@ in
     src = fetchCratesIo { inherit name version; sha256 = "{{ crate.source.CratesIo.sha256 }}"; };
     {%- elif crate.source.Git.url %}
     src = fetchCrateGit {
-      url = {{ crate.source.Git.url }};
+      url = "{{ crate.source.Git.url }}";
       name = "{{ crate.name }}";
       version = "{{ crate.version }}";
       rev = "{{ crate.source.Git.rev }}";
