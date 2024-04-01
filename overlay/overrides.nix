@@ -225,7 +225,7 @@ in rec {
         pkgs.pkg-config
       ];
       shellHook = drv.shellHook or "" + ''
-        export PGK_CONFIG_ALLOW_CROSS=1
+        export PKG_CONFIG_ALLOW_CROSS=1
       '';
     };
   };
