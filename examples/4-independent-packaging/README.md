@@ -5,7 +5,7 @@ hosting repository.  This example uses flakes.
 
 ## Introduction
 
-It's not always desireable or best to nixify projects by embedding nix files
+It's not always desirable or best to nixify projects by embedding nix files
 into their repositories. This is in fact avoided in nixpkgs. Instead, you can
 ship a pre-made Cargo.nix and a default.nix that locates and provides the
 external source to produce a build.  Rust Analyzer is packaged here as a
@@ -93,7 +93,7 @@ derivation for our binary:
 #### Multiple Outputs
 
 Each derivation created by `mkRustCrate` contains multiple outputs.  The `bin`
-attribute is the default and contains just the executible compiler artifacts
+attribute is the default and contains just the executable compiler artifacts
 (using cargo metadata output).  By default only the `bin` output is installed,
 but you can also use `out` to see the intermediate linking information and other
 libraries created during the build. The `out` attribute contains extra files

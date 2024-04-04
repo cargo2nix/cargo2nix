@@ -44,7 +44,7 @@ let
 
   # Normalize the toolchain args and build a toolchain or used the provided
   # toolchain.  This logic is a bit complicated by legacy use of "rustChannel"
-  # wich could be a version string in previous eras.  Can deprecate at some
+  # which could be a version string in previous eras.  Can deprecate at some
   # point after pointing everyone to correct usage.  Note that rustToolchain
   # comes from buildPackages.rust-bin.  The overlay has been applied and
   # returned via callPackage.

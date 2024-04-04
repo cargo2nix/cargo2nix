@@ -88,13 +88,13 @@ let
           1> >(jq 'select(.message != null) .message.rendered' -r)
       ''
       # Note: Doctest doesn't yet support no-run https://github.com/rust-lang/rust/pull/83857
-      # So instead of persiting the binaries with
+      # So instead of persisting the binaries with
       # RUSTDOCFLAGS="-Zunstable-options --persist-doctests $(pwd)/target/rustdoctest -o $(pwd)/target/rustdoctest" cargo test --doc | tee .cargo-doctest-output
       # we just introduce a new compile mode
       #
       # We also filter -l linkage flags, as rustdoc doesn't support them
       #
-      # And _also_ detect if there are no lib crates, in which case skip, because thats an error for rustdoc
+      # And _also_ detect if there are no lib crates, in which case skip, because that's an error for rustdoc
       #
       # This does not abort on failure. The output should be inspected for failures
       else ''

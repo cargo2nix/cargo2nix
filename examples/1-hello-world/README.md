@@ -96,7 +96,7 @@ builds)
 In order to consume the `Cargo.nix` and provide outputs for `nix build` and
 other `nix` commands, you need to write a `flake.nix`
 
-The overally structure of a flake is very simple.  It's a nix expression that
+The overall structure of a flake is very simple.  It's a nix expression that
 describes `inputs` and `outputs`.  All of the inputs are usually other flakes.
 The output paths tell `nix` commands such as `nix develop` and `nix build` what
 to use to do their work.
@@ -184,8 +184,7 @@ than just flat declarations like a yaml file.
 
 The flake input for nixpkgs needs to be instantiated into an actual nixpkgs.
 The [overlays] inject some extras, like the `rust-bin` set of Rust toolchains
-and functions like `rustBuilder.makePackageSet`.  **Note the single quote in
-the name!**
+and functions like `rustBuilder.makePackageSet`.
 
 [overlays]: https://nixos.wiki/wiki/Overlays
 
@@ -213,7 +212,7 @@ The structure of `rustPkgs` is organized as follows:
 # Source -----------------+          |         |     |
 #  - Crates.io URL                   |         |     |
 #  - Git repository URL              |         |     |
-#  - Alterative registry URL         |         |     |
+#  - Alternative registry URL        |         |     |
 #  - `unknown` for path deps         |         |     |
 #                                    |         |     |
 #                Name ---------------+         |     |
