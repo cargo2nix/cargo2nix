@@ -15,7 +15,7 @@ First clone the target repository at the commit you wish to generate a build
 for:
 
 ```shell
-git clone --depth 1 --branch 2021-11-08 git@github.com:rust-analyzer/rust-analyzer.git 
+git clone --depth 1 --branch 2022-09-12 git@github.com:rust-analyzer/rust-analyzer.git 
 ```
 
 Inside the clone, generate / update the lock file and then create a `Cargo.nix`
