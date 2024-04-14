@@ -60,25 +60,25 @@ jobs:
         run: |
           if [[ $RUNNER_OS == Linux ]]; then
           nix build ./examples/1-hello-world# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+            --override-input cargo2nix .
           nix build ./examples/2-bigger-project# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+            --override-input cargo2nix .
           nix build ./examples/3-cross-compiling# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+            --override-input cargo2nix .
           nix build ./examples/4-independent-packaging# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA
+            --override-input cargo2nix .
           else
           nix build ./examples/1-hello-world# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+            --override-input cargo2nix . \
             --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           nix build ./examples/2-bigger-project# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+            --override-input cargo2nix . \
             --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           # nix build ./examples/3-cross-compiling#
-          #   --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+          #   --override-input cargo2nix . \
           #   --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           nix build ./examples/4-independent-packaging# \
-            --override-input cargo2nix github:cargo2nix/cargo2nix?rev=$GITHUB_SHA \
+            --override-input cargo2nix . \
             --override-input nixpkgs github:nixos/nixpkgs/nixpkgs-23.05-darwin
           fi
 
