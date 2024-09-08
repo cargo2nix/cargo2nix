@@ -139,7 +139,7 @@ fn to_registry_string(src_id: SourceId) -> String {
 fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
     let id = pkg.pkg.package_id();
 
-    let source = if id.source_id().is_registry() {
+    let source = if id.source_id().is_crates_io() {
         Source::CratesIo {
             sha256: pkg
                 .checksum
