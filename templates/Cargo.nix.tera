@@ -82,7 +82,7 @@ in
     {%- endif %}
     {%- elif crate.source.Registry.index %}
     src = fetchCrateAlternativeRegistry {
-      index = {{ crate.source.Registry.index }};
+      index = "{{ crate.source.Registry.index }}";
       name = "{{ crate.name }}";
       version = "{{ crate.version }}";
       sha256 = "{{ crate.source.Registry.sha256 }}";
