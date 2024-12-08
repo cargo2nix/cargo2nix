@@ -197,6 +197,26 @@ what the current output result is.
 how we store information in dependents and replay them back when
 building dependents.  It is vital for building crates in isolation.
 
+#### Newer rust versions
+
+In order to use newer rust versions you can include
+[rust-overlay](https://github.com/oxalica/rust-overlay) directly in your flake
+like so:
+
+```nix
+{
+  inputs = {
+    rust-overlay.url = "github:oxalica/rust-overlay/stable";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
+    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    cargo2nix.inputs.nixpkgs.follows = "nixpkgs";
+    cargo2nix.inputs.flake-utils.follows = "flake-utils";
+    cargo2nix.inputs.rust-overlay.follows = "rust-overlay";
+  };
+}
+```
+
 ## How it works
 
 - The `cargo2nix` utility reads the Rust workspace configuration and
