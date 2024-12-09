@@ -212,8 +212,8 @@ let
 
     configurePhase = ''
       runHook preConfigure
-      runHook findCrate
       runHook configureCargo
+      runHook findCrate
       runHook postConfigure
     '';
 
