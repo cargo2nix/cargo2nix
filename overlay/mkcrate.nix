@@ -6,6 +6,7 @@
   rustLib,
   stdenv,
 }:
+extraConfigToml:
 {
   release, # Compiling in release mode?
   name,
@@ -177,7 +178,7 @@ let
 
     configureCargo = ''
       mkdir -p .cargo
-      cat > .cargo/config <<'EOF'
+      cat > .cargo/config.toml <<'EOF'
       [net]
       offline = true
       [target."${rustBuildTriple}"]
@@ -205,6 +206,7 @@ let
         else ''"${a}"'')))
         (profileOpts."${decideProfile compileMode release}"))
      ) + "\n" + ''
+      ${extraConfigToml}
       EOF
     '';
 
