@@ -17,7 +17,7 @@
   fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
   release ? null,
   rootFeatures ? null,
-  hostPlaform ? stdenv.hostPlatform,
+  hostPlatform ? stdenv.hostPlatform,
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
   target,
