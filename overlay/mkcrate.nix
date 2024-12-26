@@ -253,6 +253,8 @@ let
             && rustHostTriple != "wasm32-wasi"
             && rustHostTriple != "wasm32-unknown-unknown"
             && rustHostTriple != "x86_64-fortanix-unknown-sgx"
+            && rustHostTriple != "x86_64-unknown-uefi"
+            && rustHostTriple != "aarch64-unknown-uefi"
           )
           (
             ''
