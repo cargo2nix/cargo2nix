@@ -14,65 +14,109 @@
   rustToolchain,
   buildRustPackages ? null,
   packageOverrides ? rustBuilder.overrides.all,
-  fetchCrateAlternativeRegistry ? _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
+  fetchCrateAlternativeRegistry ?
+    _: throw "fetchCrateAlternativeRegistry is required, but not specified in makePackageSet",
   release ? null,
   rootFeatures ? null,
   hostPlatform ? stdenv.hostPlatform,
   hostPlatformCpu ? null,
-  hostPlatformFeatures ? [],
+  hostPlatformFeatures ? [ ],
   target,
   codegenOpts ? null,
   profileOpts ? null,
-  cargoUnstableFlags ? [],
-  rustcLinkFlags ? [],
-  rustcBuildFlags ? [],
+  cargoUnstableFlags ? [ ],
+  rustcLinkFlags ? [ ],
+  rustcBuildFlags ? [ ],
   ignoreLockHash,
   extraConfigToml ? "",
 }:
-lib.fix' (self:
+lib.fix' (
+  self:
   let
     rustPackages = self;
     buildRustPackages' = if buildRustPackages == null then self else buildRustPackages;
-    mkScope = scope:
+    mkScope =
+      scope:
       let
         prevStage = pkgs.__splicedPackages;
-        scopeSpliced = rustLib.splicePackages (buildRustPackages != null) {
-          pkgsBuildBuild = scope.buildRustPackages.buildRustPackages;
-          pkgsBuildHost = scope.buildRustPackages;
-          pkgsBuildTarget = {};
-          pkgsHostHost = {};
-          pkgsHostTarget = scope;
-          pkgsTargetTarget = {};
-        } // {
-          inherit (scope) pkgs buildRustPackages rustToolchain config __splicedPackages;
-        };
+        scopeSpliced =
+          rustLib.splicePackages (buildRustPackages != null) {
+            pkgsBuildBuild = scope.buildRustPackages.buildRustPackages;
+            pkgsBuildHost = scope.buildRustPackages;
+            pkgsBuildTarget = { };
+            pkgsHostHost = { };
+            pkgsHostTarget = scope;
+            pkgsTargetTarget = { };
+          }
+          // {
+            inherit (scope)
+              pkgs
+              buildRustPackages
+              rustToolchain
+              config
+              __splicedPackages
+              ;
+          };
       in
-        prevStage // prevStage.xorg // prevStage.gnome2 // { inherit stdenv; } // scopeSpliced;
+      prevStage // prevStage.xorg // prevStage.gnome2 // { inherit stdenv; } // scopeSpliced;
     defaultScope = mkScope self;
     callPackage = lib.callPackageWith defaultScope;
 
-    mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
+    mkRustCrate' =
+      args:
+      lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; }) (
+        { inherit extraConfigToml; } // args
+      );
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
-    packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags ignoreLockHash hostPlatform;
-      mkRustCrate = rustLib.runOverride combinedOverride (mkRustCrate extraConfigToml);
-      rustLib = rustLib // {
-        inherit fetchCrateAlternativeRegistry;
-        fetchCrateLocal = path: path;
-      };
-      ${ if release == null then null else "release" } = release;
-      ${ if rootFeatures == null then null else "rootFeatures" } = rootFeatures;
-      ${ if hostPlatformCpu == null then null else "hostPlatformCpu" } = hostPlatformCpu;
-      ${ if hostPlatformFeatures == [] then null else "hostPlatformFeatures" } = hostPlatformFeatures;
-    });
+    packageFunWith =
+      { mkRustCrate, buildRustPackages }:
+      lib.fix (
+        rustPackages:
+        packageFun {
+          inherit
+            rustPackages
+            buildRustPackages
+            lib
+            workspaceSrc
+            target
+            profileOpts
+            codegenOpts
+            cargoUnstableFlags
+            rustcLinkFlags
+            rustcBuildFlags
+            ignoreLockHash
+            hostPlatform
+            ;
+          mkRustCrate = rustLib.runOverride combinedOverride mkRustCrate;
+          rustLib = rustLib // {
+            inherit fetchCrateAlternativeRegistry;
+            fetchCrateLocal = path: path;
+          };
+          ${if release == null then null else "release"} = release;
+          ${if rootFeatures == null then null else "rootFeatures"} = rootFeatures;
+          ${if hostPlatformCpu == null then null else "hostPlatformCpu"} = hostPlatformCpu;
+          ${if hostPlatformFeatures == [ ] then null else "hostPlatformFeatures"} = hostPlatformFeatures;
+        }
+      );
 
     noBuild = packageFunWith {
       mkRustCrate = lib.makeOverridable mkRustCrateNoBuild { };
       buildRustPackages = buildRustPackages'.noBuild;
     };
 
-  in packageFunWith { mkRustCrate = mkRustCrate'; buildRustPackages = buildRustPackages'; } // {
-    inherit rustPackages callPackage pkgs rustToolchain noBuild;
+  in
+  packageFunWith {
+    mkRustCrate = mkRustCrate';
+    buildRustPackages = buildRustPackages';
+  }
+  // {
+    inherit
+      rustPackages
+      callPackage
+      pkgs
+      rustToolchain
+      noBuild
+      ;
     workspaceShell = workspaceShell { inherit pkgs noBuild rustToolchain; };
     mkRustCrate = mkRustCrate';
     buildRustPackages = buildRustPackages';

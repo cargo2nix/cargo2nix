@@ -6,7 +6,6 @@
   rustLib,
   stdenv,
 }:
-extraConfigToml:
 {
   release, # Compiling in release mode?
   name,
@@ -27,78 +26,97 @@ extraConfigToml:
   rustcBuildFlags ? [ ],
   target ? null,
   hostPlatformCpu ? null,
-  hostPlatformFeatures ? [],
+  hostPlatformFeatures ? [ ],
   NIX_DEBUG ? 0,
+  extraConfigToml ? "",
 }:
-with builtins; with lib;
+with builtins;
+with lib;
 let
   inherit (rustLib) rustTriple decideProfile;
-  wrapper = rustpkg: pkgs.writeScriptBin rustpkg ''
-    #!${stdenv.shell}
-    . ${./mkcrate-utils.sh}
-    isBuildScript=
-    args=("$@")
-    for i in "''${!args[@]}"; do
-      if [ "xmetadata=" = "x''${args[$i]::9}" ]; then
-        args[$i]=metadata=$NIX_RUST_METADATA
-      elif [ "x--crate-name" = "x''${args[$i]}" ] && [ "xbuild_script_" = "x''${args[$i+1]::13}" ]; then
-        isBuildScript=1
+  wrapper =
+    rustpkg:
+    pkgs.writeScriptBin rustpkg ''
+      #!${stdenv.shell}
+      . ${./mkcrate-utils.sh}
+      isBuildScript=
+      args=("$@")
+      for i in "''${!args[@]}"; do
+        if [ "xmetadata=" = "x''${args[$i]::9}" ]; then
+          args[$i]=metadata=$NIX_RUST_METADATA
+        elif [ "x--crate-name" = "x''${args[$i]}" ] && [ "xbuild_script_" = "x''${args[$i+1]::13}" ]; then
+          isBuildScript=1
+        fi
+      done
+      if [ "$isBuildScript" ]; then
+        args+=($NIX_RUST_BUILD_FLAGS)
+      else
+        args+=($NIX_RUST_LINK_FLAGS)
       fi
-    done
-    if [ "$isBuildScript" ]; then
-      args+=($NIX_RUST_BUILD_FLAGS)
-    else
-      args+=($NIX_RUST_LINK_FLAGS)
-    fi
-    touch invoke.log
-    echo "''${args[@]}" >>invoke.log
-    exec ${rustToolchain}/bin/${rustpkg} "''${args[@]}"
-  '';
+      touch invoke.log
+      echo "''${args[@]}" >>invoke.log
+      exec ${rustToolchain}/bin/${rustpkg} "''${args[@]}"
+    '';
 
-  ccForBuild="${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc";
-  cxxForBuild="${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}c++";
+  ccForBuild = "${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc";
+  cxxForBuild = "${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}c++";
   targetPrefix = stdenv.cc.targetPrefix;
   cc = stdenv.cc;
-  ccForHost="${cc}/bin/${targetPrefix}cc";
-  cxxForHost="${cc}/bin/${targetPrefix}c++";
+  ccForHost = "${cc}/bin/${targetPrefix}cc";
+  cxxForHost = "${cc}/bin/${targetPrefix}c++";
   rustBuildTriple = rustTriple stdenv.buildPlatform;
   rustHostTriple = if (target != null) then target else rustTriple stdenv.hostPlatform;
-  depMapToList = deps:
-    flatten
-      (sort (a: b: elemAt a 0 < elemAt b 0)
-        (mapAttrsToList (name: value: [ name "${value}" ]) deps));
+  depMapToList =
+    deps:
+    flatten (
+      sort (a: b: elemAt a 0 < elemAt b 0) (
+        mapAttrsToList (name: value: [
+          name
+          "${value}"
+        ]) deps
+      )
+    );
   buildCmd =
     let
       hasDefaultFeature = elem "default" features;
-      featuresWithoutDefault = if hasDefaultFeature
-        then filter (feature: feature != "default") features
-        else features;
-      buildMode = {
-        "test" = "--tests";
-        "bench" = "--benches";
-      }.${compileMode} or "";
-      featuresArg = if featuresWithoutDefault == [ ]
-        then ""
-        else "--features ${concatStringsSep "," featuresWithoutDefault}";
+      featuresWithoutDefault =
+        if hasDefaultFeature then filter (feature: feature != "default") features else features;
+      buildMode =
+        {
+          "test" = "--tests";
+          "bench" = "--benches";
+        }
+        .${compileMode} or "";
+      featuresArg =
+        if featuresWithoutDefault == [ ] then
+          ""
+        else
+          "--features ${concatStringsSep "," featuresWithoutDefault}";
     in
-      if compileMode != "doctest" then ''
+    if compileMode != "doctest" then
+      ''
         ${rustToolchain}/bin/cargo build $CARGO_VERBOSE ${optionalString release "--release"} --target ${rustHostTriple} ${buildMode} \
           ${featuresArg} ${optionalString (!hasDefaultFeature) "--no-default-features"} \
-          ${optionalString (builtins.length cargoUnstableFlags > 0) "-Z ${lib.strings.concatStringsSep " -Z " cargoUnstableFlags}"} \
+          ${
+            optionalString (
+              builtins.length cargoUnstableFlags > 0
+            ) "-Z ${lib.strings.concatStringsSep " -Z " cargoUnstableFlags}"
+          } \
           --message-format json-diagnostic-rendered-ansi | tee .cargo-build-output \
           1> >(jq 'select(.message != null) .message.rendered' -r)
       ''
-      # Note: Doctest doesn't yet support no-run https://github.com/rust-lang/rust/pull/83857
-      # So instead of persiting the binaries with
-      # RUSTDOCFLAGS="-Zunstable-options --persist-doctests $(pwd)/target/rustdoctest -o $(pwd)/target/rustdoctest" cargo test --doc | tee .cargo-doctest-output
-      # we just introduce a new compile mode
-      #
-      # We also filter -l linkage flags, as rustdoc doesn't support them
-      #
-      # And _also_ detect if there are no lib crates, in which case skip, because thats an error for rustdoc
-      #
-      # This does not abort on failure. The output should be inspected for failures
-      else ''
+    # Note: Doctest doesn't yet support no-run https://github.com/rust-lang/rust/pull/83857
+    # So instead of persiting the binaries with
+    # RUSTDOCFLAGS="-Zunstable-options --persist-doctests $(pwd)/target/rustdoctest -o $(pwd)/target/rustdoctest" cargo test --doc | tee .cargo-doctest-output
+    # we just introduce a new compile mode
+    #
+    # We also filter -l linkage flags, as rustdoc doesn't support them
+    #
+    # And _also_ detect if there are no lib crates, in which case skip, because thats an error for rustdoc
+    #
+    # This does not abort on failure. The output should be inspected for failures
+    else
+      ''
         echo "Performing Doctests"
         export NIX_RUST_LINK_FLAGS=$(echo "$NIX_RUST_LINK_FLAGS" | sed 's/ \-l \w*//g')
         ${rustToolchain}/bin/cargo read-manifest | jq -e '.targets | .[] | select(.crate_types[] | contains ("lib")) | any' >/dev/null && \
@@ -111,17 +129,33 @@ let
       '';
 
   inherit
-    (({ right, wrong }: { runtimeDependencies = right; buildtimeDependencies = wrong; })
-      (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
-        (concatLists [
+    (
+      (
+        { right, wrong }:
+        {
+          runtimeDependencies = right;
+          buildtimeDependencies = wrong;
+        }
+      )
+      (
+        partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform) (concatLists [
           (attrValues dependencies)
           (optionals (compileMode != "build") (attrValues devDependencies))
           (attrValues buildDependencies)
-        ])))
-    runtimeDependencies buildtimeDependencies;
+        ])
+      )
+    )
+    runtimeDependencies
+    buildtimeDependencies
+    ;
 
   drvAttrs = {
-    inherit src version meta NIX_DEBUG;
+    inherit
+      src
+      version
+      meta
+      NIX_DEBUG
+      ;
     name = "crate-${name}-${version}${optionalString (compileMode != "build") "-${compileMode}"}";
 
     buildInputs = runtimeDependencies ++ lib.optionals stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
@@ -129,8 +163,14 @@ let
     nativeBuildInputs = [ rustToolchain ] ++ buildtimeDependencies;
 
     depsBuildBuild =
-      let inherit (buildPackages.buildPackages) stdenv jq remarshal;
-      in [ stdenv.cc jq remarshal ];
+      let
+        inherit (buildPackages.buildPackages) stdenv jq remarshal;
+      in
+      [
+        stdenv.cc
+        jq
+        remarshal
+      ];
 
     # Running the default `strip -S` command on Darwin corrupts the
     # .rlib files in "lib/".
@@ -146,8 +186,9 @@ let
         dependencies
         devDependencies
         buildDependencies
-        features;
-      shell = pkgs.mkShell (removeAttrs drvAttrs ["src"]);
+        features
+        ;
+      shell = pkgs.mkShell (removeAttrs drvAttrs [ "src" ]);
     };
 
     dependencies = depMapToList dependencies;
@@ -155,13 +196,15 @@ let
     devDependencies = depMapToList (optionalAttrs (compileMode != "build") devDependencies);
 
     extraRustcLinkFlags =
-      optionals (hostPlatformCpu != null) ([("-Ctarget-cpu=" + hostPlatformCpu)]) ++
-      optionals (hostPlatformFeatures != []) [("-Ctarget-feature=" + (concatMapStringsSep "," (feature: "+" + feature) hostPlatformFeatures))] ++
-      rustcLinkFlags;
+      optionals (hostPlatformCpu != null) ([ ("-Ctarget-cpu=" + hostPlatformCpu) ])
+      ++ optionals (hostPlatformFeatures != [ ]) [
+        ("-Ctarget-feature=" + (concatMapStringsSep "," (feature: "+" + feature) hostPlatformFeatures))
+      ]
+      ++ rustcLinkFlags;
 
     extraRustcBuildFlags = rustcBuildFlags;
 
-    findCrate =  ''
+    findCrate = ''
       . ${./mkcrate-utils.sh}
       manifest_path=$(cargoRelativeManifest ${name})
       manifest_dir=''${manifest_path%Cargo.toml}
@@ -176,39 +219,87 @@ let
       fi
     '';
 
-    configureCargo = ''
-      mkdir -p .cargo
-      cat > .cargo/config.toml <<'EOF'
-      [net]
-      offline = true
-      [target."${rustBuildTriple}"]
-      linker = "${ccForBuild}"
-    '' + optionalString (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") (''
-      rustflags = [
-    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustBuildTriple}") + "\n" + ''
-      ]
+    configureCargo =
+      ''
+        mkdir -p .cargo
+        cat > .cargo/config.toml <<'EOF'
+        [net]
+        offline = true
+        [target."${rustBuildTriple}"]
+        linker = "${ccForBuild}"
+      ''
+      + optionalString (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") (
+        ''
+          rustflags = [
+        ''
+        + concatStringsSep ", " (
+          concatMap (opt: [
+            ''"-C"''
+            ''"${opt}"''
+          ]) codegenOpts."${rustBuildTriple}"
+        )
+        + "\n"
+        + ''
+            ]
 
-    # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
-    # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
-    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") (''
-      [target."${rustHostTriple}"]
-      linker = "${ccForHost}"
-    ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
-      rustflags = [
-    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustHostTriple}") + "\n" + ''
-      ]
+          # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
+          # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
+        ''
+      )
+      +
+        optionalString
+          (
+            rustBuildTriple != rustHostTriple
+            && rustHostTriple != "wasm32-wasi"
+            && rustHostTriple != "wasm32-unknown-unknown"
+            && rustHostTriple != "x86_64-fortanix-unknown-sgx"
+          )
+          (
+            ''
+              [target."${rustHostTriple}"]
+              linker = "${ccForHost}"
+            ''
+            + optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (
+              ''
+                rustflags = [
+              ''
+              + concatStringsSep ", " (
+                concatMap (opt: [
+                  ''"-C"''
+                  ''"${opt}"''
+                ]) codegenOpts."${rustHostTriple}"
+              )
+              + "\n"
+              + ''
+                ]
 
-    '')) + optionalString (profileOpts != null && profileOpts."${decideProfile compileMode release}" != null) (''
-      [profile.${decideProfile compileMode release}]
-    '' + concatStringsSep "\n" (mapAttrsToList (n: a: "${n} = " + (
-        if isInt a then "${toString a}"
-        else (if isBool a then (if a then "true" else "false")
-        else ''"${a}"'')))
-        (profileOpts."${decideProfile compileMode release}"))
-     ) + "\n" + ''
-      ${extraConfigToml}
-      EOF
-    '';
+              ''
+            )
+          )
+      +
+        optionalString (profileOpts != null && profileOpts."${decideProfile compileMode release}" != null)
+          (
+            ''
+              [profile.${decideProfile compileMode release}]
+            ''
+            + concatStringsSep "\n" (
+              mapAttrsToList (
+                n: a:
+                "${n} = "
+                + (
+                  if isInt a then
+                    "${toString a}"
+                  else
+                    (if isBool a then (if a then "true" else "false") else ''"${a}"'')
+                )
+              ) (profileOpts."${decideProfile compileMode release}")
+            )
+          )
+      + "\n"
+      + ''
+        ${extraConfigToml}
+        EOF
+      '';
 
     configurePhase = ''
       runHook preConfigure
@@ -219,7 +310,7 @@ let
 
     manifestPatch = toJSON {
       features = genAttrs features (_: [ ]);
-      profile.${ decideProfile compileMode release } = profile;
+      profile.${decideProfile compileMode release} = profile;
     };
 
     overrideCargoManifest = ''
@@ -272,7 +363,7 @@ let
 
       crateName="$(
         remarshal -if toml -of json Cargo.original.toml \
-        | jq -r 'if .lib."name" then .lib."name" else "${replaceStrings ["-"] ["_"] name}" end' \
+        | jq -r 'if .lib."name" then .lib."name" else "${replaceStrings [ "-" ] [ "_" ] name}" end' \
       )"
 
       . ${./mkcrate-utils.sh}
@@ -328,26 +419,37 @@ let
       runHook postBuild
     '';
 
-    outputs = ["bin" "out"];
+    outputs = [
+      "bin"
+      "out"
+    ];
 
-    installPhase = ''
-      runHook preInstall
-    '' + (if compileMode != "doctest" then ''
-      mkdir -p $out/lib
-      cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
-      if (( MINOR_RUSTC_VERSION < 41 )); then
-        install_crate ${rustHostTriple} ${if release then "release" else "debug"}
-      else
-        install_crate2 ${rustHostTriple}
-      fi
-    '' else ''
-      mkdir -p $out/share
-      mkdir -p $bin
-      touch results.json
-      mv results.json $out/share/
-    '') + ''
-      runHook postInstall
-    '';
+    installPhase =
+      ''
+        runHook preInstall
+      ''
+      + (
+        if compileMode != "doctest" then
+          ''
+            mkdir -p $out/lib
+            cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
+            if (( MINOR_RUSTC_VERSION < 41 )); then
+              install_crate ${rustHostTriple} ${if release then "release" else "debug"}
+            else
+              install_crate2 ${rustHostTriple}
+            fi
+          ''
+        else
+          ''
+            mkdir -p $out/share
+            mkdir -p $bin
+            touch results.json
+            mv results.json $out/share/
+          ''
+      )
+      + ''
+        runHook postInstall
+      '';
   };
 in
-  stdenv.mkDerivation drvAttrs
+stdenv.mkDerivation drvAttrs

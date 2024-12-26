@@ -17,23 +17,37 @@
   rustcLinkFlags ? [ ],
   rustcBuildFlags ? [ ],
   hostPlatformCpu ? null,
-  hostPlatformFeatures ? [],
+  hostPlatformFeatures ? [ ],
   target ? null,
   codegenOpts,
   profileOpts,
+  extraConfigToml ? "",
 }:
-with lib; with builtins;
+with lib;
+with builtins;
 let
   inherit
-    (({ right, wrong }: { runtimeDependencies = right; buildtimeDependencies = wrong; })
-      (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
-        (concatLists [
+    (
+      (
+        { right, wrong }:
+        {
+          runtimeDependencies = right;
+          buildtimeDependencies = wrong;
+        }
+      )
+      (
+        partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform) (concatLists [
           (attrValues dependencies)
           (optionals (compileMode == "test" || compileMode == "bench") (attrValues devDependencies))
           (attrValues buildDependencies)
-        ])))
-    runtimeDependencies buildtimeDependencies;
-in stdenv.mkDerivation {
+        ])
+      )
+    )
+    runtimeDependencies
+    buildtimeDependencies
+    ;
+in
+stdenv.mkDerivation {
   name = "crate-${name}-${version}";
   propagatedBuildInputs = concatMap (drv: drv.propagatedBuildInputs) runtimeDependencies;
   phases = "installPhase fixupPhase";
