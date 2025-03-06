@@ -52,11 +52,11 @@ fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
             }
             ("target_env", v) => Single(format!("{}.parsed.abi.name == {:?}", platform_var, v)),
             ("target_endian", "little") => Single(format!(
-                "{}.parsed.cpu.significantByte == {:?}",
+                "{}.parsed.cpu.significantByte.name == {:?}",
                 platform_var, "littleEndian"
             )),
             ("target_endian", "big") => Single(format!(
-                "{}.parsed.cpu.significantByte == {:?}",
+                "{}.parsed.cpu.significantByte.name == {:?}",
                 platform_var, "bigEndian"
             )),
             ("target_pointer_width", "32") => {
