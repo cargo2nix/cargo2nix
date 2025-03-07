@@ -70,6 +70,10 @@
         #     Set an explicit Rust output target.  Overrides the translation
         #     from Nix targets to Rust targets.  See overlay/lib/rust-triple.nix
         #     for more info.
+        # - `targetSpecFile`, `targetSpec` (optional):
+        #     This is used to resolve certain conditional package dependencies for platforms that `cargo2nix` does not know about.
+        #     Most users do not need this, even when cross-compiling.
+        #     If you are already passing a target spec file to `target`, this will be filled in for you automatically.
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
           rustVersion = "1.75.0";
