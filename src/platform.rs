@@ -72,6 +72,13 @@ fn cfg_to_expr(cfg: &CfgExpr, platform_var: &str) -> BoolExpr {
             ("target_feature", v) => {
                 Single(format!("builtins.elem {:?} {}Features", v, platform_var,))
             }
+            ("target_has_atomic", v) => {
+                if v != "ptr" {
+                    Single(format!("{}.cargo2nix.max-atomic-width >= {v}", platform_var))
+                } else {
+                    Single(format!("{0}.cargo2nix.max-atomic-width >= {0}.cargo2nix.target-pointer-width", platform_var))
+                }
+            }
             _ => False,
         },
     }
