@@ -165,7 +165,7 @@ let
       manifest_path=$(cargoRelativeManifest ${name})
       manifest_dir=''${manifest_path%Cargo.toml}
 
-      if [ $manifest_path != "Cargo.toml" ]; then
+      if [ "$manifest_path" != "Cargo.toml" ]; then
         shopt -s globstar
         mv Cargo.toml Cargo.toml.workspace
         if [[ -d .cargo ]]; then
@@ -178,6 +178,8 @@ let
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
+      [net]
+      offline = true
       [target."${rustBuildTriple}"]
       linker = "${ccForBuild}"
     '' + optionalString (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") (''

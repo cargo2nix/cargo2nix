@@ -12,12 +12,11 @@ use cargo::{
     core::{
         compiler::{CompileKind, RustcTargetData},
         dependency::DepKind,
-        registry::PackageRegistry,
         resolver::{
             features::{ForceAllTargets, HasDevUnits},
             CliFeatures, Resolve,
         },
-        Package, PackageId, PackageIdSpec, Workspace,
+        Package, PackageId, Workspace,
     },
     ops::{resolve_with_previous, resolve_ws_with_opts, Packages},
     util::important_paths::find_root_manifest_for_wd,
@@ -200,7 +199,7 @@ fn write_to_stdout(rendered: &str) -> Result<()> {
 
 fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<String> {
     let config = {
-        let mut config = cargo::Config::default()?;
+        let mut config = cargo::util::GlobalContext::default()?;
         config.configure(0, false, None, false, locked, false, &None, &[], &[])?;
         config
     };
@@ -209,7 +208,7 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
     let ws = Workspace::new(&root_manifest_path, &config)?;
 
     if !locked {
-        let mut registry = PackageRegistry::new(ws.config())?;
+        let mut registry = ws.package_registry()?;
         let mut resolve = resolve_with_previous(
             &mut registry,
             &ws,
@@ -225,8 +224,8 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
 
     // To get a list of all packages with all features and dependencies that
     // might be enabled present, we first resolve with all features turned on
-    let requested_kinds = CompileKind::from_requested_targets(ws.config(), &[])?;
-    let target_data = RustcTargetData::new(&ws, &requested_kinds)?;
+    let requested_kinds = CompileKind::from_requested_targets(ws.gctx(), &[])?;
+    let mut target_data = RustcTargetData::new(&ws, &requested_kinds)?;
 
     // Resolve entire workspace.
     let specs = Packages::All.to_package_id_specs(&ws)?;
@@ -236,12 +235,13 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
     // as that is the behavior of download_accessible.
     let resolved_all = resolve_ws_with_opts(
         &ws,
-        &target_data,
+        &mut target_data,
         &requested_kinds,
         &CliFeatures::new_all(true),
         &specs,
         HasDevUnits::Yes,
         force_all,
+        false,
     )?;
 
     let pkgs_by_id = resolved_all
@@ -272,12 +272,13 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
 
     let resolved_no_features = resolve_ws_with_opts(
         &ws,
-        &target_data,
+        &mut target_data,
         &requested_kinds,
         &no_features,
         &specs,
         HasDevUnits::Yes,
         force_all,
+        false,
     )?
     .targeted_resolve;
 
@@ -296,7 +297,7 @@ fn generate_cargo_nix(workspace_directory: &PathBuf, locked: bool) -> Result<Str
             &ws,
             &resolved_no_features,
             &mut rpkgs_by_id,
-            &target_data,
+            &mut target_data,
             &requested_kinds,
         )?;
     }
@@ -390,18 +391,18 @@ fn mark_required(
 
 /// Traverse the whole dependency graph starting at `pkg` and mark packages &
 /// features enabled by each feature of `pkg`.
-fn mark_feature_activations<'a>(
+fn mark_feature_activations<'a, 'gctx>(
     root_pkg: &'a Package,
-    ws: &Workspace,
+    ws: &Workspace<'gctx>,
     resolved_no_features: &Resolve,
     rpkgs_by_id: &mut BTreeMap<PackageId, ResolvedPackage<'a>>,
-    target_data: &RustcTargetData,
+    target_data: &mut RustcTargetData<'gctx>,
     compile_kinds: &[CompileKind],
 ) -> Result<()> {
     let root_pkg_name = root_pkg.name().as_str();
     let root_pkg_features = root_pkg.summary().features();
 
-    let spec = PackageIdSpec::from_package_id(root_pkg.package_id());
+    let spec = root_pkg.package_id().to_spec();
 
     for feature in root_pkg_features.keys() {
         // resolve ws with just the target feature activated
@@ -413,12 +414,13 @@ fn mark_feature_activations<'a>(
 
         let just_feature_ws = resolve_ws_with_opts(
             ws,
-            &target_data,
+            target_data,
             &compile_kinds,
             &just_this_feature,
             &[spec.clone()],
             HasDevUnits::Yes,
             ForceAllTargets::Yes,
+            false,
         )?;
 
         for rpkg in rpkgs_by_id.values_mut() {
