@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, Result};
-use cargo::core::{dependency::DepKind, source::GitReference, Package, PackageId, SourceId};
+use cargo::core::{dependency::DepKind, GitReference, Package, PackageId, SourceId};
 use serde::Serialize;
 
 use crate::manifest::TomlProfile;
@@ -157,7 +157,7 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
             url: id.source_id().url().to_string(),
             rev: id
                 .source_id()
-                .precise()
+                .precise_git_fragment()
                 .map(|p| p.to_string())
                 .ok_or(anyhow!("precise ref not found for git package {}", id))?,
             branch,
