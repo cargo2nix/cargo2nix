@@ -73,6 +73,8 @@
         #     This is used to resolve certain conditional package dependencies for platforms that `cargo2nix` does not know about.
         #     Most users do not need this, even when cross-compiling.
         #     If you are already passing a target spec file to `target`, this will be filled in for you automatically.
+        # - `cargoConfig` (optional):
+        #     Override .cargo/config.toml settings for all packages
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           packageFun = import ./Cargo.nix;
           rustVersion = "1.83.0";
