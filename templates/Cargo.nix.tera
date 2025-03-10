@@ -27,7 +27,16 @@ args@{
 }:
 let
   nixifiedLockHash = "{{ cargo_lock_hash }}";
-  workspaceSrc = if args.workspaceSrc == null then ./. else args.workspaceSrc;
+  workspaceSrc = lib.fileset.toSource rec {
+    root = if args.workspaceSrc == null then ./. else args.workspaceSrc;
+    fileset = lib.fileset.unions [
+      (root + /Cargo.toml)
+      (root + /Cargo.lock)
+      {%- for crate in workspace_members %}
+      (root + /{{ crate.path }})
+      {%- endfor %}
+    ];
+  };
   currentLockHash = builtins.hashFile "sha256" (workspaceSrc + /Cargo.lock);
   lockHashIgnored = if ignoreLockHash
                   then builtins.trace "Ignoring lock hash" ignoreLockHash

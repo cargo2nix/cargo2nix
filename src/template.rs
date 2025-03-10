@@ -39,11 +39,17 @@ impl BuildPlan {
 
         let workspace_members = root_pkgs
             .into_iter()
-            .map(|pkg| Member {
-                name: pkg.name().to_string(),
-                version: pkg.version().to_string(),
+            .map(|pkg| {
+                Ok(Member {
+                    name: pkg.name().to_string(),
+                    version: pkg.version().to_string(),
+                    path: pathdiff::diff_paths(pkg.root(), cwd).ok_or(anyhow!(
+                        "path is not absolute for local package {:?}",
+                        pkg.root()
+                    ))?,
+                })
             })
-            .collect();
+            .collect::<Result<_>>()?;
 
         let crates = rpkgs_by_id
             .into_iter()
@@ -77,6 +83,7 @@ impl BuildPlan {
 pub struct Member {
     pub name: String,
     pub version: String,
+    pub path: PathBuf,
 }
 
 #[derive(Debug, Serialize)]
