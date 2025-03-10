@@ -21,6 +21,7 @@
   target ? null,
   codegenOpts,
   profileOpts,
+  cargoConfig ? {}
 }:
 with lib; with builtins;
 let

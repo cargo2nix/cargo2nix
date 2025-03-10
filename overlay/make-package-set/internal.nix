@@ -27,6 +27,7 @@
   rustcBuildFlags ? [],
   ignoreLockHash,
   targetInfo,
+  cargoConfig
 }:
 lib.fix' (self:
   let
@@ -53,7 +54,7 @@ lib.fix' (self:
     mkRustCrate' = lib.makeOverridable (callPackage mkRustCrate { inherit rustLib; });
     combinedOverride = builtins.foldl' rustLib.combineOverrides rustLib.nullOverride packageOverrides;
     packageFunWith = { mkRustCrate, buildRustPackages }: lib.fix (rustPackages: packageFun {
-      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags ignoreLockHash;
+      inherit rustPackages buildRustPackages lib workspaceSrc target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags ignoreLockHash cargoConfig;
       hostPlatform = stdenv.hostPlatform // {
         cargo2nix = targetInfo;
       };
