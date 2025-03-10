@@ -23,3 +23,8 @@ wasm.  You can use qemu to run the results.
 
 This shows how to consume someone else's Rust crate and ship a binary without
 the need to interact with their repository.
+
+## [Cross Compiling for mingw-w64](./5-cross-compiling)
+
+This project can build on Linux for Nix triple `x86_64-w64-mingw32-gnu` (`pkgsCross.mingwW64`),
+or LLVM target `x86_64-pc-windows-gnu`. You can use wine to run the result.
