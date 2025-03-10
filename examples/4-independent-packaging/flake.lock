@@ -94,8 +94,8 @@
       },
       "original": {
         "owner": "rust-lang",
+        "ref": "2022-09-12",
         "repo": "rust-analyzer",
-        "rev": "2e9f1204ca01c3e20898d4a67c8b84899d394a88",
         "type": "github"
       }
     },

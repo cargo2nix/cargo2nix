@@ -160,21 +160,6 @@ let
 
     extraRustcBuildFlags = rustcBuildFlags;
 
-    findCrate =  ''
-      . ${./mkcrate-utils.sh}
-      manifest_path=$(cargoRelativeManifest ${name})
-      manifest_dir=''${manifest_path%Cargo.toml}
-
-      if [ "$manifest_path" != "Cargo.toml" ]; then
-        shopt -s globstar
-        mv Cargo.toml Cargo.toml.workspace
-        if [[ -d .cargo ]]; then
-          mv .cargo .cargo.workspace
-        fi
-        cd "$manifest_dir"
-      fi
-    '';
-
     configureCargo = ''
       mkdir -p .cargo
       cat > .cargo/config <<'EOF'
@@ -210,7 +195,6 @@ let
 
     configurePhase = ''
       runHook preConfigure
-      runHook findCrate
       runHook configureCargo
       runHook postConfigure
     '';
@@ -221,6 +205,9 @@ let
     };
 
     overrideCargoManifest = ''
+      . ${./mkcrate-utils.sh}
+
+      # Synthesize a lock file
       echo "[[package]]" > Cargo.lock
       echo name = \"${name}\" >> Cargo.lock
       echo version = \"${version}\" >> Cargo.lock
@@ -228,33 +215,24 @@ let
       if [ "$registry" != "unknown" ]; then
         echo source = \"registry+''${registry}\" >> Cargo.lock
       fi
+
+      manifest_path=$(cargoRelativeManifest ${name})
+      manifest_dir=''${manifest_path%Cargo.toml}
+
+      # Rewrite the crate's toml
+      if [ -n "$manifest_dir" ]; then pushd $manifest_dir; fi
       mv Cargo.toml Cargo.original.toml
-      # Remarshal was failing on table names of the form:
-      # [key."cfg(foo = \"a\", bar = \"b\"))".path]
-      # The regex to find or deconstruct these strings must find, in order,
-      # these components: open bracket, open quote, open escaped quote, and
-      # their closing pairs.  Because each quoted path can contain multiple
-      # quote escape pairs, a loop is employed to match the first quote escape,
-      # which the sed will replace with a single quote equivalent until all
-      # escaped quote pairs are replaced.  The grep regex is identical to the
-      # sed regex but does not destructure the match into groups for
-      # restructuring in the replacement.
-      while grep '\[[^"]*"[^\\"]*\\"[^\\"]*\\"[^"]*[^]]*\]' Cargo.original.toml; do
-        sed -i -r 's/\[([^"]*)"([^\\"]*)\\"([^\\"]*)\\"([^"]*)"([^]]*)\]/[\1"\2'"'"'\3'"'"'\4"\5]/g' Cargo.original.toml
-      done;
-      remarshal -if toml -of json Cargo.original.toml \
-        | jq "{ package: .package
-              , lib: .lib
-              , bin: .bin
-              , test: .test
-              , example: .example
-              , bench: (if \"$registry\" == \"unknown\" then .bench else null end)
-              }
-              | with_entries(select( .value != null ))
-              | del( .package.workspace )
-              + $manifestPatch" \
-        | jq "del(.[][] | nulls)" \
-        | remarshal -if json -of toml > Cargo.toml
+      sanitizeTomlForRemarshal Cargo.original.toml
+      reducePackageToml Cargo.original.toml Cargo.toml "$manifestPatch"
+      if [ -n "$manifest_dir" ]; then popd; fi
+
+      # If the crate is a workspace, reduce it to a crate of just a workspace of a single crate
+      if [ $manifest_path != "Cargo.toml" ]; then
+        mv Cargo.toml Cargo.workspace.toml
+        sanitizeTomlForRemarshal Cargo.workspace.toml
+        reduceWorkspaceToml Cargo.workspace.toml Cargo.toml "$manifest_dir"
+      fi
+
     '';
 
     setBuildEnv = ''
@@ -263,13 +241,13 @@ let
 
       if (( MINOR_RUSTC_VERSION < 41 )); then
         isProcMacro="$(
-          remarshal -if toml -of json Cargo.original.toml \
+          remarshal -if toml -of json "''${manifest_dir}Cargo.original.toml" \
           | jq -r 'if .lib."proc-macro" or .lib."proc_macro" then "1" else "" end' \
         )"
       fi
 
       crateName="$(
-        remarshal -if toml -of json Cargo.original.toml \
+        remarshal -if toml -of json "''${manifest_dir}Cargo.original.toml" \
         | jq -r 'if .lib."name" then .lib."name" else "${replaceStrings ["-"] ["_"] name}" end' \
       )"
 
@@ -332,7 +310,7 @@ let
       runHook preInstall
     '' + (if compileMode != "doctest" then ''
       mkdir -p $out/lib
-      cargo_links="$(remarshal -if toml -of json Cargo.original.toml | jq -r '.package.links | select(. != null)')"
+      cargo_links="$(remarshal -if toml -of json "''${manifest_dir}Cargo.original.toml" | jq -r '.package.links | select(. != null)')"
       if (( MINOR_RUSTC_VERSION < 41 )); then
         install_crate ${rustHostTriple} ${if release then "release" else "debug"}
       else
