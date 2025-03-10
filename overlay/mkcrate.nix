@@ -177,7 +177,7 @@ let
 
     configureCargo = ''
       mkdir -p .cargo
-      cat > .cargo/config <<'EOF'
+      cat > .cargo/config${if lib.versionOlder rustToolchain.version "1.39.0" then "" else "toml"} <<'EOF'
       [net]
       offline = true
       [target."${rustBuildTriple}"]
