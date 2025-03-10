@@ -21,6 +21,7 @@ args@{
   ignoreLockHash ? false,
   targetSpecFile ? if builtins.isPath target then target else null,
   targetSpec ? if targetSpecFile != null then lib.importJSON targetSpecFile else null,
+  cargoConfig ? {},
   ...
 }:
 let
@@ -120,11 +121,11 @@ let
 # performed.  Note that buildRustPackages is just buildPackages with a null
 # target.
 in rustBuilder.makePackageSetInternal (extraArgs // {
-  inherit packageFun ignoreLockHash workspaceSrc target targetInfo;
+  inherit packageFun ignoreLockHash workspaceSrc target targetInfo cargoConfig;
   rustToolchain = rustToolchain';
   packageOverrides = packageOverrides' pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSetInternal (extraArgs // {
-    inherit packageFun ignoreLockHash workspaceSrc targetInfo;
+    inherit packageFun ignoreLockHash workspaceSrc targetInfo cargoConfig;
     rustToolchain = rustToolchain';
     target = null;
     packageOverrides = packageOverrides' buildPackages;
