@@ -3,6 +3,7 @@
   buildPackages,
   stdenv,
   rustBuilder,
+  lib,
 }:
 args@{
   # required arg
@@ -18,9 +19,21 @@ args@{
   target ? null,
   workspaceSrc ? null,
   ignoreLockHash ? false,
+  targetSpecFile ? if builtins.isPath target then target else null,
+  targetSpec ? if targetSpecFile != null then lib.importJSON targetSpecFile else null,
+  cargoConfig ? {},
   ...
 }:
 let
+  # These are the default target specs
+  stockTargetInfo = lib.importJSON ../data/target-info.json;
+  
+  targetInfo =
+    if targetSpec == null then
+      stockTargetInfo.${rustBuilder.rustLib.rustTriple stdenv.hostPlatform}
+    else
+      targetSpec;
+
   # These are used in this function, and we clean them out for downstream
   extraArgs = builtins.removeAttrs args [ "rustChannel"
                                           "rustVersion"
@@ -30,7 +43,9 @@ let
                                           "packageFun"
                                           "nixifiedLockHash"
                                           "packageOverrides"
-                                          "target" ];
+                                          "target"
+                                          "targetSpecFile"
+                                          "targetSpec" ];
 
   # Rust targets don't always map perfectly to Nix targets, so they are allowed
   # to be independent by specicying an explicit Rust target.
@@ -106,11 +121,11 @@ let
 # performed.  Note that buildRustPackages is just buildPackages with a null
 # target.
 in rustBuilder.makePackageSetInternal (extraArgs // {
-  inherit packageFun ignoreLockHash workspaceSrc target;
+  inherit packageFun ignoreLockHash workspaceSrc target targetInfo cargoConfig;
   rustToolchain = rustToolchain';
   packageOverrides = packageOverrides' pkgs;
   buildRustPackages = buildPackages.rustBuilder.makePackageSetInternal (extraArgs // {
-    inherit packageFun ignoreLockHash workspaceSrc;
+    inherit packageFun ignoreLockHash workspaceSrc targetInfo cargoConfig;
     rustToolchain = rustToolchain';
     target = null;
     packageOverrides = packageOverrides' buildPackages;

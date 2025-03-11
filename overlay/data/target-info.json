@@ -1,0 +1,1050 @@
+{
+  "aarch64-apple-darwin": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-ios": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-ios-macabi": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-ios-sim": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-tvos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-tvos-sim": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-visionos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-visionos-sim": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-watchos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-apple-watchos-sim": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-kmc-solid_asp3": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-linux-android": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-nintendo-switch-freestanding": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-pc-windows-gnullvm": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-pc-windows-msvc": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-freebsd": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-fuchsia": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-hermit": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-illumos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-linux-gnu": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-linux-gnu_ilp32": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 32
+  },
+  "aarch64-unknown-linux-musl": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-linux-ohos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-netbsd": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-none": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-none-softfloat": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-nto-qnx700": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-nto-qnx710": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-openbsd": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-redox": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-teeos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-trusty": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-unknown-uefi": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-uwp-windows-msvc": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64-wrs-vxworks": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64_be-unknown-linux-gnu": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "aarch64_be-unknown-linux-gnu_ilp32": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 32
+  },
+  "aarch64_be-unknown-netbsd": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "arm-linux-androideabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "arm-unknown-linux-gnueabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "arm-unknown-linux-gnueabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "arm-unknown-linux-musleabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "arm-unknown-linux-musleabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "arm64_32-apple-watchos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 32
+  },
+  "arm64e-apple-darwin": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "arm64e-apple-ios": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "arm64e-apple-tvos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "arm64ec-pc-windows-msvc": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "armeb-unknown-linux-gnueabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armebv7r-none-eabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armebv7r-none-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv4t-none-eabi": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "armv4t-unknown-linux-gnueabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "armv5te-none-eabi": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "armv5te-unknown-linux-gnueabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "armv5te-unknown-linux-musleabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "armv5te-unknown-linux-uclibceabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "armv6-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv6-unknown-netbsd-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv6k-nintendo-3ds": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "armv7-linux-androideabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-rtems-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-sony-vita-newlibeabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-gnueabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-gnueabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-musleabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-musleabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-ohos": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-uclibceabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-linux-uclibceabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-netbsd-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-unknown-trusty": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7-wrs-vxworks-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7a-kmc-solid_asp3-eabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7a-kmc-solid_asp3-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7a-none-eabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7a-none-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7k-apple-watchos": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7r-none-eabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7r-none-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv7s-apple-ios": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "armv8r-none-eabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "avr-unknown-gnu-atmega328": {
+    "max-atomic-width": 16,
+    "target-pointer-width": 16
+  },
+  "bpfeb-unknown-none": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "bpfel-unknown-none": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "hexagon-unknown-linux-musl": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "hexagon-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "i386-apple-ios": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i586-pc-nto-qnx700": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i586-pc-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i586-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i586-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i586-unknown-netbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-apple-darwin": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-linux-android": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-pc-windows-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-pc-windows-gnullvm": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-pc-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-haiku": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-hurd-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-netbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-openbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-redox": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-unknown-uefi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-uwp-windows-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-uwp-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-win7-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "i686-wrs-vxworks": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "loongarch64-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "loongarch64-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "loongarch64-unknown-linux-ohos": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "loongarch64-unknown-none": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "loongarch64-unknown-none-softfloat": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mips-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mips-unknown-linux-musl": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mips-unknown-linux-uclibc": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mips64-openwrt-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mips64-unknown-linux-gnuabi64": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mips64-unknown-linux-muslabi64": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mips64el-unknown-linux-gnuabi64": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mips64el-unknown-linux-muslabi64": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mipsel-sony-psp": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "mipsel-sony-psx": {
+    "max-atomic-width": 0,
+    "target-pointer-width": 32
+  },
+  "mipsel-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsel-unknown-linux-musl": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsel-unknown-linux-uclibc": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsel-unknown-netbsd": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsel-unknown-none": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsisa32r6-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsisa32r6el-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "mipsisa64r6-unknown-linux-gnuabi64": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "mipsisa64r6el-unknown-linux-gnuabi64": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "msp430-none-elf": {
+    "max-atomic-width": 0,
+    "target-pointer-width": 16
+  },
+  "nvptx64-nvidia-cuda": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc-unknown-freebsd": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-unknown-linux-gnuspe": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-unknown-linux-musl": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-unknown-linux-muslspe": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-unknown-netbsd": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-unknown-openbsd": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-wrs-vxworks": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc-wrs-vxworks-spe": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "powerpc64-ibm-aix": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64-unknown-openbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64-wrs-vxworks": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64le-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64le-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "powerpc64le-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv32-wrs-vxworks": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32e-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32em-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32emc-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32gc-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32gc-unknown-linux-musl": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32i-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32im-risc0-zkvm-elf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "riscv32im-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32ima-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imac-esp-espidf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imac-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imac-unknown-nuttx-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imac-unknown-xous-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imafc-esp-espidf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imafc-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imafc-unknown-nuttx-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imc-esp-espidf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imc-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv32imc-unknown-nuttx-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "riscv64-linux-android": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64-wrs-vxworks": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-fuchsia": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-hermit": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-netbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-none-elf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-nuttx-elf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64gc-unknown-openbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64imac-unknown-none-elf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "riscv64imac-unknown-nuttx-elf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "s390x-unknown-linux-gnu": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "s390x-unknown-linux-musl": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "sparc-unknown-linux-gnu": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "sparc-unknown-none-elf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "sparc64-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "sparc64-unknown-netbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "sparc64-unknown-openbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "sparcv9-sun-solaris": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "thumbv4t-none-eabi": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "thumbv5te-none-eabi": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "thumbv6m-none-eabi": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "thumbv6m-nuttx-eabi": {
+    "max-atomic-width": null,
+    "target-pointer-width": 32
+  },
+  "thumbv7a-pc-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "thumbv7a-uwp-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "thumbv7em-none-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv7em-none-eabihf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv7em-nuttx-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv7em-nuttx-eabihf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv7m-none-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv7m-nuttx-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv7neon-linux-androideabi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "thumbv7neon-unknown-linux-gnueabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "thumbv7neon-unknown-linux-musleabihf": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "thumbv8m.base-none-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv8m.base-nuttx-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv8m.main-none-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv8m.main-none-eabihf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv8m.main-nuttx-eabi": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "thumbv8m.main-nuttx-eabihf": {
+    "max-atomic-width": 32,
+    "target-pointer-width": 32
+  },
+  "wasm32-unknown-emscripten": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "wasm32-unknown-unknown": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "wasm32-wasip1": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "wasm32-wasip1-threads": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "wasm32-wasip2": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "wasm32v1-none": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "wasm64-unknown-unknown": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-apple-darwin": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-apple-ios": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-apple-ios-macabi": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-apple-tvos": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-apple-watchos-sim": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-fortanix-unknown-sgx": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-linux-android": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-pc-nto-qnx710": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-pc-solaris": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-pc-windows-gnu": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-pc-windows-gnullvm": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-pc-windows-msvc": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-unikraft-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-dragonfly": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-freebsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-fuchsia": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-haiku": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-hermit": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-hurd-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-illumos": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-l4re-uclibc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-linux-gnu": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-linux-gnux32": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 32
+  },
+  "x86_64-unknown-linux-musl": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-linux-none": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-linux-ohos": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-netbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-none": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-openbsd": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-redox": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-trusty": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-unknown-uefi": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-uwp-windows-gnu": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-uwp-windows-msvc": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  },
+  "x86_64-win7-windows-msvc": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64-wrs-vxworks": {
+    "max-atomic-width": 64,
+    "target-pointer-width": 64
+  },
+  "x86_64h-apple-darwin": {
+    "max-atomic-width": 128,
+    "target-pointer-width": 64
+  }
+}

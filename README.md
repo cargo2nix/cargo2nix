@@ -101,7 +101,8 @@ a bare NixOS system or fresh OSX environment with no dependencies or toolchains
 installed, you will have everything you need to run `cargo build`.  See the
 `devShell` attribute in `flake.nix` to see how to prepare this kind of shell.
 
-The `workspaceShell` function, created by [`makePackagSet`](#Arguments) accepts all the same options as the nix [`mkShell`] function.
+The `workspaceShell` function, created by [`makePackagSet`](#Arguments), accepts
+all the same options as the nix [`mkShell`] function.
 
 [`mkShell`]: https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell
 
@@ -128,7 +129,7 @@ nix flake lock --update-input cargo2nix --override-input cargo2nix github:cargo2
 ```
 
 If you need newer versions of Rust or the flake-utils inputs, just specify them
-using url instead of follows.
+using URL instead of follows.
 
 ### Arguments to `makePackageSet`
 
@@ -136,7 +137,7 @@ The `makePackageSet` function from [the
 overlay](./overlay/make-package-set/user-facing.nix) accepts arguments that
 adjust how the workspace is built.  Only the `packageFun` argument is required.
 Cargo2nix's own [flake.nix](./flake.nix) has more information.
-    
+
 - `rustVersion` - is either a version string or YYYY-MM-DD date-string
 - `rustChannel` - `"nightly"` `"beta"` `"stable"`
 - `rustProfile` - `"default"` or `"minimal"` usually
@@ -147,7 +148,7 @@ Cargo2nix's own [flake.nix](./flake.nix) has more information.
 - `rootFeatures` - a list of `foo/feature` strings for workspace crate features
 - `packageOverrides` - control over the individual crate overrides used to make
   them compatible on some platforms, for example to tweak C lib consumption
-  
+
 - `target` - setting an explicit target, useful when cross compiling to obtain a
   specific Rust target that doesn't align with the nixpkgs target
 
@@ -169,7 +170,7 @@ paths look like:
 `rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"`
 
 `rustPkgs.workspaceShell` is a derivation using Nix's standard `mkShell`,
-embelished with information we learned from the dependencies and their
+embellished with information we learned from the dependencies and their
 overrides, enabling vanilla `cargo build` to work in a `nix develop` shell.
 
 #### Overrides
@@ -182,7 +183,7 @@ using `makeOverride` in the dependency tree._
 the workspace shell or a build step in your workspace crate very easily.  See
 `nix show-derivation` and `nix show-derivation #devShell` for more information.
 
-[o]: https://nixos.org/manual/nixpkgs/stable/#sec-pkg-override 
+[o]: https://nixos.org/manual/nixpkgs/stable/#sec-pkg-override
 [oa]: https://nixos.org/manual/nixpkgs/stable/#sec-pkg-overrideAttrs
 
 #### More Control
@@ -206,18 +207,18 @@ building dependents.  It is vital for building crates in isolation.
 - The cargo2nix [Nixpkgs](https://github.com/NixOS/nixpkgs) [overlay](./overlay)
   consumes the `Cargo.nix`, feeding it what you pass to `makePackageSet` to
   provide workspace outputs you can expose in your nix flake
-  
+
 - Because we know all of the dependencies, it's easy to create a shell from those
   dependencies as environment setup using the `workspaceShell` function and
   exposing the result in the `devShell` flake output
-  
+
 ### Building crates isolated from each other
 
-Just like regular `cargo` builds, the Nix dependencies form a [DAG][DAG], but purity
-means we only expose essential information to dependencies and manually invoke
-`cargo`.  Communication from dependencies to dependents is handled by writing
-some extra outputs and then reading those outputs inside the next dependent
-build.
+Just like regular `cargo` builds, the Nix dependencies form a [DAG][DAG], but
+purity means we only expose essential information to dependencies and manually
+invoke `cargo`.  Communication from dependencies to dependents is handled by
+writing some extra outputs and then reading those outputs inside the next
+dependent build.
 
 There's two broad categories of information that need to be transmitted when
 hand-building crates in isolation:
@@ -265,9 +266,9 @@ rebuilding.
 1. Flakes require `flake.nix` and `Cargo.nix` to be in version control.  `git
    add flake.nix Cargo.nix` etc.  Remember to keep them up to date!  Before
    building the examples, you will usually need to update their pin of
-   cargo2nix: `nix flake lock --update-input cargo2nix` or nix may complane
+   cargo2nix: `nix flake lock --update-input cargo2nix` or nix may complain
    about paths.
-   
+
 1. Old versions of the `cargo2nix.overlay` usually cannot consume newer versions
    of the `Cargo.nix` that an updated cargo2nix will produce.  Update your
    inputs with `nix flake lock --update-input cargo2nix` or `nix build
@@ -277,17 +278,17 @@ rebuilding.
    provide native dependencies that could be missing. See the
    `overlay/overrides.nix` for patterns of common solutions for fixing up
    specific deps.
-   
+
    To provide your own override, pass a modified `packageOverrides` to
    `pkgs.rustBuilder.makePackageSet`:
-   
+
    ```nix
      rustPkgs = pkgs.rustBuilder.makePackageSet {
        # ... required arguments not shown
-     
+
        # Use the existing all list of overrides and append your override
        packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
-       
+
          # parentheses disambiguate each makeOverride call as a single list element
          (pkgs.rustBuilder.rustLib.makeOverride {
              name = "fantasy-zlib-sys";
@@ -308,7 +309,7 @@ rebuilding.
    skipping a necessary file.  Each derivation is [multiple output], using `bin`
    and `out`.  The default output is `bin` and should contain just what's
    necessary at runtime, possibly linked to other files in the Nix store.  This
-   output si for installation into a Nix profile or shell.  The `out` output
+   output is for installation into a Nix profile or shell.  The `out` output
    contains all of this and extra information necessary for dependents to
    consume the crate, usually linking information, which will collide if you
    attempt to install several such derivations.
@@ -319,22 +320,22 @@ rebuilding.
    crates.  Nix cannot protect from non-determinism, only impurity.  Override
    your builds with `preferLocalBuild = true;` `allowSubstitutes = false;` for
    the affected package.  This has been seen more often because of
-   nondeterministic macros.  See #184 for more information.
-   
+   non-deterministic macros.  See #184 for more information.
+
 1. Nixpkgs is a rolling release, and that means breakages occur but you have
    many potential successful versions to choose from.  View the [CI logs] and
    check the `flake.lock` for rev information from recent successes.  Update to
    a specific input version with:
-   
+
    ```shell
     nix flake lock --override-input nixpkgs github:nixpgks/nixpkgs?rev=a284564b7f75ac4db73607db02076e8da9d42c9d
    ```
-   
+
    [CI logs]: https://github.com/cargo2nix/cargo2nix/actions/?workflow=CI
-   
+
 1. Toml parsing / conversion issues `Error: Cannot convert data to TOML (Invalid
    type <class 'NoneType'>)`
-   
+
    `jq` and `remarshal` are used to read & modify toml files in some
    cases. Lines of the form: ```[key."cfg(foo = \"a\", bar = \"b\"))".path]```
    could produce breakage when `jq` output was fed back to `remarshal`. There
@@ -349,14 +350,14 @@ rebuilding.
    Also, if your Git dependency is tied to a Git branch, e.g. `master`, and you
    would like to force it to update on upstream changes, you should append
    `--option tarball-ttl 0` to your `nix-build` command.
-   
+
 ## Declarative build debugging shell
 
 You can load a nix shell for any crate derivation in the dependency tree. This
 is the same environment the `cargo2nix` overlay will build them in.
 
-To do this, first find the .drv for your dependency by using, for example, `nix
-show-derivation | grep colorify`
+To do this, first find the `.drv` for your dependency by using, for example,
+`nix show-derivation | grep colorify`
 
 ```bash
 nix show-derivation | rg -o "/nix.*crate.*colorify.*drv"
@@ -366,11 +367,11 @@ nix/store/whi3jprrpzlnvic9fsn5f69sddazp5sb-colorify-0.2.3.tar.gz
 nix develop --ignore-environment nix/store/whi3jprrpzlnvic9fsn5f69sddazp5sb-colorify-0.2.3.tar.gz
 
 # the environment is now as it is when nix builds the package
-echo $src 
+echo $src
 nix/store/whi3jprrpzlnvic9fsn5f69sddazp5sb-colorify-0.2.3.tar.gz
 
 # If you are working on a dependency and need the source (or a fresh copy) you
-# can unpack the $src variable. Through nix stdenv, tar is available in pure 
+# can unpack the $src variable. Through nix stdenv, tar is available in pure
 # shells
 mkdir debug
 cp $src debug
@@ -388,7 +389,7 @@ You can find additional phases that may exist in overrides by running `env |
 grep Phase`
 
 ```bash
-echo $configurePhase 
+echo $configurePhase
 # runHook preConfigure runHook configureCargo runHook postConfigure
 
 runHook preConfigure # usually does nothing
