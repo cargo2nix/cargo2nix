@@ -5,6 +5,7 @@
   buildPackages,
   rustLib,
   stdenv,
+  writers,
 }:
 {
   release, # Compiling in release mode?
@@ -28,6 +29,7 @@
   hostPlatformCpu ? null,
   hostPlatformFeatures ? [],
   NIX_DEBUG ? 0,
+  cargoConfig ? {}
 }:
 with builtins; with lib;
 let
@@ -62,6 +64,28 @@ let
   cxxForHost="${cc}/bin/${targetPrefix}c++";
   rustBuildTriple = rustTriple stdenv.buildPlatform;
   rustHostTriple = if (target != null) then target else rustTriple stdenv.hostPlatform;
+  buildCargoConfig = lib.foldl lib.recursiveUpdate cargoConfig [
+    {
+      net.offline = true;
+      target.${rustBuildTriple}.linker = ccForBuild;
+    }
+    (lib.optionalAttrs (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") {
+      target.${rustBuildTriple}.rustflags = lib.flatten (map (v: ["-C" v]) codegenOpts."${rustBuildTriple}");
+    })
+    # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
+    # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
+    (lib.optionalAttrs (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") {
+      target.${rustHostTriple}.linker = ccForHost;
+    })
+    (lib.optionalAttrs ((rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") && (codegenOpts != null && codegenOpts ? "${rustHostTriple}")) {
+      rustflags = lib.flatten (map (v: ["-C" v]) codegenOpts."${rustHostTriple}");
+    })
+    (lib.optionalAttrs (profileOpts != null && profileOpts."${decideProfile compileMode release}" != null) {
+      target.${rustHostTriple}.profile = profileOpts.${decideProfile compileMode release};
+    })
+  ];
+  cargoConfigFile = writers.writeTOML "config.toml" buildCargoConfig;
+  
   depMapToList = deps:
     flatten
       (sort (a: b: elemAt a 0 < elemAt b 0)
@@ -162,35 +186,8 @@ let
 
     configureCargo = ''
       mkdir -p .cargo
-      cat > .cargo/config <<'EOF'
-      [net]
-      offline = true
-      [target."${rustBuildTriple}"]
-      linker = "${ccForBuild}"
-    '' + optionalString (codegenOpts != null && codegenOpts ? "${rustBuildTriple}") (''
-      rustflags = [
-    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustBuildTriple}") + "\n" + ''
-      ]
-
-    # HACK: 2019-08-01: wasm32-wasi always uses `wasm-ld`
-    # HACK: 2021-12-29: x86_64-fortanix-unknown-sgx always use `ld`
-    '') + optionalString (rustBuildTriple != rustHostTriple && rustHostTriple != "wasm32-wasi" && rustHostTriple != "wasm32-unknown-unknown" && rustHostTriple != "x86_64-fortanix-unknown-sgx") (''
-      [target."${rustHostTriple}"]
-      linker = "${ccForHost}"
-    ''+ optionalString (codegenOpts != null && codegenOpts ? "${rustHostTriple}") (''
-      rustflags = [
-    '' + concatStringsSep ", " (concatMap  (opt: [''"-C"'' ''"${opt}"'']) codegenOpts."${rustHostTriple}") + "\n" + ''
-      ]
-
-    '')) + optionalString (profileOpts != null && profileOpts."${decideProfile compileMode release}" != null) (''
-      [profile.${decideProfile compileMode release}]
-    '' + concatStringsSep "\n" (mapAttrsToList (n: a: "${n} = " + (
-        if isInt a then "${toString a}"
-        else (if isBool a then (if a then "true" else "false")
-        else ''"${a}"'')))
-        (profileOpts."${decideProfile compileMode release}"))
-     ) + "\n" + ''
-      EOF
+      rm -f .cargo/config .cargo/config.toml
+      ln -s ${cargoConfigFile} .cargo/config${if lib.versionOlder rustToolchain.version "1.39.0" then "" else ".toml"}
     '';
 
     configurePhase = ''

@@ -57,9 +57,10 @@ args@{
   lib,
   workspaceSrc,
   ignoreLockHash,
+  cargoConfig ? {},
 }:
 let
-  nixifiedLockHash = "831e553c7c29fd0098344dffb334b6362d59bc11f5804dab0b0ed00b62bc29aa";
+  nixifiedLockHash = "51d746ba244ff570b23a53261dc187af35993e795628eab70a439303ce5bbae5";
   workspaceSrc = if args.workspaceSrc == null then ./. else args.workspaceSrc;
   currentLockHash = builtins.hashFile "sha256" (workspaceSrc + /Cargo.lock);
   lockHashIgnored = if ignoreLockHash
@@ -69,6 +70,9 @@ in if !lockHashIgnored && (nixifiedLockHash != currentLockHash) then
   throw ("Cargo.nix ${nixifiedLockHash} is out of sync with Cargo.lock ${currentLockHash}")
 else let
   inherit (rustLib) fetchCratesIo fetchCrateLocal fetchCrateGit fetchCrateAlternativeRegistry expandFeatures decideProfile genDrvsByProfile;
+  cargoConfig' = if cargoConfig != {} then cargoConfig else
+                 if builtins.pathExists ./.cargo/config then lib.importTOML ./.cargo/config else
+                 if builtins.pathExists ./.cargo/config.toml then lib.importTOML ./.cargo/config.toml else {};
   profilesByName = {
     dev = builtins.fromTOML "debug = 0\n\n[package.miniz_oxide]\nopt-level = 3\n\n[package.rowan]\nopt-level = 3\n\n[package.rustc-hash]\nopt-level = 3\n\n[package.smol_str]\nopt-level = 3\n\n[package.text-size]\nopt-level = 3\n";
     release = builtins.fromTOML "debug = 0\nincremental = true\n";
@@ -76,7 +80,10 @@ else let
   rootFeatures' = expandFeatures rootFeatures;
   overridableMkRustCrate = f:
     let
-      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({ inherit release profile hostPlatformCpu hostPlatformFeatures target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags; } // (f profileName)));
+      drvs = genDrvsByProfile profilesByName ({ profile, profileName }: mkRustCrate ({
+        inherit release profile hostPlatformCpu hostPlatformFeatures target profileOpts codegenOpts cargoUnstableFlags rustcLinkFlags rustcBuildFlags; 
+        cargoConfig = cargoConfig';
+      } // (f profileName)));
     in { compileMode ? null, profileName ? decideProfile compileMode release }:
       let drv = drvs.${profileName}; in if compileMode == null then drv else drv.override { inherit compileMode; };
 in
