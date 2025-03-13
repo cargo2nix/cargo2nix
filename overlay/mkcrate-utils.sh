@@ -124,6 +124,17 @@ dumpDepInfo() {
       rustc-link-search)
         echo "-L $(printf '%q' "$val")" >> "$link_flags"
         ;;
+      :metadata)
+        [[ "x$val" =~ x([^=]+)=(.*) ]] || continue
+        local key="${BASH_REMATCH[1]}"
+        local val="${BASH_REMATCH[2]}"
+        if [ -e "$val" ]; then
+          local dep_file_target="$dep_files/DEP_$(upper "$cargo_links")_$(upper "$key")"
+          cp -r "$val" "$dep_file_target"
+          val=$dep_file_target
+        fi
+        printf 'DEP_%s_%s=%s\n' "$(upper "$cargo_links")" "$(upper "$key")" "$(single_quote_whitespaced "$val")" >> "$dep_keys"
+        ;;
       *)
         if [ -e "$val" ]; then
           local dep_file_target="$dep_files/DEP_$(upper "$cargo_links")_$(upper "$key")"
@@ -169,6 +180,7 @@ install_crate2() {
     if [[ -f "$out_dir/../output" ]]; then
       grep -P '^cargo:(?!rerun-if-changed|rerun-if-env-changed|rustc-link-lib|rustc-link-search|rustc-flags|rustc-cfg|rustc-env|rustc-cdylib-link-arg|warning)' \
         "$out_dir/../output" | while IFS= read -r line; do
+        line=$(echo $line | sed 's|:metadata=||')
         [[ "$line" =~ cargo:([^=]+)=(.*) ]] || continue
         local key="${BASH_REMATCH[1]}"
         local val="${BASH_REMATCH[2]}"
