@@ -197,9 +197,9 @@ what the current output result is.
 how we store information in dependents and replay them back when
 building dependents.  It is vital for building crates in isolation.
 
-#### Newer rust versions
+## Newer Rust versions
 
-In order to use newer rust versions you can include
+In order to use the latest Rust versions you may need to include
 [rust-overlay](https://github.com/oxalica/rust-overlay) directly in your flake
 like so:
 
@@ -207,15 +207,17 @@ like so:
 {
   inputs = {
     rust-overlay.url = "github:oxalica/rust-overlay/stable";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-
-    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
-    cargo2nix.inputs.nixpkgs.follows = "nixpkgs";
-    cargo2nix.inputs.flake-utils.follows = "flake-utils";
-    cargo2nix.inputs.rust-overlay.follows = "rust-overlay";
+    cargo2nix = {
+      url = "github:cargo2nix/cargo2nix/release-0.11.0";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
   };
 }
 ```
+
+To use a Rust version that was released after you added the rust-overlay input
+you will need to run `nix flake update rust-overlay` to get the latest
+rust-overlay version.
 
 ## How it works
 
