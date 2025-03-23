@@ -5,6 +5,9 @@ use crate::expr::BoolExpr;
 pub fn to_expr(p: &Platform, platform_var: &str) -> BoolExpr {
     match p {
         Platform::Name(triplet) => {
+            if platform_var == "hostPlatform"{
+                return BoolExpr::Single(format!("rustHostTriple == {:?}", triplet))
+            }
             BoolExpr::Single(format!("{}.config == {:?}", platform_var, triplet))
         }
         Platform::Cfg(cfg) => cfg_to_expr(cfg, platform_var),
