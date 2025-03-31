@@ -359,7 +359,8 @@ reducePackageToml () {
                 .dependencies,
                 ."build-dependencies",
                 .["dev-dependencies"],
-                .target)
+                .target,
+                .workspace)
             + '"$manifestPatch" \
             | jq 'del(.[][] | nulls)' \
             | remarshal -if json -of toml > "$2"
@@ -372,11 +373,10 @@ reduceWorkspaceToml () {
     local crate_path="$3"
     remarshal -if toml -of json $1 \
       | jq ".workspace.members = [\"$crate_path\"]
+            | { workspace: .workspace, profile: .profile }
             | del( .workspace.dependencies?,
                    .workspace.\"default-members\",
-                   .workspace.exclude?,
-                   .patch,
-                   .replace)
+                   .workspace.exclude?)
             | with_entries(select( .value != null ))" \
       | jq "del(.[][] | nulls)" \
       | remarshal -if json -of toml > $2
