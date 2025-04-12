@@ -43,7 +43,7 @@ A bare minimum flake.nix:
 ```nix
 {
   inputs = {
-    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.12";
     flake-utils.follows = "cargo2nix/flake-utils";
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
@@ -110,11 +110,11 @@ all the same options as the nix [`mkShell`] function.
 
 In your flake, you can choose your cargo2nix version by changing the URL.
 
-| Flake URL                                 |                            Result                            |
-|-------------------------------------------|:------------------------------------------------------------:|
-| github:cargo2nix/cargo2nix/               | latest release (check repo's default branch, release-0.11.0) |
-| github:cargo2nix/cargo2nix/release-0.11.0 |                    use a specific release                    |
-| github:cargo2nix/cargo2nix/unstable       |                    latest features & fixes                   |
+| Flake URL                               |                            Result                          |
+|-----------------------------------------|:----------------------------------------------------------:|
+| github:cargo2nix/cargo2nix/             | latest release (check repo's default branch, release-0.12) |
+| github:cargo2nix/cargo2nix/release-0.12 |                    use a specific release                  |
+| github:cargo2nix/cargo2nix/main         |                    latest features & fixes                 |
 
 Only use unstable for developing with the latest features.  PR's against old
 releases can be accepted but no active support will be done.  **The default
@@ -209,7 +209,7 @@ like so:
   inputs = {
     rust-overlay.url = "github:oxalica/rust-overlay/stable";
     cargo2nix = {
-      url = "github:cargo2nix/cargo2nix/release-0.11.0";
+      url = "github:cargo2nix/cargo2nix/release-0.12";
       inputs.rust-overlay.follows = "rust-overlay";
     };
   };

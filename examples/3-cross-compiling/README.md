@@ -153,7 +153,7 @@ Create a new file called [`flake.nix`]:
   inputs = {
     cargo2nix.url = "path:../../";
     # Use a github flake URL for real packages
-    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    # cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.12";
     flake-utils.follows = "cargo2nix/flake-utils";
     nixpkgs.follows = "cargo2nix/nixpkgs";
   };
