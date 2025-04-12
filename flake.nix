@@ -89,7 +89,7 @@
         #
         # When a crate is not associated with any registry, such as when building
         # locally, the registry is "unknown" as shown below:
-        # rustPkgs.unknown.cargo2nix."0.11.0"
+        # rustPkgs.unknown.cargo2nix."0.12.0"
         # An example of a crates.io path:
         # rustPkgs."registry+https://github.com/rust-lang/crates.io-index".openssl."0.10.30"
 

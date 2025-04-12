@@ -2,7 +2,7 @@
 edition = "2021"
 license = "MIT"
 name = "cargo2nix"
-version = "0.11.0"
+version = "0.12.0"
 
 [dependencies]
 anyhow = {version = "1.0.75", features = ["backtrace"]}
