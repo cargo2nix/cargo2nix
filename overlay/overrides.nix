@@ -244,7 +244,7 @@ in rec {
           nativeBuildInputs = drv.nativeBuildInputs or [ ] ++ [
             fake_pg_config
           ];
-          shellHook = drv.shellHook + ''
+          shellHook = drv.shellHook or "" + ''
             PG_CONFIG_${envize pkgs.stdenv.buildPlatform.config}="${fake_pg_config}"
           '';
         };
