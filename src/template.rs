@@ -140,12 +140,23 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
     let id = pkg.pkg.package_id();
 
     let source = if id.source_id().is_registry() {
-        Source::CratesIo {
-            sha256: pkg
-                .checksum
-                .as_ref()
-                .map(|c| c.to_string())
-                .ok_or(anyhow!("checksum is required for crates.io package {}", id))?,
+        let index = id.source_id().url().to_string();
+        if index == "https://github.com/rust-lang/crates.io-index" {
+            Source::CratesIo {
+                sha256: pkg
+                    .checksum
+                    .as_ref()
+                    .map(|c| c.to_string())
+                    .ok_or(anyhow!("checksum is required for crates.io package {}", id))?,
+            }
+        } else {
+            Source::Registry {
+                index,
+                sha256: pkg.checksum.as_ref().map(|c| c.to_string()).ok_or(anyhow!(
+                    "checksum is required for alternate registry package {}",
+                    id
+                ))?,
+            }
         }
     } else if id.source_id().is_git() {
         let branch = if let Some(GitReference::Branch(branch)) = id.source_id().git_reference() {
@@ -173,14 +184,6 @@ fn to_source(pkg: &ResolvedPackage<'_>, cwd: &Path) -> Result<Source> {
                     }
                 })
                 .ok_or(anyhow!("path is not absolute for local package {}", id))?,
-        }
-    } else if id.source_id().is_registry() {
-        Source::Registry {
-            index: id.source_id().url().to_string(),
-            sha256: pkg.checksum.as_ref().map(|c| c.to_string()).ok_or(anyhow!(
-                "checksum is required for alternate registry package {}",
-                id
-            ))?,
         }
     } else {
         return Err(anyhow!("unsupported source for {}", id));
