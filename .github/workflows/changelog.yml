@@ -1,3 +1,6 @@
+# Taken from https://github.com/tarides/changelog-check-action and https://github.com/GiulioRomualdi/yet-another-changelog-checker
+#
+# Using a custom workflow because this repo's settings do not allow using the above actions.
 name: Verify changelog updated
 on:
   pull_request:
@@ -7,9 +10,16 @@ on:
       - release-*
 jobs:
   verify-changelog-updated:
-    name: Check Changelog Action
+    name: Verify changelog updated
     runs-on: ubuntu-latest
     steps:
-      - uses: tarides/changelog-check-action@v2
+      - name: Check out repository code
+        uses: actions/checkout@v3.2.0
         with:
-          changelog: CHANGELOG.md
+          fetch-depth: 0
+      - name: Check for changes in changelog
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          NO_CHANGELOG_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'no changelog') }}
+        run: ${{ github.action_path }}/check-changelog.sh CHANGES.md
+        shell: bash
