@@ -1,0 +1,15 @@
+name: Verify changelog updated
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened, labeled, unlabeled]
+    branches:
+      - main
+      - release-*
+jobs:
+  verify-changelog-updated:
+    name: Check Changelog Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tarides/changelog-check-action@v2
+        with:
+          changelog: CHANGELOG.md
